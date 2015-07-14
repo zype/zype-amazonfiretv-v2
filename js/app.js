@@ -27,7 +27,7 @@
     */
     function onResume() {
          if (app.playerView) {
-             app.playerView.resumeVideo();
+             app.playerView.playVideo();
          }
     }
 
