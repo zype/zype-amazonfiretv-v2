@@ -181,7 +181,7 @@
             var leftNavStrings = [];
             for (var i = 0; i < catData.length; i++) {
                 if (typeof catData[i] == "string") {
-                    leftNavStrings.push(catData[i]);
+                    leftNavStrings.push(catData[i].substring(0, 26));
                 } else {
                     leftNavStrings.push("");
                 }
