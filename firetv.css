@@ -29,7 +29,7 @@ body {
   padding: 0;
   margin: 0;
   font-size: 20pt;
-  font-family: 'Helvetica Neue Light';
+  font-family: 'Helvetica Neue Light', Helvetica, Arial, sans-serif;;
   background: #3d4550;
   background-size: 100% 100%; }
 
@@ -69,7 +69,7 @@ div {
   height: 100%;
   padding: 0px;
   overflow: hidden;
-  font-family: 'Helvetica Neue Light';
+  font-family: 'Helvetica Neue Light', Helvetica, Arial, sans-serif;;
   background-color: rgba(0, 0, 0, 1); }
 
 .leftnav-menulist-expanded {
@@ -93,7 +93,7 @@ div {
   line-height: 2;
   font-weight: lighter;
   font-size: 1.7em;
-  font-family: 'Helvetica Neue Light';
+  font-family: 'Helvetica Neue Light', Helvetica, Arial, sans-serif;;
   padding: 0 50px 0 150px;
   overflow: hidden;
   margin-bottom: 2px;
@@ -165,7 +165,7 @@ div {
   background: #000000 url('assets/icon_leftnav_arrowDown.png') no-repeat right 40px center; }
 
 .leftnav-search-box::-webkit-input-placeholder {
-  font-family: 'Helvetica Neue Light'; }
+  font-family: 'Helvetica Neue Light', Helvetica, Arial, sans-serif;; }
 
 .one-d-no-items-container {
   position: absolute;
@@ -223,11 +223,11 @@ div {
   .one-D-details-summary-text .one-D-summary-pubdate {
     font-weight: 200;
     font-size: 1em;
-    font-family: 'Helvetica Neue Light';
+    font-family: 'Helvetica Neue Light', Helvetica, Arial, sans-serif;;
     color: #b9bbbd; }
   .one-D-details-summary-text .one-D-summary-description {
     font-size: 1.2em;
-    font-family: 'Helvetica Neue Light';
+    font-family: 'Helvetica Neue Light', Helvetica, Arial, sans-serif;;
     margin-top: 20px;
     overflow: hidden;
     height: 80px;
@@ -262,7 +262,7 @@ div {
   padding: 15px;
   float: left;
   font-size: 1.4em;
-  font-family: 'Helvetica Neue Light';
+  font-family: 'Helvetica Neue Light', Helvetica, Arial, sans-serif;;
   margin-right: 10px;
   text-align: center;
   border: 1px solid transparent; }
@@ -433,7 +433,7 @@ div {
 .player-controls-timestamp, .player-controls-timestamp-curtime, .player-controls-timestamp-totaltime {
   margin-top: 10px;
   font-size: 1.6em;
-  font-family: 'Helvetica Neue Light'; }
+  font-family: 'Helvetica Neue Light', Helvetica, Arial, sans-serif;; }
 
 .player-controls-timestamp-curtime {
   color: #e8e8e8;
@@ -451,7 +451,7 @@ div {
   height: 59px;
   color: #e8e8e8;
   font-size: 1.8em;
-  font-family: 'Helvetica Neue Medium';
+  font-family: 'Helvetica Neue Medium', Helvetica, Arial, sans-serif;;
   margin-top: 20px;
   overflow: hidden;
   display: -webkit-flex;
@@ -482,7 +482,7 @@ div {
   color: #e8e8e8;
   font-style: italic;
   font-size: 1.1em;
-  font-family: 'Helvetica Neue Light';
+  font-family: 'Helvetica Neue Light', Helvetica, Arial, sans-serif;;
   display: -webkit-flex;
   /* NEW - Chrome */
   display: flex;
