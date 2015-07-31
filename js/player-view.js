@@ -179,18 +179,11 @@
             this.$el.append(this.videoElement);
             // add the script to load the preroll ad
             if (settings.avod) {
-              var tag = document.createElement('script');
-              this.$el.append(tag);
-              tag.onload = function() {
-                console.log('getting ad');
-                playedAd = false;
-                var vid = videojs('zype_' + data.id.toString() + '-' + seconds);
-                vid.ads();
-                vid.vast({url:"<VAST TAG>"});
-              }.bind(this);
-
-              tag.type = "text/javascript";
-              tag.src = '/js/loadAd.js';
+              console.log('getting ad');
+              playedAd = false;
+              var vid = videojs('zype_' + data.id.toString() + '-' + seconds);
+              vid.ads();
+              vid.vast({url:"<VAST TAG>"});
             } else {
               playedAd = true;
             }
