@@ -6,8 +6,8 @@
         PlayerView: PlayerView,
         PlaylistView: PlaylistPlayerView,
         showSearch: true,
-        key: "<API KEY>",
-        app: "<APP KEY>",
+        key: appConfig.apiKey,
+        app: appConfig.appKey,
         endpoint: "https://api.zype.com/",
         player_endpoint: "https://player.zype.com/"
     };
