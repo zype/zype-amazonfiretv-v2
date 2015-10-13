@@ -3,5 +3,6 @@
 // var appConfig = {
 //   apiKey: '<API KEY>',
 //   appKey: '<APP KEY>',
-//   vastURl: '<VAST TAG>'
+//   vastURl: '<VAST TAG>',
+//   avod: true/false
 // };
