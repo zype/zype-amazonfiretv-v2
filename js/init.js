@@ -9,7 +9,8 @@
         key: appConfig.apiKey,
         app: appConfig.appKey,
         endpoint: "https://api.zype.com/",
-        player_endpoint: "https://player.zype.com/"
+        player_endpoint: "https://player.zype.com/",
+        avod: appConfig.avod
     };
 
     // add the dynamic settings
@@ -23,7 +24,11 @@
           settings.category_id = app_json.response.category_id;
           settings.playlist_id = app_json.response.featured_playlist_id;
           settings.per_page = app_json.response.per_page;
-          settings.avod = true;
+
+          // TODO settings.avod should come from api
+          if(!settings.avod) {
+            settings.displayButtons = true;
+          }
 
           // main colors
           settings.backgroundColor = '#3d4550';
