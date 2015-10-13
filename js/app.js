@@ -37,6 +37,7 @@
     function onAmazonPlatformReady() {
         document.addEventListener("pause" , onPause, false);
         document.addEventListener("resume" , onResume, false);
+        iapHandler.iapInit();
     }
 
     document.addEventListener("amazonPlatformReady" , onAmazonPlatformReady, false);
@@ -349,6 +350,17 @@
                 this.hideContentLoadingSpinner();
                 handleDeviceOrientation();
             }, this);
+
+            /**
+             * Event Handler - Subscribe shoveler item
+             * @param {Number} video_id the video_id of the selected item
+             */
+             oneDView.on('subscribe', function(video_id) {
+                 // this.data.setCurrentItem(index);
+                 // this.transitionToPlayer(index);
+                 debugger;
+                 iapHandler.purchaseItem('12345678');
+             }, this);
 
            /**
             * Success Callback handler for category data request

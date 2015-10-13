@@ -24,7 +24,7 @@
      */
     var OneDView = function () {
         // mixin inheritance, initialize this as an event handler for these events:
-        Events.call(this, ['noContent', 'exit', 'startScroll', 'indexChange', 'stopScroll', 'select', 'bounce', 'loadComplete']);
+        Events.call(this, ['noContent', 'exit', 'startScroll', 'indexChange', 'stopScroll', 'select', 'bounce', 'loadComplete', 'subscribe']);
 
         //global variables
         this.currSelection = 0;
@@ -161,7 +161,14 @@
             var buttonView = this.buttonView = new ButtonView();
 
             buttonView.on('exit', function() {
+                debugger;
                 this.trigger('exit');
+            }, this);
+
+            buttonView.on('subscribe', function() {
+                debugger;
+                var video_id = this.rowElements[this.currSelection].id;
+                this.trigger('subscribe', video_id);
             }, this);
 
             buttonView.render($el);

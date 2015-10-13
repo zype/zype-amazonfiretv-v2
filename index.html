@@ -113,7 +113,7 @@
     <!-- Buttons View Template -->
     <script id="button-view-template" type="text/x-handlebars-template">
         <div class="detail-row-container-buttons">
-            <div id="btnPlay" class="detail-item-button-static">Action 1</div>
+            <div id="btnSubscribe" class="detail-item-button-static">Subscribe</div>
             <div id="btnConfirm" class="detail-item-button-static">Action 2</div>
         </div>
      </script>
@@ -171,7 +171,13 @@
     <!-- Load third party libraries -->
     <script src="js/jquery.js"></script>
     <script src="js/handlebars-v1.3.0.js"></script>
-    <script src="js/amazon-web-app-api.min.js"></script>
+    <script src="https://resources.amazonwebapps.com/v1/latest/Amazon-Web-App-API.min.js"></script>
+
+
+    <!-- this file included for testing only -->
+    <script src="https://resources.amazonwebapps.com/v1/latest/Amazon-Web-App-API-tester.min.js"></script>
+
+
     <!-- Load videojs -->
     <script src="js/video.js"></script>
     <script src="js/videojs-media-sources.js"></script>
@@ -182,6 +188,7 @@
     <script src="js/brightcove.ima.js"></script>
     <!-- Load Channel JS -->
     <script src="config/config.js"></script>
+    <script src="js/iap.js"></script>
     <script src="js/util.js"></script>
     <script src="js/button-view.js"></script>
     <script src="js/events.js"></script>
@@ -198,5 +205,10 @@
     <script src="js/app.js"></script>
     <script src="js/init.js"></script>
     <script src='js/global.js'></script>
+
+    <script type="text/javascript">
+        // for test mode only
+        amzn_wa.enableApiTester(amzn_wa_tester);
+    </script>
 
 </body>

@@ -1,7 +1,7 @@
 /* Button View
  *
- * Handles the display of buttons under the content description  
- * 
+ * Handles the display of buttons under the content description
+ *
  */
 (function (exports) {
     "use strict";
@@ -12,17 +12,17 @@
         CLASS_BUTTON_SELECTED = "detail-item-button-selected";
 
    /**
-    * @class ButtonView 
-    * @description The Button view object, this handles everything about the buttons 
+    * @class ButtonView
+    * @description The Button view object, this handles everything about the buttons
     */
     var ButtonView = function () {
 
         // mixin inheritance, initialize this as an event handler for these events:
-        Events.call(this, ['exit', 'revoke', 'select']);
+        Events.call(this, ['exit', 'revoke', 'select', 'subscribe']);
 
         //global variables
         this.selectedButton = -1;
-        
+
         //jquery global variables
         this.$el = null;
         this.$buttons = null;
@@ -42,7 +42,7 @@
         };
 
        /**
-        * Change the style of the selected element to selected 
+        * Change the style of the selected element to selected
         */
         this.setSelectedButton = function () {
             //first make sure we don't already have a selected button
@@ -56,7 +56,7 @@
         };
 
        /**
-        * Change the style of the unselected button to static 
+        * Change the style of the unselected button to static
         */
         this.setStaticButton = function () {
             var buttonElement = $("." + CLASS_BUTTON_SELECTED);
@@ -68,10 +68,17 @@
         };
 
        /**
-        * Event handler for remote "select" button press 
+        * Event handler for remote "select" button press
         */
         this.handleButtonEvent = function () {
-            this.showAlert(this.$buttons[this.selectedButton].innerHTML); 
+            // this.showAlert(this.$buttons[this.selectedButton].innerHTML);
+            switch(this.$buttons[this.selectedButton].id) {
+                case 'btnSubscribe':
+                    console.log('hit btnSubscribe');
+                    this.trigger('subscribe');
+                break;
+            }
+
         }.bind(this);
 
        /**
@@ -110,11 +117,11 @@
 
        /**
         * Key event handler
-        * handles controls: LEFT : select button to the left 
-        *                   RIGHT: select button to the right 
-        *                   UP:change focus back to 1D view 
-        *                   DOWN:Nothing 
-        *                   BACK: Change focus back to 1D view 
+        * handles controls: LEFT : select button to the left
+        *                   RIGHT: select button to the right
+        *                   UP:change focus back to 1D view
+        *                   DOWN:Nothing
+        *                   BACK: Change focus back to 1D view
         * @param {event} the keydown event
         */
         this.handleControls = function (e) {
@@ -155,8 +162,8 @@
         }.bind(this);
 
        /**
-        * Set the index of the currently selected item 
-        * @param {number} index the index of the selected button 
+        * Set the index of the currently selected item
+        * @param {number} index the index of the selected button
         */
         this.setCurrentSelectedIndex = function(index) {
             this.selectedButton = index;

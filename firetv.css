@@ -668,3 +668,7 @@ div {
 .video-js {
   width: 100% !important;
 }
+
+#AmazonServicesPurchaseItem > * {
+  z-index: 20;
+}
