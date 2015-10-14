@@ -1,1 +1,90 @@
-{"67867868":{"description":"Test Consumable","title":"Test Consumable","price":2.99,"itemType":"CONSUMABLE","smallIconUrl":"https://s3-external-1.amazonaws.com/com-amazon-mas-catalog/M1HAF1P3ARSTB3%2FM1WUY2CK4PPVI4%2Fimages%2F_ba4c5cd3-8aa8-4a17-83aa-f374524fe8c7_51852c7a0e017254dc6ef5eb79d042e7","languageDescriptionMap":{"US":"Test Consumable"},"currencyPriceMap":{"BR":11.25,"DE":2.63,"AU":4.08,"IN":193.56,"JP":360.0,"CN":19.0,"IT":2.63,"GB":1.95,"FR":2.63,"ES":2.63,"CA":3.87,"US":2.99},"languageTitleMap":{"US":"Test Consumable"}},"7897987":{"description":"Test Sub - Weekly","title":"Test Sub - Weekly","price":0.0,"itemType":"SUBSCRIPTION","smallIconUrl":"http://","subscriptionParent":"12345","languageDescriptionMap":{"US":"Test Sub - Weekly"},"currencyPriceMap":{"US":0.0},"languageTitleMap":{"US":"Test Sub - Weekly"}},"12345678":{"description":"Test Sub - Weekly","title":"Test Sub - Weekly","price":4.99,"itemType":"SUBSCRIPTION","smallIconUrl":"http://","subscriptionParent":"12345","languageDescriptionMap":{"US":"Test Sub - Weekly"},"currencyPriceMap":{"US":0.0},"languageTitleMap":{"US":"Test Sub - Weekly"}},"876567657565":{"description":"Test Entitlement","title":"Test Entitlement","price":5.99,"itemType":"ENTITLED","smallIconUrl":"https://s3-external-1.amazonaws.com/com-amazon-mas-catalog/M1HAF1P3ARSTB3%2FM2Q8QDKZ0307RF%2Fimages%2F_8fe55641-a288-42c4-aec8-32b13ce6d9cc_51852c7a0e017254dc6ef5eb79d042e7","languageDescriptionMap":{"US":"Test Entitlement"},"currencyPriceMap":{"BR":22.54,"DE":5.27,"AU":8.17,"IN":387.76,"JP":720.0,"GB":3.91,"CN":38.0,"IT":5.27,"FR":5.27,"US":5.99,"ES":5.27,"CA":7.75},"languageTitleMap":{"US":"Test Entitlement"}}}
+{
+  "67867868": {
+    "description": "Test Consumable",
+    "title": "Test Consumable",
+    "price": 2.99,
+    "itemType": "CONSUMABLE",
+    "smallIconUrl": "https://s3-external-1.amazonaws.com/com-amazon-mas-catalog/M1HAF1P3ARSTB3%2FM1WUY2CK4PPVI4%2Fimages%2F_ba4c5cd3-8aa8-4a17-83aa-f374524fe8c7_51852c7a0e017254dc6ef5eb79d042e7",
+    "languageDescriptionMap": {
+      "US": "Test Consumable"
+    },
+    "currencyPriceMap": {
+      "BR": 11.25,
+      "DE": 2.63,
+      "AU": 4.08,
+      "IN": 193.56,
+      "JP": 360.0,
+      "CN": 19.0,
+      "IT": 2.63,
+      "GB": 1.95,
+      "FR": 2.63,
+      "ES": 2.63,
+      "CA": 3.87,
+      "US": 2.99
+    },
+    "languageTitleMap": {
+      "US": "Test Consumable"
+    }
+  },
+  "7897987": {
+    "description": "Test Sub - Weekly",
+    "title": "Test Sub - Weekly",
+    "price": 0.0,
+    "itemType": "SUBSCRIPTION",
+    "smallIconUrl": "http://",
+    "subscriptionParent": "12345",
+    "languageDescriptionMap": {
+      "US": "Test Sub - Weekly"
+    },
+    "currencyPriceMap": {
+      "US": 0.0
+    },
+    "languageTitleMap": {
+      "US": "Test Sub - Weekly"
+    }
+  },
+  "12345678": {
+    "description": "Test Sub - Weekly",
+    "title": "Test Sub - Weekly",
+    "price": 4.99,
+    "itemType": "SUBSCRIPTION",
+    "smallIconUrl": "http://",
+    "subscriptionParent": "12345",
+    "languageDescriptionMap": {
+      "US": "Test Sub - Weekly"
+    },
+    "currencyPriceMap": {
+      "US": 0.0
+    },
+    "languageTitleMap": {
+      "US": "Test Sub - Weekly"
+    }
+  },
+  "876567657565": {
+    "description": "Test Entitlement",
+    "title": "Test Entitlement",
+    "price": 5.99,
+    "itemType": "ENTITLED",
+    "smallIconUrl": "https://s3-external-1.amazonaws.com/com-amazon-mas-catalog/M1HAF1P3ARSTB3%2FM2Q8QDKZ0307RF%2Fimages%2F_8fe55641-a288-42c4-aec8-32b13ce6d9cc_51852c7a0e017254dc6ef5eb79d042e7",
+    "languageDescriptionMap": {
+      "US": "Test Entitlement"
+    },
+    "currencyPriceMap": {
+      "BR": 22.54,
+      "DE": 5.27,
+      "AU": 8.17,
+      "IN": 387.76,
+      "JP": 720.0,
+      "GB": 3.91,
+      "CN": 38.0,
+      "IT": 5.27,
+      "FR": 5.27,
+      "US": 5.99,
+      "ES": 5.27,
+      "CA": 7.75
+    },
+    "languageTitleMap": {
+      "US": "Test Entitlement"
+    }
+  }
+}
