@@ -128,13 +128,15 @@
                         this.setStaticButton();
                         this.trigger('exit');
                         break;
-
                     case buttons.DOWN:
                         break;
                     case buttons.LEFT:
-                        //check if we are on the left button
-                        if(this.selectedButton > 0) {
-                            this.setCurrentSelectedIndex(0);
+                        if (this.$buttons[this.selectedButton - 1]) {
+                            this.setCurrentSelectedIndex(this.selectedButton - 1);
+                            this.setSelectedButton();
+                        } else {
+                            // otherwise set button to the last element
+                            this.setCurrentSelectedIndex(this.$buttons.length - 1);
                             this.setSelectedButton();
                         }
                         break;
@@ -148,11 +150,14 @@
                         break;
                     case buttons.RIGHT:
                         //check if we are on the right button
-                        if(this.selectedButton < this.$buttons.length) {
-                            this.setCurrentSelectedIndex(1);
+                        if (this.$buttons[this.selectedButton + 1]) {
+                            this.setCurrentSelectedIndex(this.selectedButton + 1);
+                            this.setSelectedButton();
+                        } else {
+                            // otherwise set button to the first element
+                            this.setCurrentSelectedIndex(0);
                             this.setSelectedButton();
                         }
-                        //select right button
                         break;
                 }
            }
