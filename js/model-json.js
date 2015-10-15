@@ -235,7 +235,11 @@
                 "imgURL": this.parse_thumbnails(videos[i].thumbnails),
                 // parse videoURL at playtime
                 "description": videos[i].description,
-                "seconds": videos[i].duration
+                "seconds": videos[i].duration,
+                "subscription_required": videos[i].subscription_required,
+                "rental_required": videos[i].rental_required,
+                "purchase_required": videos[i].purchase_required,
+                "pass_required": videos[i].pass_required
               }
             formattedVideos.push(video)
           }
