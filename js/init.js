@@ -8,8 +8,8 @@
         showSearch: true,
         key: appConfig.apiKey,
         app: appConfig.appKey,
-        endpoint: "https://api.zype.com/",
-        player_endpoint: "https://player.zype.com/",
+        endpoint: appConfig.endpoint,
+        playerEndpoint: appConfig.playerEndpoint,
         avod: appConfig.avod
     };
 

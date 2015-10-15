@@ -4,5 +4,7 @@
 //   apiKey: '<API KEY>',
 //   appKey: '<APP KEY>',
 //   vastURl: '<VAST TAG>',
-//   avod: true/false
+//   avod: true/false,
+//   endpoint: "https://api.zype.com/",
+//   playerEndpoint: "https://player.zype.com/"
 // };
