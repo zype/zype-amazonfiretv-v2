@@ -19,6 +19,10 @@
     //   amzn_wa.enableApiTester(amzn_wa_tester);
     // };
 
+    this.state = {
+      lastPurchaseCheckTime: null
+    };
+
     this.purchaseItem = function(video_id) {
       if (amzn_wa.IAP == null) {
         alert("You cannot buy this video, Amazon In-App-Purchasing works only with Apps from the Appstore.");
@@ -30,7 +34,7 @@
     // purchaseItem will cause a purchase response with one receipt
     this.onPurchaseResponse = function(e) {
       if (e.purchaseRequestStatus == amzn_wa.IAP.PurchaseStatus.SUCCESSFUL) {
-        handleReceipt(e.receipt);
+        this.handleReceipt(e.receipt);
       } else if (e.purchaseRequestStatus == amzn_wa.IAP.PurchaseStatus.ALREADY_ENTITLED) {
         amzn_wa.IAP.getPurchaseUpdates(amzn_wa.IAP.Offset.BEGINNING)
       }
@@ -40,15 +44,15 @@
     // getPurchaseUpdates will return an array of receipts
     this.onPurchaseUpdatesResponse = function(e) {
       for (var i = 0; i < e.receipts.length; i++) {
-        handleReceipt(e.receipts[i]);
+        this.handleReceipt(e.receipts[i]);
       }
-      // state.lastPurchaseCheckTime = e.offset;
+      this.state.lastPurchaseCheckTime = e.offset;
       // refreshPageState();
       if (e.isMore) {
         // In case there is more updates that did not
         // get sent with this response, make sure that
         // we get the rest of them.
-        // amzn_wa.IAP.getPurchaseUpdates(state.lastPurchaseCheckTime);
+        amzn_wa.IAP.getPurchaseUpdates(this.state.lastPurchaseCheckTime);
       }
     };
 
@@ -59,7 +63,7 @@
     };
 
     this.handleReceipt = function(receipt) {
-      var status = validateRecript(receipt); // send receipt purchase token to zype verification service
+      var status = this.validateReceipt(receipt); // send receipt purchase token to zype verification service
       switch(status) {
       case 200:
         // show video
@@ -116,6 +120,7 @@
       });
     };
     this.iapInit = function () {
+      var that = this;
       // Ensure we can call the IAP API
       if (amzn_wa.IAP == null) {
         console.log("Amazon In-App-Purchasing only works with Apps from the Appstore");
@@ -138,8 +143,8 @@
 
             // You should call getPurchaseUpdates to get any purchases
             // that could have been made in a previous run.
-            // amzn_wa.IAP.getPurchaseUpdates(state.lastPurchaseCheckTime != null ?
-                    // state.lastPurchaseCheckTime : amzn_wa.IAP.Offset.BEGINNING);
+            amzn_wa.IAP.getPurchaseUpdates(that.state.lastPurchaseCheckTime != null ?
+                    that.state.lastPurchaseCheckTime : amzn_wa.IAP.Offset.BEGINNING);
           },
 
           // Called as response to getUserId
@@ -149,10 +154,12 @@
           'onItemDataResponse': function(data) {},
 
           // Called as response to puchaseItem
-          'onPurchaseResponse': function(data) { onPurchaseResponse(data); },
-
+          'onPurchaseResponse': function(data) {
+            that.onPurchaseResponse(data);
+          },
           // Called as response to getPurchaseUpdates
-          'onPurchaseUpdatesResponse': function(resp) { onPurchaseUpdatesResponse(resp);
+          'onPurchaseUpdatesResponse': function(resp) {
+            that.onPurchaseUpdatesResponse(resp);
           }
         });
       }
