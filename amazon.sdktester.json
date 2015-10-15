@@ -26,35 +26,35 @@
       "US": 2.99
     }
   },
-  "7897987": {
-    "description": "Test Sub - Weekly",
-    "subscriptionParent": "12345",
+  "subscriptionAnnually": {
+    "description": "You should really subscribe. It's great.",
+    "subscriptionParent": "zypeSubscription",
     "smallIconUrl": "http://",
-    "title": "Test Sub - Weekly",
-    "price": 8.99,
+    "title": "Zype Subscription",
+    "price": 19.99,
     "itemType": "SUBSCRIPTION",
     "languageTitleMap": {
-      "US": "Test Sub - Weekly"
+      "US": "Zype Subscription"
     },
     "languageDescriptionMap": {
-      "US": "Test Sub - Weekly"
+      "US": "You should really subscribe. It's great."
     },
     "currencyPriceMap": {
       "US": 0.0
     }
   },
-  "12345678": {
-    "description": "Test Sub - Weekly",
-    "subscriptionParent": "12345",
+  "subscriptionMonthly": {
+    "description": "You should really subscribe. It's great.",
+    "subscriptionParent": "zypeSubscription",
     "smallIconUrl": "http://",
-    "title": "Test Sub - Weekly",
-    "price": 4.99,
+    "title": "Zype Subscription",
+    "price": 5.99,
     "itemType": "SUBSCRIPTION",
     "languageTitleMap": {
-      "US": "Test Sub - Weekly"
+      "US": "Zype Subscription"
     },
     "languageDescriptionMap": {
-      "US": "Test Sub - Weekly"
+      "US": "You should really subscribe. It's great."
     },
     "currencyPriceMap": {
       "US": 0.0
@@ -85,6 +85,23 @@
       "US": 5.99,
       "ES": 5.27,
       "CA": 7.75
+    }
+  },
+  "subscriptionWeekly": {
+    "description": "You should really subscribe. It's great.",
+    "subscriptionParent": "zypeSubscription",
+    "smallIconUrl": "http://",
+    "title": "Zype Subscription",
+    "price": 1.99,
+    "itemType": "SUBSCRIPTION",
+    "languageTitleMap": {
+      "US": "Zype Subscription"
+    },
+    "languageDescriptionMap": {
+      "US": "You should really subscribe. It's great."
+    },
+    "currencyPriceMap": {
+      "US": 0.0
     }
   }
 }
