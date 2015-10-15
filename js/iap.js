@@ -71,6 +71,50 @@
       }
     };
 
+    this.getAvailableItems = function() {
+      return amzn_wa.IAP._amazonClient._items;
+    };
+
+    this.allSubscriptionButtons = function() {
+      return [
+        {
+          id: 'subscriptionWeekly',
+          name: 'Weekly Subscription'
+        },
+        {
+          id: 'subscriptionBiWeekly',
+          name: 'Bi-Weekly Subscription'
+        },
+        {
+          id: 'subscriptionMonthly',
+          name: 'Monthly Subscription'
+        },
+        {
+          id: 'subscriptionBiMonthly',
+          name: 'Bi-Monthly Subscription'
+        },
+        {
+          id: 'subscriptionQuarterly',
+          name: 'Quarterly Subscription'
+        },
+        {
+          id: 'subscriptionSemiAnnually',
+          name: 'Semi-Annual Subscription'
+        },
+        {
+          id: 'subscriptionAnnually',
+          name: 'Annual Subscription'
+        }
+      ];
+    };
+
+    this.getAvailableSubscriptionButtons = function() {
+      var buttons = this.allSubscriptionButtons();
+      var item_ids = _.keys(this.getAvailableItems());
+      return _.select(buttons, function(b) {
+        return _.includes(item_ids, b.id);
+      });
+    };
     this.iapInit = function () {
       // Ensure we can call the IAP API
       if (amzn_wa.IAP == null) {

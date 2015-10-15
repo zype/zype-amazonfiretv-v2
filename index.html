@@ -113,8 +113,9 @@
     <!-- Buttons View Template -->
     <script id="button-view-template" type="text/x-handlebars-template">
         <div class="detail-row-container-buttons">
-            <div id="btnSubscribe" class="detail-item-button-static">Subscribe</div>
-            <div id="btnConfirm" class="detail-item-button-static">Action 2</div>
+            {{#each buttons}}
+                <div id="{{id}}" class="detail-item-button-static btnSubscribe">{{name}}</div>
+            {{/each}}
         </div>
      </script>
 

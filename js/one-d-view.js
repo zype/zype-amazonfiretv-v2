@@ -161,17 +161,16 @@
             var buttonView = this.buttonView = new ButtonView();
 
             buttonView.on('exit', function() {
-                debugger;
                 this.trigger('exit');
             }, this);
 
-            buttonView.on('subscribe', function() {
-                debugger;
-                var video_id = this.rowElements[this.currSelection].id;
-                this.trigger('subscribe', video_id);
+            buttonView.on('subscribe', function(subscription_id) {
+                this.trigger('subscribe', subscription_id);
             }, this);
 
-            buttonView.render($el);
+            var buttons = iapHandler.getAvailableSubscriptionButtons();
+
+            buttonView.render($el, buttons);
         };
 
         /**

@@ -353,13 +353,10 @@
 
             /**
              * Event Handler - Subscribe shoveler item
-             * @param {Number} video_id the video_id of the selected item
+             * @param {Number} subscription_id the subscription_id of the selected item
              */
-             oneDView.on('subscribe', function(video_id) {
-                 // this.data.setCurrentItem(index);
-                 // this.transitionToPlayer(index);
-                 debugger;
-                 iapHandler.purchaseItem('12345678');
+             oneDView.on('subscribe', function(subscription_id) {
+                iapHandler.purchaseItem(subscription_id);
              }, this);
 
            /**

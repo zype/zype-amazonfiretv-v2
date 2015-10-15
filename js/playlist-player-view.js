@@ -102,7 +102,6 @@
                       // set the url and format for the upcoming video
                       var outputs = player_json.response.body.outputs;
                       for(var i=0; i < outputs.length; i++) {
-                        // debugger;
                         var output = outputs[i];
                         data.url = output.url;
                         if (output.name === 'hls') {

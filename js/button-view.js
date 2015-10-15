@@ -71,14 +71,9 @@
         * Event handler for remote "select" button press
         */
         this.handleButtonEvent = function () {
-            // this.showAlert(this.$buttons[this.selectedButton].innerHTML);
-            switch(this.$buttons[this.selectedButton].id) {
-                case 'btnSubscribe':
-                    console.log('hit btnSubscribe');
-                    this.trigger('subscribe');
-                break;
+            if (this.$buttons[this.selectedButton].classList.contains('btnSubscribe')) {
+                this.trigger('subscribe', this.$buttons[this.selectedButton].id);
             }
-
         }.bind(this);
 
        /**
@@ -104,9 +99,11 @@
          * Creates the button view from the template and appends it to the given element
          * @param {Element} $el the application container
          */
-        this.render = function ($el) {
+        this.render = function ($el, buttons) {
             // Build the left nav template and add its
-            var html = utils.buildTemplate($("#button-view-template"));
+            var html = utils.buildTemplate($("#button-view-template"), {
+                buttons: buttons
+            });
 
             $el.append(html);
             this.$el = $el.children().last();
