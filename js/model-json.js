@@ -228,7 +228,7 @@
           var formattedVideos = [];
 
           for (var i=0; i < videos.length; i++) {
-            var video = {
+            var args = {
                 "id": videos[i]._id,
                 "title": videos[i].title,
                 "pubDate": videos[i].published_at,
@@ -242,6 +242,7 @@
                 "purchase_required": videos[i].purchase_required,
                 "pass_required": videos[i].pass_required
               }
+            var video = new Video(args);
             formattedVideos.push(video)
           }
           // return the formatted video array
