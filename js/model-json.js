@@ -194,7 +194,7 @@
           //  we want to push all the videos with this category value into this.currData()
 
           if (this.settingsParams.playlist_id) {
-            var playlist_url = this.settingsParams.endpoint + "/playlists/" + this.settingsParams.playlist_id + "/videos/?api_key=" + this.settingsParams.key;
+            var playlist_url = this.settingsParams.endpoint + "playlists/" + this.settingsParams.playlist_id + "/videos/?api_key=" + this.settingsParams.key;
             console.log(playlist_url);
           } else {
             var playlist_url = this.settingsParams.endpoint + "videos/?api_key=" + this.settingsParams.key + "&per_page=10&dpt=true&device_id=5429b1c769702d2f7c120000&sort=created_at&order=desc"
