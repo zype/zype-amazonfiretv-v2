@@ -18,8 +18,8 @@ var Video = function(args) {
 };
 
 Video.prototype = {
-    constructor: Video,
-    hasPaywall: function ()  {
-      return this.subscription_required || this.rental_required || this.purchase_required || this.pass_required;
-    }
+  constructor: Video,
+  hasPaywall: function ()  {
+    return this.subscription_required || this.rental_required || this.purchase_required || this.pass_required;
+  }
 };
