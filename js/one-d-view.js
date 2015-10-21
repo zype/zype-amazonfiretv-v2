@@ -14,7 +14,9 @@
 
         ID_ONED_SUMMARY_DATE      = "summaryDate",
 
-        ID_ONED_SUMMARY_DESC      = "summaryDesc";
+        ID_ONED_SUMMARY_DESC      = "summaryDesc",
+
+        BUTTON_CONTAINER          = "detail-row-container-buttons";
 
     var TIME_TIMEOUT_DISPLAY_INFO = 350;
 
@@ -28,7 +30,7 @@
 
         //global variables
         this.currSelection = 0;
-        this.currentView   = null;
+        this.currentView = null;
         this.titleText = null;
         this.$shovelerContainer = null;
         this.noItems = false;
@@ -68,6 +70,13 @@
         */
         this.setCurrentView = function (view) {
             this.currentView = view;
+        };
+
+        /**
+        * Fetch the currently selected video
+        */
+        this.currentVideo = function() {
+            return this.rowElements[this.currSelection];
         };
 
         /**
@@ -156,6 +165,7 @@
         */
         this.createButtonView = function (displayButtonsParam, $el) {
             if(!displayButtonsParam) {return;}
+            console.log('createButtonView');
 
             // create and set up the 1D view
             var buttonView = this.buttonView = new ButtonView();
@@ -170,7 +180,9 @@
 
             var buttons = iapHandler.getAvailableSubscriptionButtons();
 
-            buttonView.render($el, buttons);
+            if (buttons.length > 0) {
+                buttonView.render($el, buttons);
+            }
         };
 
         /**
@@ -197,6 +209,10 @@
             //set buttons back to static
             if(this.buttonView) this.buttonView.setStaticButton();
         };
+
+        this.shouldShowButtons = function(video) {
+            return video.subscription_required;
+        }
 
        /**
         * Make the buttons the active view
@@ -280,6 +296,9 @@
                 $("#" + ID_ONED_SUMMARY_TITLE).html(this.rowElements[index].title);
                 $("#" + ID_ONED_SUMMARY_DATE).html(this.parseTime(this.rowElements[index].seconds));
                 $("#" + ID_ONED_SUMMARY_DESC).html(this.rowElements[index].description);
+                if(this.shouldShowButtons(this.rowElements[index])) {
+                    $("." + BUTTON_CONTAINER).show();
+                }
             }.bind(this), TIME_TIMEOUT_DISPLAY_INFO);
         };
 
@@ -300,6 +319,7 @@
             $("#" + ID_ONED_SUMMARY_TITLE).text("");
             $("#" + ID_ONED_SUMMARY_DATE).text("");
             $("#" + ID_ONED_SUMMARY_DESC).text("");
+            $("." + BUTTON_CONTAINER).hide();
         };
     };
 

@@ -14,13 +14,17 @@
       return iapHandler;
     }
 
+    this.settingsParams = appConfig;
+
     // this.iapTest = function () {
     //   console.log('amzn_wa.enableApiTester(amzn_wa_tester)')
     //   amzn_wa.enableApiTester(amzn_wa_tester);
     // };
 
     this.state = {
-      lastPurchaseCheckTime: null
+      lastPurchaseCheckTime: null,
+      userId: null,
+      validSkus: []
     };
 
     this.purchaseItem = function(video_id) {
@@ -56,23 +60,76 @@
       }
     };
 
+    this.removeSku = function(sku) {
+      var index = this.state.validSkus.indexOf(sku);
+      if(index != -1) {
+        this.state.validSkus.splice(index, 1);
+      }
+    };
 
-    this.validateReceipt = function() {
+    this.addSku = function(sku) {
+      if(this.state.validSkus.indexOf(sku) == -1) {
+        this.state.validSkus.push(sku);
+      }
+    };
+
+    this.verifyReceipt = function(receipt) {
       // send receipt purchase token to zype verification service
-      return 200;
+      var amazon_verify_receipt_url = this.settingsParams.endpoint + 'amazon_fire_receipts/process_receipt';
+
+      var that = this;
+
+      $.ajax({
+        method: 'POST',
+        url: amazon_verify_receipt_url,
+        dataType: 'json',
+        data: {
+          'api_key': this.settingsParams.apiKey,
+          'device_id': '5429b1c769702d2f7c120000',
+          'item_type': receipt.itemType,
+          'purchase_token': receipt.purchaseToken,
+          'sku': receipt.sku,
+          'user_id': this.state.userId
+        }
+      }).error(function( msg ) {
+        that.removeSku(receipt.sku);
+        console.log(that.state.validSkus);
+      }).done(function( msg ) {
+        that.addSku(receipt.sku);
+        console.log(that.state.validSkus);
+      });
+    };
+
+    this.createFakeReceipt = function(receipt) {
+      // send receipt purchase token to zype verification service
+      var url = 'http://localhost:9123/amazon_receipts';
+
+      $.ajax({
+        method: 'POST',
+        url: url,
+        dataType: 'json',
+        data: {
+          'amazon_receipt': {
+            'item_type': receipt.itemType,
+            'purchase_token': receipt.purchaseToken,
+            'sku': receipt.sku
+          }
+        }
+      }).error(function( msg ) {
+        console.log(msg)
+      }).done(function( msg ) {
+        console.log(msg);
+      });
     };
 
     this.handleReceipt = function(receipt) {
-      var status = this.validateReceipt(receipt); // send receipt purchase token to zype verification service
-      switch(status) {
-      case 200:
-        // show video
-        console.log('show video')
-      case 401:
-       // purchase expired, prompt for purchse
-      case 422:
-       // receipt is not verified, show appropriate messaging.
-      }
+
+      // uncomment this in dev to enable creating valid receipts on a fake server
+      // use amazon_receipt_faker repo
+      // bundle exec rails s -p 9123
+      this.createFakeReceipt(receipt);
+
+      this.verifyReceipt(receipt); // send receipt purchase token to zype
     };
 
     this.getAvailableItems = function() {
@@ -119,6 +176,23 @@
         return _.includes(item_ids, b.id);
       });
     };
+
+    // this.getAvailableSubscriptions = function() {
+    //   var items = this.getAvailableItems();
+    //   return _.pick(items, this.subscriptionIds())
+    // };
+
+    // type can be:
+    // SUBSCRIPTION
+    // CONSUMABLE
+    // ENTITLED
+    // this.findItem = function(sku, type) {
+    //   var items = this.getAvailableItems();
+    //   if (items[id] && items[id].itemType == type) {
+    //     return items[id];
+    //   }
+    // };
+
     this.iapInit = function () {
       var that = this;
       // Ensure we can call the IAP API
@@ -141,18 +215,29 @@
                 alert("Running in test mode");
             }
 
-            // You should call getPurchaseUpdates to get any purchases
-            // that could have been made in a previous run.
-            amzn_wa.IAP.getPurchaseUpdates(that.state.lastPurchaseCheckTime != null ?
-                    that.state.lastPurchaseCheckTime : amzn_wa.IAP.Offset.BEGINNING);
+            // get current user
+            amzn_wa.IAP.getUserId();
           },
-
           // Called as response to getUserId
-          'onGetUserIdResponse': function(resp) {},
+          'onGetUserIdResponse': function(resp) {
+            console.log('onGetUserIdResponse');
+            console.log(resp);
+            if(resp.userIdRequestStatus == 'SUCCESSFUL') {
 
+              // set current user id
+              that.state.userId = resp.userId;
+
+              // You should call getPurchaseUpdates to get any purchases
+              // that could have been made in a previous run.
+              amzn_wa.IAP.getPurchaseUpdates(that.state.lastPurchaseCheckTime != null ?
+                    that.state.lastPurchaseCheckTime : amzn_wa.IAP.Offset.BEGINNING);
+            }
+          },
           // Called as response to getItemData
-          'onItemDataResponse': function(data) {},
-
+          'onItemDataResponse': function(data) {
+            console.log('onItemDataResponse');
+            console.log(data);
+          },
           // Called as response to puchaseItem
           'onPurchaseResponse': function(data) {
             that.onPurchaseResponse(data);

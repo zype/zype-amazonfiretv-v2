@@ -253,7 +253,9 @@ div {
   position: absolute;
   bottom: 100px;
   left: 150px;
-  height: 75px; }
+  height: 75px;
+  display: none;
+}
 
 .detail-item-button, .detail-item-button-selected, .detail-item-button-static {
   position: relative;

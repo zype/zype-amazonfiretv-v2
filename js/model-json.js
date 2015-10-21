@@ -19,6 +19,7 @@
          this.currentlySearchData = false;
          this.months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
          this.settingsParams = appSettings;
+
         /**
          * This function loads the initial data needed to start the app and calls the provided callback with the data when it is fully loaded
          * @param {function} the callback function to call with the loaded data
