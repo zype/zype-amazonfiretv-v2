@@ -259,7 +259,7 @@ div {
 
 .detail-item-button, .detail-item-button-selected, .detail-item-button-static {
   position: relative;
-  width: 315px;
+  width: 400px;
   height: 73px;
   padding: 15px;
   float: left;
