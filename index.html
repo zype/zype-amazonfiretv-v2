@@ -113,8 +113,11 @@
     <!-- Buttons View Template -->
     <script id="button-view-template" type="text/x-handlebars-template">
         <div class="detail-row-container-buttons">
-            {{#each buttons}}
-                <div id="{{id}}" class="detail-item-button-static btnSubscribe">{{name}}</div>
+            {{#each subscribeButtons}}
+                <div id="{{id}}" class="detail-item-button-static btnIAP btnSubscribe">{{name}}</div>
+            {{/each}}
+            {{#each purchaseRentalButtons}}
+                <div id="{{id}}" class="detail-item-button-static btnIAP btnPurchaseRental">{{name}}</div>
             {{/each}}
         </div>
      </script>
@@ -192,10 +195,10 @@
     <!-- Load Channel JS -->
     <script src="js/video-model.js"></script>
     <script src="config/config.js"></script>
-    <script src="js/iap.js"></script>
     <script src="js/util.js"></script>
     <script src="js/button-view.js"></script>
     <script src="js/events.js"></script>
+    <script src="js/iap.js"></script>
     <script src="js/buttons.js"></script>
     <script src="js/touches.js"></script>
     <script src="js/leftnav-view.js"></script>
