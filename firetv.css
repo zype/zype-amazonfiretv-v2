@@ -672,5 +672,9 @@ div {
 }
 
 #AmazonServicesPurchaseItem > * {
-  z-index: 20;
+  z-index: 200;
+}
+
+.detail-row-container-buttons .btnPurchaseRental, .detail-row-container-buttons .btnSubscribe{
+  display: none;
 }
