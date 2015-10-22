@@ -15,6 +15,7 @@ var Video = function(args) {
   this.rental_required = args.rental_required;
   this.purchase_required = args.purchase_required;
   this.pass_required = args.pass_required;
+  this.ad_schedule = [];
 };
 
 Video.prototype = {

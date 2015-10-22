@@ -14,18 +14,24 @@
       return iapHandler;
     }
 
+    // mixin inheritance, initialize this as an event handler for these events:
+    Events.call(this, ['purchaseSuccess', 'purchaseFail']);
+
     this.settingsParams = appConfig;
-
-    // this.iapTest = function () {
-    //   console.log('amzn_wa.enableApiTester(amzn_wa_tester)')
-    //   amzn_wa.enableApiTester(amzn_wa_tester);
-    // };
-
     this.state = {
       lastPurchaseCheckTime: null,
       userId: null,
       validSkus: []
     };
+
+    this.on('purchaseSuccess', function(receipt) {
+      iapHandler.addSku(receipt.sku);
+      app.trigger('purchaseSuccess');
+    });
+
+    this.on('purchaseFail', function(receipt) {
+      iapHandler.removeSku(receipt.sku);
+    });
 
     this.purchaseItem = function(video_id) {
       if (amzn_wa.IAP == null) {
@@ -91,12 +97,10 @@
           'sku': receipt.sku,
           'user_id': this.state.userId
         }
-      }).error(function( msg ) {
-        that.removeSku(receipt.sku);
-        console.log(that.state.validSkus);
+      }).fail(function( msg ) {
+        that.trigger('purchaseFail', receipt);
       }).done(function( msg ) {
-        that.addSku(receipt.sku);
-        console.log(that.state.validSkus);
+        that.trigger('purchaseSuccess', receipt);
       });
     };
 
@@ -115,8 +119,8 @@
             'sku': receipt.sku
           }
         }
-      }).error(function( msg ) {
-        console.log(msg)
+      }).fail(function( msg ) {
+        console.log(msg);
       }).done(function( msg ) {
         console.log(msg);
       });
@@ -136,7 +140,7 @@
       return amzn_wa.IAP._amazonClient._items;
     };
 
-    this.allSubscriptionButtons = function() {
+    this.allSubscriptions = function() {
       return [
         {
           id: 'subscriptionWeekly',
@@ -169,29 +173,81 @@
       ];
     };
 
+    this.allSubscriptionIds = function() {
+      return _.map(this.allSubscriptions(), function(s){ return s.id; });
+    };
+
     this.getAvailableSubscriptionButtons = function() {
-      var buttons = this.allSubscriptionButtons();
+      var buttons = this.allSubscriptions();
       var item_ids = _.keys(this.getAvailableItems());
       return _.select(buttons, function(b) {
         return _.includes(item_ids, b.id);
       });
     };
 
-    // this.getAvailableSubscriptions = function() {
-    //   var items = this.getAvailableItems();
-    //   return _.pick(items, this.subscriptionIds())
-    // };
+    this.getAvailablePurchaseRentalButtons = function() {
+      var item_ids = _.keys(this.getAvailableItems());
+      var buttons = [];
+      _.each(item_ids, function(i){
+        if(i.indexOf('e-') != -1) {
+          // purchase button
+          buttons.push({
+            id: i,
+            name: 'Purchase'
+          });
+        } else if (i.indexOf('c-') != -1) {
+          // rental button
+          buttons.push({
+            id: i,
+            name: 'Rental'
+          })
+        }
+      })
+      return buttons;
+    };
 
-    // type can be:
-    // SUBSCRIPTION
-    // CONSUMABLE
-    // ENTITLED
-    // this.findItem = function(sku, type) {
-    //   var items = this.getAvailableItems();
-    //   if (items[id] && items[id].itemType == type) {
-    //     return items[id];
-    //   }
-    // };
+    this.hasValidSubscription = function() {
+      var sub_ids = this.allSubscriptionIds();
+      return _.find(this.state.validSkus, function(sku){ return sub_ids.indexOf(sku) != -1 });
+    };
+
+    this.hasValidPurchase = function(video_id) {
+      if (this.state.validSkus.indexOf(this.purchaseSku(video_id)) != -1) {
+        return true;
+      } else {
+        return false;
+      }
+    };
+
+    this.rentalSku = function(video_id) {
+      return 'c-' + video_id;
+    };
+
+    this.purchaseSku = function(video_id) {
+      return 'e-' + video_id;
+    };
+
+
+    this.hasValidRental = function(video_id) {
+      if (this.state.validSkus.indexOf(this.rentalSku(video_id)) != -1) {
+        return true;
+      } else {
+        return false;
+      }
+    };
+
+    this.canPlayVideo = function(video) {
+      if (video.hasPaywall() == false) {
+        return true;
+      }
+      if (video.subscription_required == true && this.hasValidSubscription()) {
+        return true;
+      } else if (video.purchase_required == true && this.hasValidPurchase(video.id)) {
+        return true;
+      } else if (video.rental_required == true && this.hasValidRental(video.id)) {
+        return true;
+      }
+    };
 
     this.iapInit = function () {
       var that = this;

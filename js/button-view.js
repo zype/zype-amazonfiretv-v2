@@ -18,7 +18,7 @@
     var ButtonView = function () {
 
         // mixin inheritance, initialize this as an event handler for these events:
-        Events.call(this, ['exit', 'revoke', 'select', 'subscribe']);
+        Events.call(this, ['exit', 'revoke', 'select', 'makeIAP']);
 
         //global variables
         this.selectedButton = -1;
@@ -41,6 +41,13 @@
             this.$el.show();
         };
 
+        /**
+         * Gets the currently visible buttons
+         */
+        this.visibleButtons = function() {
+            return this.$buttons.filter(":visible");
+        };
+
        /**
         * Change the style of the selected element to selected
         */
@@ -48,8 +55,10 @@
             //first make sure we don't already have a selected button
             this.setStaticButton();
 
+            var buttons = this.visibleButtons();
+
             //apply the selected class to the newly-selected button
-            var buttonElement = $(this.$buttons[this.selectedButton]);
+            var buttonElement = $(buttons[this.selectedButton]);
 
             buttonElement.removeClass(CLASS_BUTTON_STATIC);
             buttonElement.addClass(CLASS_BUTTON_SELECTED);
@@ -71,8 +80,9 @@
         * Event handler for remote "select" button press
         */
         this.handleButtonEvent = function () {
-            if (this.$buttons[this.selectedButton].classList.contains('btnSubscribe')) {
-                this.trigger('subscribe', this.$buttons[this.selectedButton].id);
+            if (this.$buttons[this.selectedButton].classList.contains('btnIAP')) {
+                var visibleBtns = this.visibleButtons();
+                this.trigger('makeIAP', visibleBtns[this.selectedButton].id);
             }
         }.bind(this);
 
@@ -99,10 +109,11 @@
          * Creates the button view from the template and appends it to the given element
          * @param {Element} $el the application container
          */
-        this.render = function ($el, buttons) {
+        this.render = function ($el, subscribeButtons, purchaseRentalButtons) {
             // Build the left nav template and add its
             var html = utils.buildTemplate($("#button-view-template"), {
-                buttons: buttons
+                subscribeButtons: subscribeButtons,
+                purchaseRentalButtons: purchaseRentalButtons
             });
 
             $el.append(html);
@@ -123,6 +134,9 @@
         */
         this.handleControls = function (e) {
             if (e.type === 'buttonpress') {
+
+                var visibleBtns = this.visibleButtons();
+
                 switch (e.keyCode) {
                     case buttons.UP:
                         this.setStaticButton();
@@ -131,12 +145,12 @@
                     case buttons.DOWN:
                         break;
                     case buttons.LEFT:
-                        if (this.$buttons[this.selectedButton - 1]) {
+                        if (visibleBtns[this.selectedButton - 1]) {
                             this.setCurrentSelectedIndex(this.selectedButton - 1);
                             this.setSelectedButton();
                         } else {
                             // otherwise set button to the last element
-                            this.setCurrentSelectedIndex(this.$buttons.length - 1);
+                            this.setCurrentSelectedIndex(visibleBtns.length - 1);
                             this.setSelectedButton();
                         }
                         break;
@@ -150,7 +164,7 @@
                         break;
                     case buttons.RIGHT:
                         //check if we are on the right button
-                        if (this.$buttons[this.selectedButton + 1]) {
+                        if (visibleBtns[this.selectedButton + 1]) {
                             this.setCurrentSelectedIndex(this.selectedButton + 1);
                             this.setSelectedButton();
                         } else {

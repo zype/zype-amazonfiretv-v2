@@ -80,6 +80,9 @@
         //main application container div
         this.$appContainer = $("#app-container");
 
+        // mixin inheritance, initialize this as an event handler for these events:
+        Events.call(this, ['purchaseSuccess']);
+
        /**
         * Callback from XHR to load the data model, this really starts the app UX
         */
@@ -352,12 +355,16 @@
             }, this);
 
             /**
-             * Event Handler - Subscribe shoveler item
-             * @param {Number} subscription_id the subscription_id of the selected item
+             * Event Handler - Make In-App-Purchase shoveler item
+             * @param {Number} sku is the sku of the selected item
              */
-             oneDView.on('subscribe', function(subscription_id) {
-                iapHandler.purchaseItem(subscription_id);
+             oneDView.on('makeIAP', function(sku) {
+                iapHandler.purchaseItem(sku);
              }, this);
+
+             this.on('purchaseSuccess', function() {
+               oneDView.onPurchaseSuccess();
+             });
 
            /**
             * Success Callback handler for category data request
@@ -493,6 +500,10 @@
         * @param {Object} itemData data for currently selected item
         */
         this.transitionToPlayer = function (index) {
+            var video = this.categoryData[index];
+            if ( !iapHandler.canPlayVideo(video) ) {
+              return false;
+            }
             var playerView;
             this.playerSpinnerHidden = false;
             if (this.settingsParams.PlaylistView) {
@@ -522,13 +533,12 @@
 
             playerView.on('videoStatus', this.handleVideoStatus, this);
             // stream video first gets the stream and then renders the player
-            this.start_stream(playerView, this.$appContainer, this.categoryData, index);
+            this.start_stream(playerView, this.$appContainer, video);
         };
 
-        this.start_stream = function (playerView, container, categoryData, index) {
-          var data = categoryData[index];
+        this.start_stream = function (playerView, container, video) {
           $.ajax({
-              url: this.settingsParams.playerEndpoint + 'embed/' + data.id + '.json?autoplay=true&api_key=' + this.settingsParams.key + '&device_id=5429b1c769702d2f7c120000',
+              url: this.settingsParams.playerEndpoint + 'embed/' + video.id + '.json?autoplay=true&api_key=' + this.settingsParams.key + '&device_id=5429b1c769702d2f7c120000',
               type: 'GET',
               dataType: 'json',
               success: function(player_json) {
@@ -536,25 +546,25 @@
                 var outputs = player_json.response.body.outputs;
                 for(var i=0; i < outputs.length; i++) {
                   var output = outputs[i];
-                  data.url = output.url;
+                  video.url = output.url;
                   if (output.name === 'hls') {
-                    data.format = 'application/x-mpegURL'
+                    video.format = 'application/x-mpegURL'
                   } else if (output.name === 'mp4') {
-                    data.format = 'video/mp4';
+                    video.format = 'video/mp4';
                   }
 
                   // add ad schedule to video json
                   if (player_json.response.body.advertising) {
-                    data.ad_schedule = []
+                    video.ad_schedule = []
                     var schedule = player_json.response.body.advertising.schedule;
                     for(i = 0; i < schedule.length; i++) {
                       // add each ad tag in, make played be false
                       var seconds = schedule[i].offset / 1000;
-                      data.ad_schedule.push({offset: seconds, tag: schedule[i].tag, played: false});
+                      video.ad_schedule.push({offset: seconds, tag: schedule[i].tag, played: false});
                     }
                   }
 
-                  playerView.render(container, categoryData, index);
+                  playerView.render(container, video);
                 }
               },
               error:function() {

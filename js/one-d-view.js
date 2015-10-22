@@ -26,7 +26,7 @@
      */
     var OneDView = function () {
         // mixin inheritance, initialize this as an event handler for these events:
-        Events.call(this, ['noContent', 'exit', 'startScroll', 'indexChange', 'stopScroll', 'select', 'bounce', 'loadComplete', 'subscribe']);
+        Events.call(this, ['noContent', 'exit', 'startScroll', 'indexChange', 'stopScroll', 'select', 'bounce', 'loadComplete', 'makeIAP']);
 
         //global variables
         this.currSelection = 0;
@@ -38,6 +38,11 @@
         //jquery global variables
         this.$el = null;
         this.el = null;
+
+        this.onPurchaseSuccess = function() {
+            this.transitionToShovelerView();
+            this.buttonView.hide();
+        };
 
        /**
         * Hide this view - use visibility instead of display
@@ -165,7 +170,6 @@
         */
         this.createButtonView = function (displayButtonsParam, $el) {
             if(!displayButtonsParam) {return;}
-            console.log('createButtonView');
 
             // create and set up the 1D view
             var buttonView = this.buttonView = new ButtonView();
@@ -174,14 +178,15 @@
                 this.trigger('exit');
             }, this);
 
-            buttonView.on('subscribe', function(subscription_id) {
-                this.trigger('subscribe', subscription_id);
+            buttonView.on('makeIAP', function(sku) {
+                this.trigger('makeIAP', sku);
             }, this);
 
-            var buttons = iapHandler.getAvailableSubscriptionButtons();
-
-            if (buttons.length > 0) {
-                buttonView.render($el, buttons);
+            var subscribeButtons = iapHandler.getAvailableSubscriptionButtons();
+            var video = this.currentVideo();
+            var purchaseRentalButtons = iapHandler.getAvailablePurchaseRentalButtons();
+            if (subscribeButtons.length > 0 || purchaseRentalButtons.length > 0) {
+                buttonView.render($el, subscribeButtons, purchaseRentalButtons);
             }
         };
 
@@ -189,7 +194,6 @@
         * Externally change the index
         */
         this.changeIndex = function (index) {
-
             this.shovelerView.setSelectedElement(index);
             this.shovelerView.transitionRow();
             this.shovelerView.trigger("stopScroll", this.shovelerView.currSelection);
@@ -200,7 +204,7 @@
         * Make the shoveler the active view
         */
         this.transitionToShovelerView = function () {
-            //change to button view
+            //change to shoveler view
             this.setCurrentView(this.shovelerView);
 
             //change opacity of the shoveler
@@ -211,13 +215,17 @@
         };
 
         this.shouldShowButtons = function(video) {
-            return video.subscription_required;
+            return !iapHandler.canPlayVideo(video);
         }
 
        /**
         * Make the buttons the active view
         */
         this.transitionToButtonView = function () {
+            var currentVid = this.currentVideo();
+            if ( !this.shouldShowButtons(currentVid) ) {
+                return false;
+            }
             //change to button view
             this.setCurrentView(this.buttonView);
 
@@ -297,9 +305,31 @@
                 $("#" + ID_ONED_SUMMARY_DATE).html(this.parseTime(this.rowElements[index].seconds));
                 $("#" + ID_ONED_SUMMARY_DESC).html(this.rowElements[index].description);
                 if(this.shouldShowButtons(this.rowElements[index])) {
+                    // show entire button container
                     $("." + BUTTON_CONTAINER).show();
+
+                    this.showAvailableButtons();
                 }
             }.bind(this), TIME_TIMEOUT_DISPLAY_INFO);
+        };
+
+        this.showAvailableButtons = function() {
+            var video = this.currentVideo();
+
+            // show rental button if a subcription is required and they haven't rented
+            if(video.purchase_required == true && !iapHandler.hasValidPurchase(video.id)) {
+                 $('#' + iapHandler.purchaseSku(video.id)).show();
+            }
+
+            // show purchase button if a subcription is required and they haven't purchased
+            if(video.rental_required == true && !iapHandler.hasValidRental(video.id)) {
+                $('#' + iapHandler.rentalSku(video.id)).show();
+            }
+
+            // show subscribe buttons if a subcription is required and they aren't subscribed
+            if(video.subscription_required == true && !iapHandler.hasValidSubscription()) {
+                $('.detail-row-container-buttons .btnSubscribe').show();
+            }
         };
 
         // Convert seconds to HH:MM:SS
