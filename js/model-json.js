@@ -19,34 +19,46 @@
          this.currentlySearchData = false;
          this.months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
          this.settingsParams = appSettings;
+         this.plans = [];
 
         /**
          * This function loads the initial data needed to start the app and calls the provided callback with the data when it is fully loaded
          * @param {function} the callback function to call with the loaded data
          */
-        this.loadCategoryData = function (dataLoadedCallback) {
-             $.ajax({
-                 url: this.settingsParams.endpoint + "categories/" + this.settingsParams.category_id + "/?api_key=" + this.settingsParams.key,
-                 type: 'GET',
-                 crossDomain: true,
-                 dataType: 'json',
-                 context : this,
-                 cache : true,
-                 success:function() {
-                     var contentData = arguments[0];
-                     this.getCategoryRowValues(contentData);
-                 },
-                 error:function() {
-                   var contentData = {response: {title: 'Videos', values: ['All Videos']}}
-                   this.getCategoryRowValues(contentData);
-                   console.log(arguments);
-                 },
-                 complete:function() {
-                   console.log('loadCategoryData.complete');
-                   dataLoadedCallback();
-                 }
-             });
+        this.loadData = function (dataLoadedCallback) {
+          // Important to load any plans as the IAP handler will need to have those available.
+          var that = this;
+
+          this.getPlans(function(plans) {
+            that.plans = plans;
+            that.loadCategoryData(dataLoadedCallback);
+          });
+
         }.bind(this);
+
+        this.loadCategoryData = function(categoryDataLoadedCallback) {
+          $.ajax({
+            url: this.settingsParams.endpoint + "categories/" + this.settingsParams.category_id + "/?api_key=" + this.settingsParams.key,
+            type: 'GET',
+            crossDomain: true,
+            dataType: 'json',
+            context : this,
+            cache : true,
+            success:function() {
+              var contentData = arguments[0];
+              this.getCategoryRowValues(contentData);
+            },
+            error:function() {
+              var contentData = {response: {title: 'Videos', values: ['All Videos']}}
+              this.getCategoryRowValues(contentData);
+              console.log(arguments);
+            },
+            complete:function() {
+              console.log('loadData.complete');
+              categoryDataLoadedCallback();
+            }
+          });
+        };
 
        /**
         * Handles requests that contain json data
@@ -64,6 +76,14 @@
            this.categoryData.unshift(playlistTitle);
            console.log(this.categoryData[0]);
          }.bind(this);
+
+       /**
+        * Load plans from api
+        */
+        this.getPlans = function(callback) {
+          Plan.getPlans(this.settingsParams, callback);
+        };
+
 
        /***************************
         *

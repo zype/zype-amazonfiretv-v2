@@ -600,7 +600,7 @@
 
         //initialize the model and get the first data set
         this.data = new this.settingsParams.Model(this.settingsParams);
-        this.data.loadCategoryData(this.dataLoaded);
+        this.data.loadData(this.dataLoaded);
     };
 
     exports.App = App;

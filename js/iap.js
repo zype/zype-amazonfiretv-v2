@@ -26,6 +26,8 @@
 
     this.on('purchaseSuccess', function(receipt) {
       iapHandler.addSku(receipt.sku);
+      console.log('purchaseSuccess')
+      console.log(iapHandler.state.validSkus)
       app.trigger('purchaseSuccess');
     });
 
@@ -127,7 +129,6 @@
     };
 
     this.handleReceipt = function(receipt) {
-
       // uncomment this in dev to enable creating valid receipts on a fake server
       // use amazon_receipt_faker repo
       // bundle exec rails s -p 9123
@@ -168,7 +169,7 @@
         },
         {
           id: 'subscriptionAnnually',
-          name: 'Annual Subscription'
+          name: 'Yearly Subscription'
         }
       ];
     };
@@ -178,10 +179,23 @@
     };
 
     this.getAvailableSubscriptionButtons = function() {
+      // these are all the buttons as statically setup in this model (ids and names to display)
       var buttons = this.allSubscriptions();
-      var item_ids = _.keys(this.getAvailableItems());
+
+      // these are the plans that the user has setup on zype core
+      var zype_plans = _.map(app.data.plans, function(p){ return p.amazon_id; });
+
+      // these are all the plans that the user has setup in the amazon dashboard
+      var amazon_plans = _.keys(this.getAvailableItems());
+
+      // these are the ids in the buttons
+      var button_ids = _.map(buttons, function(b) { return b.id; })
+
+      // lets get an intersect between all the arrays
+      var intersect = _.intersection(zype_plans, amazon_plans, button_ids);;
+
       return _.select(buttons, function(b) {
-        return _.includes(item_ids, b.id);
+        return _.includes(intersect, b.id);
       });
     };
 
