@@ -132,7 +132,7 @@
       // uncomment this in dev to enable creating valid receipts on a fake server
       // use amazon_receipt_faker repo
       // bundle exec rails s -p 9123
-      this.createFakeReceipt(receipt);
+      // this.createFakeReceipt(receipt);
 
       this.verifyReceipt(receipt); // send receipt purchase token to zype
     };
