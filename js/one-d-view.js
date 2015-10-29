@@ -349,6 +349,7 @@
             $("#" + ID_ONED_SUMMARY_TITLE).text("");
             $("#" + ID_ONED_SUMMARY_DATE).text("");
             $("#" + ID_ONED_SUMMARY_DESC).text("");
+            $('.detail-row-container-buttons .btnSubscribe').hide();
             $("." + BUTTON_CONTAINER).hide();
         };
     };
