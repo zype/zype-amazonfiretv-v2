@@ -292,7 +292,8 @@
           'onGetUserIdResponse': function(resp) {
             console.log('onGetUserIdResponse');
             console.log(resp);
-            if(resp.userIdRequestStatus == 'SUCCESSFUL') {
+            // it could be either of these depending on the varying whims of amazon
+            if(resp.userIdRequestStatus == 'SUCCESSFUL' || resp.getUserIdRequestStatus == 'SUCCESSFUL') {
 
               // set current user id
               that.state.userId = resp.userId;
