@@ -371,8 +371,20 @@
             * @param {Object} categoryData
             */
             var successCallback = function(categoryData) {
+                // these are the videos
                 this.categoryData = categoryData;
-                oneDView.render(this.$appContainer, categoryData, this.settingsParams.displayButtons);
+
+                // add video ids to iapHandler
+                var video_ids = _.map(this.categoryData, function(v) { return v.id; });
+                iapHandler.state.allVideoIds = video_ids;
+
+                // add reference of oneDView to iapHandler
+                iapHandler.oneDView = oneDView;
+
+                // get the available items from amazon
+                iapHandler.checkAvailableItems(function() {
+                  oneDView.render(app.$appContainer, app.categoryData, app.settingsParams.displayButtons);
+                });
             }.bind(this);
 
            /**

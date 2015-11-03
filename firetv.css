@@ -675,6 +675,6 @@ div {
   z-index: 200;
 }
 
-.detail-row-container-buttons .btnPurchaseRental, .detail-row-container-buttons .btnSubscribe{
+.detail-row-container-buttons .btnPurchase, .detail-row-container-buttons .btnSubscribe{
   display: none;
 }

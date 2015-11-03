@@ -109,11 +109,11 @@
          * Creates the button view from the template and appends it to the given element
          * @param {Element} $el the application container
          */
-        this.render = function ($el, subscribeButtons, purchaseRentalButtons) {
+        this.render = function ($el, subscribeButtons, purchaseButtons) {
             // Build the left nav template and add its
             var html = utils.buildTemplate($("#button-view-template"), {
                 subscribeButtons: subscribeButtons,
-                purchaseRentalButtons: purchaseRentalButtons
+                purchaseButtons: purchaseButtons
             });
 
             $el.append(html);

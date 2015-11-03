@@ -184,9 +184,9 @@
 
             var subscribeButtons = iapHandler.getAvailableSubscriptionButtons();
             var video = this.currentVideo();
-            var purchaseRentalButtons = iapHandler.getAvailablePurchaseRentalButtons();
-            if (subscribeButtons.length > 0 || purchaseRentalButtons.length > 0) {
-                buttonView.render($el, subscribeButtons, purchaseRentalButtons);
+            var purchaseButtons = iapHandler.getAvailablePurchaseButtons();
+            if (subscribeButtons.length > 0 || purchaseButtons.length > 0) {
+                buttonView.render($el, subscribeButtons, purchaseButtons);
             }
         };
 
@@ -318,7 +318,7 @@
 
             // show rental button if a subcription is required and they haven't rented
             if(video.purchase_required == true && !iapHandler.hasValidPurchase(video.id)) {
-                 $('#' + iapHandler.purchaseSku(video.id)).show();
+                 $('#' + iapHandler.purchaseSku(video.id) + '-purchase').show();
             }
 
             // show purchase button if a subcription is required and they haven't purchased

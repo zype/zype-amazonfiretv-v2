@@ -18,10 +18,13 @@
     Events.call(this, ['purchaseSuccess', 'purchaseFail']);
 
     this.settingsParams = appConfig;
+    this.oneDView = null;
     this.state = {
       lastPurchaseCheckTime: null,
       userId: null,
-      validSkus: []
+      validSkus: [], // these are the skus that have been purchased by the user and validated by amazon
+      allVideoIds: [], // note that this is all video ids, some of which may not actually be available to purchase on amazon
+      availableSkus: [] // this should be the list of items actually available to purchase
     };
 
     this.on('purchaseSuccess', function(receipt) {
@@ -35,11 +38,20 @@
       iapHandler.removeSku(receipt.sku);
     });
 
-    this.purchaseItem = function(video_id) {
+    this.purchaseItem = function(id) {
+      var sku = this.parseSku(id);
       if (amzn_wa.IAP == null) {
         alert("You cannot buy this video, Amazon In-App-Purchasing works only with Apps from the Appstore.");
       } else {
-        amzn_wa.IAP.purchaseItem(video_id);
+        amzn_wa.IAP.purchaseItem(sku);
+      }
+    };
+
+    this.parseSku = function(id) {
+      if(id.indexOf('-purchase') != -1) {
+        return id.replace('-purchase', '');
+      } else {
+        return id;
       }
     };
 
@@ -137,8 +149,14 @@
       this.verifyReceipt(receipt); // send receipt purchase token to zype
     };
 
-    this.getAvailableItems = function() {
-      return amzn_wa.IAP._amazonClient._items;
+    this.checkAvailableItems = function(onItemDataResponseCallback) {
+      amzn_wa.IAP.getItemData(this.state.allVideoIds);
+      this.onItemDataResponseCallback = onItemDataResponseCallback;
+    };
+
+    this.onItemDataResponse = function(e) {
+      this.state.availableSkus = _.difference(this.state.allVideoIds, e.unavailableSkus);
+      this.onItemDataResponseCallback();
     };
 
     this.allSubscriptions = function() {
@@ -185,37 +203,25 @@
       // these are the plans that the user has setup on zype core
       var zype_plans = _.map(app.data.plans, function(p){ return p.amazon_id; });
 
-      // these are all the plans that the user has setup in the amazon dashboard
-      var amazon_plans = _.keys(this.getAvailableItems());
-
       // these are the ids in the buttons
       var button_ids = _.map(buttons, function(b) { return b.id; })
 
       // lets get an intersect between all the arrays
-      var intersect = _.intersection(zype_plans, amazon_plans, button_ids);;
+      var intersect = _.intersection(zype_plans, button_ids);;
 
       return _.select(buttons, function(b) {
         return _.includes(intersect, b.id);
       });
     };
 
-    this.getAvailablePurchaseRentalButtons = function() {
-      var item_ids = _.keys(this.getAvailableItems());
+    this.getAvailablePurchaseButtons = function() {
       var buttons = [];
-      _.each(item_ids, function(i){
-        if(i.indexOf('e-') != -1) {
-          // purchase button
-          buttons.push({
-            id: i,
-            name: 'Purchase'
-          });
-        } else if (i.indexOf('c-') != -1) {
-          // rental button
-          buttons.push({
-            id: i,
-            name: 'Rental'
-          })
-        }
+      _.each(this.state.availableSkus, function(i){
+        // purchase button
+        buttons.push({
+          id: i,
+          name: 'Purchase'
+        });
       })
       return buttons;
     };
@@ -234,11 +240,11 @@
     };
 
     this.rentalSku = function(video_id) {
-      return 'c-' + video_id;
+      return 'rental-' + video_id;
     };
 
     this.purchaseSku = function(video_id) {
-      return 'e-' + video_id;
+      return video_id;
     };
 
 
@@ -306,8 +312,7 @@
           },
           // Called as response to getItemData
           'onItemDataResponse': function(data) {
-            console.log('onItemDataResponse');
-            console.log(data);
+            that.onItemDataResponse(data);
           },
           // Called as response to puchaseItem
           'onPurchaseResponse': function(data) {
