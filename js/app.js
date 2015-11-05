@@ -549,8 +549,25 @@
         };
 
         this.start_stream = function (playerView, container, video) {
+
+          var url_base = this.settingsParams.playerEndpoint + 'embed/' + video.id + '.json';
+          var uri = new URI(url_base);
+          uri.addSearch({
+            autoplay: true,
+            api_key: this.settingsParams.key,
+            device_id: '5429b1c769702d2f7c120000'
+          });
+
+          var consumer = iapHandler.state.currentConsumer;
+
+          if (typeof consumer !== 'undefined' && consumer && consumer.access_token) {
+            uri.addSearch({
+              access_token: consumer.access_token
+            });
+          }
+
           $.ajax({
-              url: this.settingsParams.playerEndpoint + 'embed/' + video.id + '.json?autoplay=true&api_key=' + this.settingsParams.key + '&device_id=5429b1c769702d2f7c120000',
+              url: uri.href(),
               type: 'GET',
               dataType: 'json',
               success: function(player_json) {

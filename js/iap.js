@@ -24,7 +24,8 @@
       userId: null,
       validSkus: [], // these are the skus that have been purchased by the user and validated by amazon
       allVideoIds: [], // note that this is all video ids, some of which may not actually be available to purchase on amazon
-      availableSkus: [] // this should be the list of items actually available to purchase
+      availableSkus: [], // this should be the list of items actually available to purchase
+      currentConsumer: null
     };
 
     this.on('purchaseSuccess', function(receipt) {
@@ -114,6 +115,9 @@
       }).fail(function( msg ) {
         that.trigger('purchaseFail', receipt);
       }).done(function( msg ) {
+        var consumer = msg.response;
+        consumer.id = consumer['_id'];
+        that.state.currentConsumer = new Consumer(consumer);
         that.trigger('purchaseSuccess', receipt);
       });
     };
