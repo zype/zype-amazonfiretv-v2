@@ -164,36 +164,7 @@
     };
 
     this.allSubscriptions = function() {
-      return [
-        {
-          id: 'subscriptionWeekly',
-          name: 'Weekly Subscription'
-        },
-        {
-          id: 'subscriptionBiWeekly',
-          name: 'Bi-Weekly Subscription'
-        },
-        {
-          id: 'subscriptionMonthly',
-          name: 'Monthly Subscription'
-        },
-        {
-          id: 'subscriptionBiMonthly',
-          name: 'Bi-Monthly Subscription'
-        },
-        {
-          id: 'subscriptionQuarterly',
-          name: 'Quarterly Subscription'
-        },
-        {
-          id: 'subscriptionSemiAnnually',
-          name: 'Semi-Annual Subscription'
-        },
-        {
-          id: 'subscriptionAnnually',
-          name: 'Yearly Subscription'
-        }
-      ];
+      return this.settingsParams.subscriptionSkus;
     };
 
     this.allSubscriptionIds = function() {
