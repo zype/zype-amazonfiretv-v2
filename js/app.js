@@ -557,7 +557,6 @@
             api_key: this.settingsParams.key,
             device_id: '5429b1c769702d2f7c120000'
           });
-          uri.protocol("https");
 
           var consumer = iapHandler.state.currentConsumer;
 
