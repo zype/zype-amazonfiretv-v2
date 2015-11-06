@@ -45,7 +45,7 @@
 
 
           // icon
-          settings.icon = app_json.response.app_images[1].logo_hd;
+          settings.icon = utils.makeSSL(app_json.response.app_images[1].logo_hd);
           settings.iconXPosition = '150' + 'px';
           settings.iconYPosition =  '40' + 'px';
 

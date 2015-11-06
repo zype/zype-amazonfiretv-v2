@@ -171,7 +171,7 @@
 
             // add the source
             var source = document.createElement('source');
-            source.src = video.url;
+            source.src = utils.makeSSL(video.url);
             source.type = video.format;
             this.videoElement.appendChild(source);
 
