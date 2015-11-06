@@ -21,9 +21,11 @@
          * @description Makes a url https.
          */
         this.makeSSL = function(url) {
-            var uri = new URI(url);
-            uri.protocol("https");
-            return uri.href();
+            if(url) {
+                var uri = new URI(url);
+                uri.protocol("https");
+                return uri.href();
+            }
         };
 
         /**
