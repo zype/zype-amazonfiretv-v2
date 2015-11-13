@@ -49,8 +49,13 @@
           settings.iconXPosition = '150' + 'px';
           settings.iconYPosition =  '40' + 'px';
 
-          var app = new App(settings);
-          exports.app = app;
+          // when amazon platform is ready, start the app
+          document.addEventListener("amazonPlatformReady" , function() {
+            iapHandler.iapInit();
+            var app = new App(settings);
+            exports.app = app;
+          });
+
         },
         error:function() {
           alert("There was an error configuring your Fire TV App. Please exit.")

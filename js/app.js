@@ -37,7 +37,6 @@
     function onAmazonPlatformReady() {
         document.addEventListener("pause" , onPause, false);
         document.addEventListener("resume" , onResume, false);
-        iapHandler.iapInit();
     }
 
     document.addEventListener("amazonPlatformReady" , onAmazonPlatformReady, false);
@@ -448,11 +447,11 @@
             $("#app-header-bar").show();
         };
 
-/***********************************
- *
- * Application Transition Methods
- *
- ***********************************/
+      /***********************************
+       *
+       * Application Transition Methods
+       *
+       ***********************************/
        /**
         * Set the UI appropriately for the left-nav view
         */
