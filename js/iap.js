@@ -269,7 +269,7 @@
                 // Not checking can leave your application in a state that
                 // is vulnerable to attacks. See the supplied documention
                 // for additional information.
-                alert("Running in test mode");
+                console.log("Running in test mode");
             }
 
             // get current user
