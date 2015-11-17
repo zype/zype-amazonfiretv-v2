@@ -154,8 +154,14 @@
     };
 
     this.checkAvailableItems = function(onItemDataResponseCallback) {
-      amzn_wa.IAP.getItemData(this.state.allVideoIds);
-      this.onItemDataResponseCallback = onItemDataResponseCallback;
+      if (amzn_wa.IAP == null) {
+        console.log("Amazon In-App-Purchasing only works with Apps from the Appstore");
+        onItemDataResponseCallback();
+      }
+      else {
+        this.onItemDataResponseCallback = onItemDataResponseCallback;
+        amzn_wa.IAP.getItemData(this.state.allVideoIds);
+      }
     };
 
     this.onItemDataResponse = function(e) {
