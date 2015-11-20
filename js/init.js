@@ -23,26 +23,25 @@
           settings.category_id = app_json.response.category_id;
           settings.playlist_id = app_json.response.featured_playlist_id;
           settings.per_page = app_json.response.per_page;
-          settings.avod = true;
+          settings.avod = app_json.response.avod;
 
           // main colors
-          settings.backgroundColor = '#3d4550';
-          settings.topBarColor = '#000000';
-          settings.textColor = '#ffffff';
-          settings.mutedTextColor ='#b9bbbd';
-          settings.brandColor = '#b6cc28';
+          settings.backgroundColor = app_json.response.background_color;
+          settings.topBarColor = app_json.response.top_bar_color;
+          settings.textColor = app_json.response.text_color;
+          settings.mutedTextColor =app_json.response.muted_text_color;
+          settings.brandColor = app_json.response.brand_color;
 
           // navigation colors
-          settings.leftNavBackgroundColor = '#000000';
-          settings.leftNavTextColor = '#ffffff';
-          settings.leftNavHoverTextColor = '#000000';
-          settings.leftNavHoverBackgroundColor = '#ffffff';
-
+          settings.leftNavBackgroundColor = app_json.response.left_nav_background_color;
+          settings.leftNavTextColor = app_json.response.left_nav_text_color;
+          settings.leftNavHoverTextColor = app_json.response.left_nav_hover_text_color;
+          settings.leftNavHoverBackgroundColor = app_json.response.left_nav_hover_background_color;
 
           // icon
-          settings.icon = app_json.response.app_images[1].logo_hd;
-          settings.iconXPosition = '150' + 'px';
-          settings.iconYPosition =  '40' + 'px';
+          settings.icon = app_json.response.logo_medium_url;
+          settings.iconXPosition = app_json.response.icon_x_position + 'px';
+          settings.iconYPosition =  app_json.response.icon_y_position + 'px';
 
           var app = new App(settings);
           exports.app = app;
