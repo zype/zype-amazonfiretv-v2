@@ -24,6 +24,7 @@ Plan.getPlans = function(settings, successCallback) {
     method: 'GET',
     url: url,
     dataType: 'json',
+    crossDomain: true,
     data: {
       'api_key': settings.key,
       'app_key': settings.app,

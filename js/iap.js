@@ -103,6 +103,7 @@
       $.ajax({
         method: 'POST',
         url: amazon_verify_receipt_url,
+        crossDomain: true,
         dataType: 'json',
         data: {
           'api_key': this.settingsParams.apiKey,
