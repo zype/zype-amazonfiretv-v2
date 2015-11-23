@@ -519,7 +519,7 @@
         this.start_stream = function (playerView, container, categoryData, index) {
           var data = categoryData[index];
           $.ajax({
-              url: this.settingsParams.player_endpoint + 'embed/' + data.id + '.json?autoplay=true&api_key=' + this.settingsParams.key + '&device_id=5429b1c769702d2f7c120000',
+              url: this.settingsParams.player_endpoint + 'embed/' + data.id + '.json?autoplay=true&app_key=' + this.settingsParams.app_key,
               type: 'GET',
               dataType: 'json',
               success: function(player_json) {

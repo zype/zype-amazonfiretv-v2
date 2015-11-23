@@ -6,15 +6,14 @@
         PlayerView: PlayerView,
         PlaylistView: PlaylistPlayerView,
         showSearch: true,
-        key: "<API KEY>",
-        app: "<APP KEY>",
         endpoint: "https://api.zype.com/",
         player_endpoint: "https://player.zype.com/"
+        app_key: "<APP KEY>",
     };
 
     // add the dynamic settings
     $.ajax({
-        url: settings.endpoint + "app/?app_key=" + settings.app,
+        url: settings.endpoint + "app/?app_key=" + settings.app_key,
         type: 'GET',
         dataType: 'json',
         cache : true,
