@@ -530,6 +530,8 @@
                   data.url = output.url;
                   if (output.name === 'hls') {
                     data.format = 'application/x-mpegURL'
+                  } else if (output.name === 'm3u8') {
+                    data.format = 'application/x-mpegURL'
                   } else if (output.name === 'mp4') {
                     data.format = 'video/mp4';
                   }
