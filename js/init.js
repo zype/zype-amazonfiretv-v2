@@ -16,7 +16,7 @@
         url: settings.endpoint + "app/?app_key=" + settings.app_key,
         type: 'GET',
         dataType: 'json',
-        cache : true,
+        cache : false,
         success: function(app_json) {
           // set dynamic from the api
           settings.category_id = app_json.response.category_id;
