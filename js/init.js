@@ -7,7 +7,7 @@
         PlaylistView: PlaylistPlayerView,
         showSearch: true,
         endpoint: "https://api.zype.com/",
-        player_endpoint: "https://player.zype.com/"
+        player_endpoint: "https://player.zype.com/",
         app_key: "<APP KEY>",
     };
 
