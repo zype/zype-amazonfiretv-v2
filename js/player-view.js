@@ -182,7 +182,7 @@
               playedAd = false;
               var vid = videojs('zype_' + video.id.toString() + '-' + seconds);
               vid.ads();
-              vid.vast({url: appConfig.vastURl});
+              vid.vast({url: appConfig.vast_url});
             } else {
               playedAd = true;
             }

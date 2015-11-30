@@ -25,6 +25,7 @@
          * This function loads the initial data needed to start the app and calls the provided callback with the data when it is fully loaded
          * @param {function} the callback function to call with the loaded data
          */
+
         this.loadData = function (dataLoadedCallback) {
           // Important to load any plans as the IAP handler will need to have those available.
           var that = this;
@@ -38,7 +39,7 @@
 
         this.loadCategoryData = function(categoryDataLoadedCallback) {
           $.ajax({
-            url: this.settingsParams.endpoint + "categories/" + this.settingsParams.category_id + "/?api_key=" + this.settingsParams.key,
+            url: this.settingsParams.endpoint + "categories/" + this.settingsParams.category_id + "/?app_key=" + this.settingsParams.app_key,
             type: 'GET',
             crossDomain: true,
             dataType: 'json',
@@ -153,7 +154,7 @@
          */
          this.getVideoRows = function () {
           $.ajax({
-             url: this.settingsParams.endpoint + "playlists/" + this.settingsParams.playlist_id + "/?api_key=" + this.settingsParams.key,
+             url: this.settingsParams.endpoint + "playlists/" + this.settingsParams.playlist_id + "/?app_key=" + this.settingsParams.app_key,
              type: 'GET',
              crossDomain: true,
              dataType: 'json',
@@ -183,9 +184,9 @@
             //  we want to push all the videos with this category value into this.currData()
 
             if (this.settingsParams.category_id) {
-              var category_url = this.settingsParams.endpoint + "videos/?api_key=" + this.settingsParams.key + "&category[" + this.categoryTitle + "]=" + categoryValue + "&per_page="+ this.settingsParams.per_page+"&dpt=true&device_id=5429b1c769702d2f7c120000&sort=episode&order=asc";
+              var category_url = this.settingsParams.endpoint + "videos/?app_key=" + this.settingsParams.app_key + "&category[" + this.categoryTitle + "]=" + categoryValue + "&per_page="+ this.settingsParams.per_page+"&dpt=true&sort=episode&order=asc";
             } else {
-              var category_url = this.settingsParams.endpoint + "videos/?api_key=" + this.settingsParams.key + "&per_page=25&dpt=true&device_id=5429b1c769702d2f7c120000&sort=created_at&order=asc"
+              var category_url = this.settingsParams.endpoint + "videos/?app_key=" + this.settingsParams.app_key + "&per_page=25&dpt=true&sort=created_at&order=asc"
             }
 
             $.ajax({
@@ -214,10 +215,10 @@
           //  we want to push all the videos with this category value into this.currData()
 
           if (this.settingsParams.playlist_id) {
-            var playlist_url = this.settingsParams.endpoint + "playlists/" + this.settingsParams.playlist_id + "/videos/?api_key=" + this.settingsParams.key;
+            var playlist_url = this.settingsParams.endpoint + "playlists/" + this.settingsParams.playlist_id + "/videos/?app_key=" + this.settingsParams.app_key;
             console.log(playlist_url);
           } else {
-            var playlist_url = this.settingsParams.endpoint + "videos/?api_key=" + this.settingsParams.key + "&per_page=10&dpt=true&device_id=5429b1c769702d2f7c120000&sort=created_at&order=desc"
+            var playlist_url = this.settingsParams.endpoint + "videos/?app_key=" + this.settingsParams.app_key + "&per_page=10&dpt=true&sort=created_at&order=desc"
           }
 
           $.ajax({
@@ -286,7 +287,7 @@
            this.currData = [];
 
            $.ajax({
-             url: this.settingsParams.endpoint + "videos/?api_key=" + this.settingsParams.key + "&per_page=100&dpt=true&device_id=5429b1c769702d2f7c120000&sort=created_at&order=asc&q=" + searchTerm,
+             url: this.settingsParams.endpoint + "videos/?app_key=" + this.settingsParams.app_key + "&per_page=100&dpt=true&sort=created_at&order=asc&q=" + searchTerm,
              type: 'GET',
              crossDomain: true,
              dataType: 'json',

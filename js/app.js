@@ -549,12 +549,11 @@
 
         this.start_stream = function (playerView, container, video) {
 
-          var url_base = this.settingsParams.playerEndpoint + 'embed/' + video.id + '.json';
+          var url_base = this.settingsParams.player_endpoint + 'embed/' + video.id + '.json';
           var uri = new URI(url_base);
           uri.addSearch({
             autoplay: true,
-            api_key: this.settingsParams.key,
-            device_id: '5429b1c769702d2f7c120000'
+            app_key: this.settingsParams.app_key
           });
 
           var consumer = iapHandler.state.currentConsumer;
@@ -576,6 +575,8 @@
                   var output = outputs[i];
                   video.url = output.url;
                   if (output.name === 'hls') {
+                    video.format = 'application/x-mpegURL'
+                  } else if (output.name === 'm3u8') {
                     video.format = 'application/x-mpegURL'
                   } else if (output.name === 'mp4') {
                     video.format = 'video/mp4';

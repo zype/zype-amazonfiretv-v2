@@ -1,10 +1,9 @@
 // individual client apps should create a config.js file with the following set:
 
 // var appConfig = {
-//   apiKey: '<API KEY>',
-//   appKey: '<APP KEY>',
-//   vastURl: '<VAST TAG>',
+//   app_key: '<APP KEY>',
+//   vast_url: '<VAST TAG>',
 //   avod: true/false,
 //   endpoint: "https://api.zype.com/",
-//   playerEndpoint: "https://player.zype.com/"
+//   player_endpoint: "https://player.zype.com/"
 // };

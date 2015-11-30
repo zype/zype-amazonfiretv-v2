@@ -91,7 +91,7 @@
                 }
                 var data = this.items[this.currentIndex + 1];
 
-                var player_url = this.settings.playerEndpoint + '/embed/'+ data.id +'.json?autoplay=true&api_key=' + this.settings.key + '&device_id=5429b1c769702d2f7c120000';
+                var player_url = this.settings.player_endpoint + '/embed/'+ data.id +'.json?autoplay=true&app_key=' + this.settings.app_key;
 
                 $.ajax({
                     context: this,
