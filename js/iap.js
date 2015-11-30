@@ -106,8 +106,7 @@
         crossDomain: true,
         dataType: 'json',
         data: {
-          'api_key': this.settingsParams.apiKey,
-          'device_id': '5429b1c769702d2f7c120000',
+          'app_key': this.settingsParams.app_key,
           'item_type': receipt.itemType,
           'purchase_token': receipt.purchaseToken,
           'sku': receipt.sku,

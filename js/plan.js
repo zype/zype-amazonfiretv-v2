@@ -26,9 +26,7 @@ Plan.getPlans = function(settings, successCallback) {
     dataType: 'json',
     crossDomain: true,
     data: {
-      'api_key': settings.key,
-      'app_key': settings.app,
-      'device_id': '5429b1c769702d2f7c120000',
+      'app_key': settings.app_key
     }
   }).fail(function( msg ) {
     console.log('fail');
