@@ -8,7 +8,7 @@
         showSearch: true,
         endpoint: "https://api.zype.com/",
         player_endpoint: "https://player.zype.com/",
-        app_key: "<APP KEY>",
+        app_key: "<APP KEY>"
     };
 
     // add the dynamic settings
