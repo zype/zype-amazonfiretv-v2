@@ -44,7 +44,7 @@
           settings.leftNavHoverBackgroundColor = app_json.response.left_nav_hover_background_color;
 
           // icon
-          settings.icon = app_json.response.logo_medium_url;
+          settings.icon = utils.makeSSL(app_json.response.logo_medium_url);
           settings.iconXPosition = app_json.response.icon_x_position + 'px';
           settings.iconYPosition =  app_json.response.icon_y_position + 'px';
 
