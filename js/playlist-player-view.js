@@ -80,7 +80,7 @@
         }.bind(this);
 
         /**
-         * Handles shwoing the view to transition from playing one video to the next
+         * Handles showing the view to transition from playing one video to the next
          */
         this.transitionToNextVideo = function() {
           console.log("transition to next video");
