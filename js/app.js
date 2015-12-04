@@ -574,9 +574,7 @@
                 for(var i=0; i < outputs.length; i++) {
                   var output = outputs[i];
                   video.url = output.url;
-                  if (output.name === 'hls') {
-                    video.format = 'application/x-mpegURL'
-                  } else if (output.name === 'm3u8') {
+                  if (output.name === 'hls' || output.name === 'm3u8') {
                     video.format = 'application/x-mpegURL'
                   } else if (output.name === 'mp4') {
                     video.format = 'video/mp4';
