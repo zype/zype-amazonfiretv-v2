@@ -544,15 +544,15 @@
 
             playerView.on('videoStatus', this.handleVideoStatus, this);
             // stream video first gets the stream and then renders the player
-            this.start_stream(playerView, this.$appContainer, video);
+            this.start_stream(playerView, this.$appContainer, this.categoryData, index);
         };
 
-        this.start_stream = function (playerView, container, video) {
-
+        this.start_stream = function (playerView, container, items, index) {
+          var video = items[index];
           var url_base = this.settingsParams.player_endpoint + 'embed/' + video.id + '.json';
           var uri = new URI(url_base);
           uri.addSearch({
-            autoplay: true,
+            autoplay: this.settingsParams.autoplay,
             app_key: this.settingsParams.app_key
           });
 
@@ -591,7 +591,7 @@
                     }
                   }
 
-                  playerView.render(container, video);
+                  playerView.render(container, items, index);
                 }
               },
               error:function() {

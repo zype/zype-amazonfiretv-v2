@@ -25,6 +25,7 @@
           settings.per_page = app_json.response.per_page;
 
           settings.avod = app_json.response.avod;
+          settings.autoplay = app_json.response.autoplay;
 
           if(!settings.avod) {
             settings.displayButtons = true;

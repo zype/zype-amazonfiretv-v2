@@ -143,8 +143,9 @@
         /**
          * Creates the main content view from the template and appends it to the given element
          */
-        this.render = function ($container, video) {
+        this.render = function ($container, items, index) {
             // Build the main content template and add it
+            var video = items[index];
             this.currentVideo = video;
 
             // to ensure that the video is unique for vidjs

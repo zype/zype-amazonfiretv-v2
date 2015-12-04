@@ -91,11 +91,24 @@
                 }
                 var data = this.items[this.currentIndex + 1];
 
-                var player_url = this.settings.player_endpoint + 'embed/'+ data.id +'.json?autoplay=true&app_key=' + this.settings.app_key;
+                var url_base = this.settings.player_endpoint + 'embed/' + data.id + '.json';
+                var uri = new URI(url_base);
+                uri.addSearch({
+                  autoplay: this.settings.autoplay,
+                  app_key: this.settings.app_key
+                });
+
+                var consumer = iapHandler.state.currentConsumer;
+
+                if (typeof consumer !== 'undefined' && consumer && consumer.access_token) {
+                  uri.addSearch({
+                    access_token: consumer.access_token
+                  });
+                }
 
                 $.ajax({
                     context: this,
-                    url: player_url,
+                    url: uri.href(),
                     type: 'GET',
                     dataType: 'json',
                     success: function(player_json) {
