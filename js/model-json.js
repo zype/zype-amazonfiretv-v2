@@ -190,23 +190,20 @@
             }
 
             $.ajax({
-                url: category_url,
-                type: 'GET',
-                crossDomain: true,
-                dataType: 'json',
-                context : this,
-                cache : true,
-                success:function() {
-                  var contentData = arguments[0];
-                  this.currData = this.formatVideos(contentData);
-                },
-                error:function() {
-                    console.log(arguments);
-                },
-                complete:function() {
-                  categoryCallback(this.currData);
-                }
+              url: category_url,
+              type: 'GET',
+              crossDomain: true,
+              dataType: 'json',
+              context : this,
+              cache: false
+            }).fail(function( msg ) {
+              console.log( msg );
+            }).done(function( msg ) {
+              this.currData = this.formatVideos(msg);
+            }).always(function() {
+              categoryCallback(this.currData);
             });
+
          };
 
          this.getPlaylistData = function(categoryCallback) {
