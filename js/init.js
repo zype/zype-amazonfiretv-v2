@@ -61,10 +61,10 @@
           console.log('waiting for amazonPlatformReady...');
 
           // when amazon platform is ready, start the app
-          // document.addEventListener("amazonPlatformReady" , function() {
+          document.addEventListener("amazonPlatformReady" , function() {
             console.log('amazonPlatformReady!');
             initApp(settings);
-          // });
+          });
         },
         error:function() {
           alert("There was an error configuring your Fire TV App. Please exit.")
