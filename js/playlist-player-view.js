@@ -83,15 +83,19 @@
          * Handles showing the view to transition from playing one video to the next
          */
         this.transitionToNextVideo = function() {
-          console.log("transition to next video");
-          this.previewDismissed = true;
-            if (this.items.length > this.currentIndex + 1) {
-                if (this.$previewEl) {
-                    this.$previewEl.remove();
-                }
-                var data = this.items[this.currentIndex + 1];
 
-                var url_base = this.settings.player_endpoint + 'embed/' + data.id + '.json';
+            if (this.$previewEl) {
+                this.$previewEl.remove();
+            }
+
+            this.previewDismissed = true;
+
+            var video = this.items[this.currentIndex + 1];
+
+            if ( (this.items.length > this.currentIndex + 1) && iapHandler.canPlayVideo(video) ) {
+                console.log("transition to next video");
+
+                var url_base = this.settings.player_endpoint + 'embed/' + video.id + '.json';
                 var uri = new URI(url_base);
                 uri.addSearch({
                   autoplay: this.settings.autoplay,
@@ -116,11 +120,11 @@
                       var outputs = player_json.response.body.outputs;
                       for(var i=0; i < outputs.length; i++) {
                         var output = outputs[i];
-                        data.url = output.url;
+                        video.url = output.url;
                         if (output.name === 'hls' || output.name === 'm3u8') {
-                          data.format = 'application/x-mpegURL'
+                          video.format = 'application/x-mpegURL'
                         } else if (output.name === 'mp4') {
-                          data.format = 'video/mp4';
+                          video.format = 'video/mp4';
                         }
                       }
                       // issue is that this is the ajax response, not what I think it is outside the ajax block
@@ -130,10 +134,11 @@
                         console.log(arguments);
                     }
                 });
-            }
-            else {
+            } else {
                 this.exit();
             }
+
+
         };
 
         this.showTransitionView = function () {
