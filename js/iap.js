@@ -63,7 +63,6 @@
       } else if (e.purchaseRequestStatus == amzn_wa.IAP.PurchaseStatus.ALREADY_ENTITLED) {
         amzn_wa.IAP.getPurchaseUpdates(amzn_wa.IAP.Offset.BEGINNING)
       }
-      // refreshPageState();
     };
 
     // getPurchaseUpdates will return an array of receipts
@@ -94,7 +93,7 @@
       }
     };
 
-    this.verifyReceipt = function(receipt) {
+    this.handleReceipt = function(receipt) {
       // send receipt purchase token to zype verification service
       var amazon_verify_receipt_url = this.settingsParams.endpoint + 'amazon_fire_receipts/process_receipt';
 
@@ -142,15 +141,6 @@
       }).done(function( msg ) {
         console.log(msg);
       });
-    };
-
-    this.handleReceipt = function(receipt) {
-      // uncomment this in dev to enable creating valid receipts on a fake server
-      // use amazon_receipt_faker repo
-      // bundle exec rails s -p 9123
-      // this.createFakeReceipt(receipt);
-
-      this.verifyReceipt(receipt); // send receipt purchase token to zype
     };
 
     this.checkAvailableItems = function(onItemDataResponseCallback) {
