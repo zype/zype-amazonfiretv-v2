@@ -9,7 +9,16 @@
         app_key: appConfig.app_key,
         endpoint: appConfig.endpoint,
         player_endpoint: appConfig.player_endpoint,
-        avod: appConfig.avod
+        avod: appConfig.avod,
+        IAP: appConfig.IAP
+    };
+
+    var initApp = function(settings) {
+      if (settings.IAP == true) {
+        iapHandler.iapInit();
+      }
+      var app = new App(settings);
+      exports.app = app;
     };
 
     // add the dynamic settings
@@ -49,13 +58,13 @@
           settings.iconXPosition = app_json.response.icon_x_position + 'px';
           settings.iconYPosition =  app_json.response.icon_y_position + 'px';
 
-          // when amazon platform is ready, start the app
-          document.addEventListener("amazonPlatformReady" , function() {
-            iapHandler.iapInit();
-            var app = new App(settings);
-            exports.app = app;
-          });
+          console.log('waiting for amazonPlatformReady...');
 
+          // when amazon platform is ready, start the app
+          // document.addEventListener("amazonPlatformReady" , function() {
+            console.log('amazonPlatformReady!');
+            initApp(settings);
+          // });
         },
         error:function() {
           alert("There was an error configuring your Fire TV App. Please exit.")

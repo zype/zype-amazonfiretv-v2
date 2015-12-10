@@ -215,7 +215,7 @@
         };
 
         this.shouldShowButtons = function(video) {
-            return !iapHandler.canPlayVideo(video);
+            return (app.settingsParams.IAP == true && !iapHandler.canPlayVideo(video));
         }
 
        /**

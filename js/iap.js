@@ -155,7 +155,6 @@
 
     this.checkAvailableItems = function(onItemDataResponseCallback) {
       if (amzn_wa.IAP == null) {
-        console.log("Amazon In-App-Purchasing only works with Apps from the Appstore");
         onItemDataResponseCallback();
       }
       else {
@@ -238,7 +237,9 @@
     };
 
     this.canPlayVideo = function(video) {
-      if (video.hasPaywall() == false) {
+      if(!this.settingsParams.IAP) {
+        return true;
+      } else if (video.hasPaywall() == false) {
         return true;
       }
       if (video.subscription_required == true && this.hasValidSubscription()) {

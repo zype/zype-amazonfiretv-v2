@@ -373,17 +373,24 @@
                 // these are the videos
                 this.categoryData = categoryData;
 
-                // add video ids to iapHandler
-                var video_ids = _.map(this.categoryData, function(v) { return v.id; });
-                iapHandler.state.allVideoIds = video_ids;
+                if(this.settingsParams.IAP == true) {
+                  // add video ids to iapHandler
+                  var video_ids = _.map(this.categoryData, function(v) { return v.id; });
 
-                // add reference of oneDView to iapHandler
-                iapHandler.oneDView = oneDView;
+                  iapHandler.state.allVideoIds = video_ids;
 
-                // get the available items from amazon
-                iapHandler.checkAvailableItems(function() {
+                  // add reference of oneDView to iapHandler
+                  iapHandler.oneDView = oneDView;
+
+                  // get the available items from amazon
+                  iapHandler.checkAvailableItems(function() {
+                    oneDView.render(app.$appContainer, app.categoryData, app.settingsParams.displayButtons);
+                  });
+                } else {
                   oneDView.render(app.$appContainer, app.categoryData, app.settingsParams.displayButtons);
-                });
+                }
+
+
             }.bind(this);
 
            /**

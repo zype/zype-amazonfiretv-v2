@@ -5,5 +5,7 @@
 //   vast_url: '<VAST TAG>',
 //   avod: true/false,
 //   endpoint: "https://api.zype.com/",
-//   player_endpoint: "https://player.zype.com/"
+//   player_endpoint: "https://player.zype.com/",
+//   IAP: false,
+//   subscriptionSkus: []
 // };
