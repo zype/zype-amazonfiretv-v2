@@ -6,9 +6,19 @@
         PlayerView: PlayerView,
         PlaylistView: PlaylistPlayerView,
         showSearch: true,
-        endpoint: "https://api.zype.com/",
-        player_endpoint: "https://player.zype.com/",
-        app_key: "<APP KEY>"
+        app_key: appConfig.app_key,
+        endpoint: appConfig.endpoint,
+        player_endpoint: appConfig.player_endpoint,
+        avod: appConfig.avod,
+        IAP: appConfig.IAP
+    };
+
+    var initApp = function(settings) {
+      if (settings.IAP == true) {
+        iapHandler.iapInit();
+      }
+      var app = new App(settings);
+      exports.app = app;
     };
 
     // add the dynamic settings
@@ -22,7 +32,13 @@
           settings.category_id = app_json.response.category_id;
           settings.playlist_id = app_json.response.featured_playlist_id;
           settings.per_page = app_json.response.per_page;
+
           settings.avod = app_json.response.avod;
+          settings.autoplay = app_json.response.autoplay;
+
+          if(!settings.avod) {
+            settings.displayButtons = true;
+          }
 
           // main colors
           settings.backgroundColor = app_json.response.background_color;
@@ -38,12 +54,17 @@
           settings.leftNavHoverBackgroundColor = app_json.response.left_nav_hover_background_color;
 
           // icon
-          settings.icon = app_json.response.logo_medium_url;
+          settings.icon = utils.makeSSL(app_json.response.logo_original_url);
           settings.iconXPosition = app_json.response.icon_x_position + 'px';
           settings.iconYPosition =  app_json.response.icon_y_position + 'px';
 
-          var app = new App(settings);
-          exports.app = app;
+          console.log('waiting for amazonPlatformReady...');
+
+          // when amazon platform is ready, start the app
+          document.addEventListener("amazonPlatformReady" , function() {
+            console.log('amazonPlatformReady!');
+            initApp(settings);
+          });
         },
         error:function() {
           alert("There was an error configuring your Fire TV App. Please exit.")

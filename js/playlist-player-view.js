@@ -83,32 +83,48 @@
          * Handles showing the view to transition from playing one video to the next
          */
         this.transitionToNextVideo = function() {
-          console.log("transition to next video");
-          this.previewDismissed = true;
-            if (this.items.length > this.currentIndex + 1) {
-                if (this.$previewEl) {
-                    this.$previewEl.remove();
-                }
-                var data = this.items[this.currentIndex + 1];
 
-                var player_url = this.settings.player_endpoint + 'embed/'+ data.id +'.json?autoplay=true&app_key=' + this.settings.app_key;
+            if (this.$previewEl) {
+                this.$previewEl.remove();
+            }
+
+            this.previewDismissed = true;
+
+            var video = this.items[this.currentIndex + 1];
+
+            if ( (this.items.length > this.currentIndex + 1) && iapHandler.canPlayVideo(video) ) {
+                console.log("transition to next video");
+
+                var url_base = this.settings.player_endpoint + 'embed/' + video.id + '.json';
+                var uri = new URI(url_base);
+                uri.addSearch({
+                  autoplay: this.settings.autoplay,
+                  app_key: this.settings.app_key
+                });
+
+                var consumer = iapHandler.state.currentConsumer;
+
+                if (typeof consumer !== 'undefined' && consumer && consumer.access_token) {
+                  uri.addSearch({
+                    access_token: consumer.access_token
+                  });
+                }
 
                 $.ajax({
                     context: this,
-                    url: player_url,
+                    url: uri.href(),
                     type: 'GET',
                     dataType: 'json',
                     success: function(player_json) {
                       // set the url and format for the upcoming video
                       var outputs = player_json.response.body.outputs;
                       for(var i=0; i < outputs.length; i++) {
-                        // debugger;
                         var output = outputs[i];
-                        data.url = output.url;
+                        video.url = output.url;
                         if (output.name === 'hls' || output.name === 'm3u8') {
-                          data.format = 'application/x-mpegURL'
+                          video.format = 'application/x-mpegURL'
                         } else if (output.name === 'mp4') {
-                          data.format = 'video/mp4';
+                          video.format = 'video/mp4';
                         }
                       }
                       // issue is that this is the ajax response, not what I think it is outside the ajax block
@@ -118,8 +134,7 @@
                         console.log(arguments);
                     }
                 });
-            }
-            else {
+            } else {
                 this.exit();
             }
         };

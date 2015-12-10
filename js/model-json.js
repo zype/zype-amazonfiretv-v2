@@ -19,33 +19,47 @@
          this.currentlySearchData = false;
          this.months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
          this.settingsParams = appSettings;
+         this.plans = [];
+
         /**
          * This function loads the initial data needed to start the app and calls the provided callback with the data when it is fully loaded
          * @param {function} the callback function to call with the loaded data
          */
-        this.loadCategoryData = function (dataLoadedCallback) {
-             $.ajax({
-                 url: this.settingsParams.endpoint + "categories/" + this.settingsParams.category_id + "/?app_key=" + this.settingsParams.app_key,
-                 type: 'GET',
-                 crossDomain: true,
-                 dataType: 'json',
-                 context : this,
-                 cache : true,
-                 success:function() {
-                     var contentData = arguments[0];
-                     this.getCategoryRowValues(contentData);
-                 },
-                 error:function() {
-                   var contentData = {response: {title: 'Videos', values: ['All Videos']}}
-                   this.getCategoryRowValues(contentData);
-                   console.log(arguments);
-                 },
-                 complete:function() {
-                   console.log('loadCategoryData.complete');
-                   dataLoadedCallback();
-                 }
-             });
+
+        this.loadData = function (dataLoadedCallback) {
+          // Important to load any plans as the IAP handler will need to have those available.
+          var that = this;
+
+          this.getPlans(function(plans) {
+            that.plans = plans;
+            that.loadCategoryData(dataLoadedCallback);
+          });
+
         }.bind(this);
+
+        this.loadCategoryData = function(categoryDataLoadedCallback) {
+          $.ajax({
+            url: this.settingsParams.endpoint + "categories/" + this.settingsParams.category_id + "/?app_key=" + this.settingsParams.app_key,
+            type: 'GET',
+            crossDomain: true,
+            dataType: 'json',
+            context : this,
+            cache : true,
+            success:function() {
+              var contentData = arguments[0];
+              this.getCategoryRowValues(contentData);
+            },
+            error:function() {
+              var contentData = {response: {title: 'Videos', values: ['All Videos']}}
+              this.getCategoryRowValues(contentData);
+              console.log(arguments);
+            },
+            complete:function() {
+              console.log('loadData.complete');
+              categoryDataLoadedCallback();
+            }
+          });
+        };
 
        /**
         * Handles requests that contain json data
@@ -63,6 +77,14 @@
            this.categoryData.unshift(playlistTitle);
            console.log(this.categoryData[0]);
          }.bind(this);
+
+       /**
+        * Load plans from api
+        */
+        this.getPlans = function(callback) {
+          Plan.getPlans(this.settingsParams, callback);
+        };
+
 
        /***************************
         *
@@ -168,23 +190,20 @@
             }
 
             $.ajax({
-                url: category_url,
-                type: 'GET',
-                crossDomain: true,
-                dataType: 'json',
-                context : this,
-                cache : true,
-                success:function() {
-                  var contentData = arguments[0];
-                  this.currData = this.formatVideos(contentData);
-                },
-                error:function() {
-                    console.log(arguments);
-                },
-                complete:function() {
-                  categoryCallback(this.currData);
-                }
+              url: category_url,
+              type: 'GET',
+              crossDomain: true,
+              dataType: 'json',
+              context : this,
+              cache: false
+            }).fail(function( msg ) {
+              console.log( msg );
+            }).done(function( msg ) {
+              this.currData = this.formatVideos(msg);
+            }).always(function() {
+              categoryCallback(this.currData);
             });
+
          };
 
          this.getPlaylistData = function(categoryCallback) {
@@ -227,7 +246,7 @@
           var formattedVideos = [];
 
           for (var i=0; i < videos.length; i++) {
-            var video = {
+            var args = {
                 "id": videos[i]._id,
                 "title": videos[i].title,
                 "pubDate": videos[i].published_at,
@@ -235,8 +254,13 @@
                 "imgURL": this.parse_thumbnails(videos[i].thumbnails),
                 // parse videoURL at playtime
                 "description": videos[i].description,
-                "seconds": videos[i].duration
+                "seconds": videos[i].duration,
+                "subscription_required": videos[i].subscription_required,
+                "rental_required": videos[i].rental_required,
+                "purchase_required": videos[i].purchase_required,
+                "pass_required": videos[i].pass_required
               }
+            var video = new Video(args);
             formattedVideos.push(video)
           }
           // return the formatted video array

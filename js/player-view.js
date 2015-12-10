@@ -143,16 +143,16 @@
         /**
          * Creates the main content view from the template and appends it to the given element
          */
-        this.render = function ($container, data, index) {
+        this.render = function ($container, items, index) {
             // Build the main content template and add it
-            var data = data[index];
-            this.currentVideo = data;
+            var video = items[index];
+            this.currentVideo = video;
 
             // to ensure that the video is unique for vidjs
             var d = new Date();
             var seconds = d.getTime().toString();
 
-            var html = utils.buildTemplate($("#player-view-template"), data);
+            var html = utils.buildTemplate($("#player-view-template"), video);
             $container.append(html);
             this.$el = $container.children().last();
 
@@ -162,8 +162,8 @@
             // create the video element
             this.videoElement = document.createElement('video');
             this.videoElement.className = 'player-content-video video-js vjs-default-skin';
-            this.videoElement.id = 'zype_' + data.id.toString() + '-' + seconds;
-            this.videoElement.poster = data.thumbURL;
+            this.videoElement.id = 'zype_' + video.id.toString() + '-' + seconds;
+            this.videoElement.poster = video.thumbURL;
             this.videoElement.autoplay = true;
             this.videoElement.controls = false;
             this.videoElement.preload = 'auto';
@@ -172,8 +172,8 @@
 
             // add the source
             var source = document.createElement('source');
-            source.src = data.url;
-            source.type = data.format;
+            source.src = utils.makeSSL(video.url);
+            source.type = video.format;
             this.videoElement.appendChild(source);
 
             this.$el.append(this.videoElement);
@@ -181,9 +181,9 @@
             if (settings.avod) {
               console.log('getting ad');
               playedAd = false;
-              var vid = videojs('zype_' + data.id.toString() + '-' + seconds);
+              var vid = videojs('zype_' + video.id.toString() + '-' + seconds);
               vid.ads();
-              vid.vast({url:"<VAST TAG>"});
+              vid.vast({url: appConfig.vast_url});
             } else {
               playedAd = true;
             }
@@ -199,7 +199,7 @@
 
             // create controls
             this.controlsView = new ControlsView();
-            this.controlsView.render(this.$el, data, this);
+            this.controlsView.render(this.$el, video, this);
             this.videoElement.addEventListener('durationchange', this.durationChangeHandler)
         };
 

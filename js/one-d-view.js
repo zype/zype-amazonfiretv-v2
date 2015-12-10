@@ -14,7 +14,9 @@
 
         ID_ONED_SUMMARY_DATE      = "summaryDate",
 
-        ID_ONED_SUMMARY_DESC      = "summaryDesc";
+        ID_ONED_SUMMARY_DESC      = "summaryDesc",
+
+        BUTTON_CONTAINER          = "detail-row-container-buttons";
 
     var TIME_TIMEOUT_DISPLAY_INFO = 350;
 
@@ -24,11 +26,11 @@
      */
     var OneDView = function () {
         // mixin inheritance, initialize this as an event handler for these events:
-        Events.call(this, ['noContent', 'exit', 'startScroll', 'indexChange', 'stopScroll', 'select', 'bounce', 'loadComplete']);
+        Events.call(this, ['noContent', 'exit', 'startScroll', 'indexChange', 'stopScroll', 'select', 'bounce', 'loadComplete', 'makeIAP']);
 
         //global variables
         this.currSelection = 0;
-        this.currentView   = null;
+        this.currentView = null;
         this.titleText = null;
         this.$shovelerContainer = null;
         this.noItems = false;
@@ -36,6 +38,11 @@
         //jquery global variables
         this.$el = null;
         this.el = null;
+
+        this.onPurchaseSuccess = function() {
+            this.transitionToShovelerView();
+            this.buttonView.hide();
+        };
 
        /**
         * Hide this view - use visibility instead of display
@@ -68,6 +75,13 @@
         */
         this.setCurrentView = function (view) {
             this.currentView = view;
+        };
+
+        /**
+        * Fetch the currently selected video
+        */
+        this.currentVideo = function() {
+            return this.rowElements[this.currSelection];
         };
 
         /**
@@ -164,14 +178,22 @@
                 this.trigger('exit');
             }, this);
 
-            buttonView.render($el);
+            buttonView.on('makeIAP', function(sku) {
+                this.trigger('makeIAP', sku);
+            }, this);
+
+            var subscribeButtons = iapHandler.getAvailableSubscriptionButtons();
+            var video = this.currentVideo();
+            var purchaseButtons = iapHandler.getAvailablePurchaseButtons();
+            if (subscribeButtons.length > 0 || purchaseButtons.length > 0) {
+                buttonView.render($el, subscribeButtons, purchaseButtons);
+            }
         };
 
         /**
         * Externally change the index
         */
         this.changeIndex = function (index) {
-
             this.shovelerView.setSelectedElement(index);
             this.shovelerView.transitionRow();
             this.shovelerView.trigger("stopScroll", this.shovelerView.currSelection);
@@ -182,7 +204,7 @@
         * Make the shoveler the active view
         */
         this.transitionToShovelerView = function () {
-            //change to button view
+            //change to shoveler view
             this.setCurrentView(this.shovelerView);
 
             //change opacity of the shoveler
@@ -192,10 +214,18 @@
             if(this.buttonView) this.buttonView.setStaticButton();
         };
 
+        this.shouldShowButtons = function(video) {
+            return (app.settingsParams.IAP == true && !iapHandler.canPlayVideo(video));
+        }
+
        /**
         * Make the buttons the active view
         */
         this.transitionToButtonView = function () {
+            var currentVid = this.currentVideo();
+            if ( !this.shouldShowButtons(currentVid) ) {
+                return false;
+            }
             //change to button view
             this.setCurrentView(this.buttonView);
 
@@ -274,7 +304,32 @@
                 $("#" + ID_ONED_SUMMARY_TITLE).html(this.rowElements[index].title);
                 $("#" + ID_ONED_SUMMARY_DATE).html(this.parseTime(this.rowElements[index].seconds));
                 $("#" + ID_ONED_SUMMARY_DESC).html(this.rowElements[index].description);
+                if(this.shouldShowButtons(this.rowElements[index])) {
+                    // show entire button container
+                    $("." + BUTTON_CONTAINER).show();
+
+                    this.showAvailableButtons();
+                }
             }.bind(this), TIME_TIMEOUT_DISPLAY_INFO);
+        };
+
+        this.showAvailableButtons = function() {
+            var video = this.currentVideo();
+
+            // show rental button if a subcription is required and they haven't rented
+            if(video.purchase_required == true && !iapHandler.hasValidPurchase(video.id)) {
+                 $('#' + iapHandler.purchaseSku(video.id) + '-purchase').show();
+            }
+
+            // show purchase button if a subcription is required and they haven't purchased
+            if(video.rental_required == true && !iapHandler.hasValidRental(video.id)) {
+                $('#' + iapHandler.rentalSku(video.id)).show();
+            }
+
+            // show subscribe buttons if a subcription is required and they aren't subscribed
+            if(video.subscription_required == true && !iapHandler.hasValidSubscription()) {
+                $('.detail-row-container-buttons .btnSubscribe').show();
+            }
         };
 
         // Convert seconds to HH:MM:SS
@@ -294,6 +349,8 @@
             $("#" + ID_ONED_SUMMARY_TITLE).text("");
             $("#" + ID_ONED_SUMMARY_DATE).text("");
             $("#" + ID_ONED_SUMMARY_DESC).text("");
+            $('.detail-row-container-buttons .btnIAP').hide();
+            $("." + BUTTON_CONTAINER).hide();
         };
     };
 

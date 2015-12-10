@@ -79,6 +79,9 @@
         //main application container div
         this.$appContainer = $("#app-container");
 
+        // mixin inheritance, initialize this as an event handler for these events:
+        Events.call(this, ['purchaseSuccess']);
+
        /**
         * Callback from XHR to load the data model, this really starts the app UX
         */
@@ -350,13 +353,44 @@
                 handleDeviceOrientation();
             }, this);
 
+            /**
+             * Event Handler - Make In-App-Purchase shoveler item
+             * @param {Number} sku is the sku of the selected item
+             */
+             oneDView.on('makeIAP', function(sku) {
+                iapHandler.purchaseItem(sku);
+             }, this);
+
+             this.on('purchaseSuccess', function() {
+               oneDView.onPurchaseSuccess();
+             });
+
            /**
             * Success Callback handler for category data request
             * @param {Object} categoryData
             */
             var successCallback = function(categoryData) {
+                // these are the videos
                 this.categoryData = categoryData;
-                oneDView.render(this.$appContainer, categoryData, this.settingsParams.displayButtons);
+
+                if(this.settingsParams.IAP == true) {
+                  // add video ids to iapHandler
+                  var video_ids = _.map(this.categoryData, function(v) { return v.id; });
+
+                  iapHandler.state.allVideoIds = video_ids;
+
+                  // add reference of oneDView to iapHandler
+                  iapHandler.oneDView = oneDView;
+
+                  // get the available items from amazon
+                  iapHandler.checkAvailableItems(function() {
+                    oneDView.render(app.$appContainer, app.categoryData, app.settingsParams.displayButtons);
+                  });
+                } else {
+                  oneDView.render(app.$appContainer, app.categoryData, app.settingsParams.displayButtons);
+                }
+
+
             }.bind(this);
 
            /**
@@ -420,11 +454,11 @@
             $("#app-header-bar").show();
         };
 
-/***********************************
- *
- * Application Transition Methods
- *
- ***********************************/
+      /***********************************
+       *
+       * Application Transition Methods
+       *
+       ***********************************/
        /**
         * Set the UI appropriately for the left-nav view
         */
@@ -484,6 +518,10 @@
         * @param {Object} itemData data for currently selected item
         */
         this.transitionToPlayer = function (index) {
+            var video = this.categoryData[index];
+            if ( !iapHandler.canPlayVideo(video) ) {
+              return false;
+            }
             var playerView;
             this.playerSpinnerHidden = false;
             if (this.settingsParams.PlaylistView) {
@@ -516,10 +554,25 @@
             this.start_stream(playerView, this.$appContainer, this.categoryData, index);
         };
 
-        this.start_stream = function (playerView, container, categoryData, index) {
-          var data = categoryData[index];
+        this.start_stream = function (playerView, container, items, index) {
+          var video = items[index];
+          var url_base = this.settingsParams.player_endpoint + 'embed/' + video.id + '.json';
+          var uri = new URI(url_base);
+          uri.addSearch({
+            autoplay: this.settingsParams.autoplay,
+            app_key: this.settingsParams.app_key
+          });
+
+          var consumer = iapHandler.state.currentConsumer;
+
+          if (typeof consumer !== 'undefined' && consumer && consumer.access_token) {
+            uri.addSearch({
+              access_token: consumer.access_token
+            });
+          }
+
           $.ajax({
-              url: this.settingsParams.player_endpoint + 'embed/' + data.id + '.json?autoplay=true&app_key=' + this.settingsParams.app_key,
+              url: uri.href(),
               type: 'GET',
               dataType: 'json',
               success: function(player_json) {
@@ -527,25 +580,25 @@
                 var outputs = player_json.response.body.outputs;
                 for(var i=0; i < outputs.length; i++) {
                   var output = outputs[i];
-                  data.url = output.url;
+                  video.url = output.url;
                   if (output.name === 'hls' || output.name === 'm3u8') {
-                    data.format = 'application/x-mpegURL'
+                    video.format = 'application/x-mpegURL'
                   } else if (output.name === 'mp4') {
-                    data.format = 'video/mp4';
+                    video.format = 'video/mp4';
                   }
 
                   // add ad schedule to video json
                   if (player_json.response.body.advertising) {
-                    data.ad_schedule = []
+                    video.ad_schedule = []
                     var schedule = player_json.response.body.advertising.schedule;
                     for(i = 0; i < schedule.length; i++) {
                       // add each ad tag in, make played be false
                       var seconds = schedule[i].offset / 1000;
-                      data.ad_schedule.push({offset: seconds, tag: schedule[i].tag, played: false});
+                      video.ad_schedule.push({offset: seconds, tag: schedule[i].tag, played: false});
                     }
                   }
 
-                  playerView.render(container, categoryData, index);
+                  playerView.render(container, items, index);
                 }
               },
               error:function() {
@@ -581,7 +634,7 @@
 
         //initialize the model and get the first data set
         this.data = new this.settingsParams.Model(this.settingsParams);
-        this.data.loadCategoryData(this.dataLoaded);
+        this.data.loadData(this.dataLoaded);
     };
 
     exports.App = App;

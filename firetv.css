@@ -48,7 +48,9 @@ div {
   position: absolute;
   width: 100%;
   height: 240px;
-  background-color: #000000; }
+  background-color: #000000;
+  line-height: 0;
+}
 
 .app-logo {
   position: absolute;
@@ -253,11 +255,13 @@ div {
   position: absolute;
   bottom: 100px;
   left: 150px;
-  height: 75px; }
+  height: 75px;
+  display: none;
+}
 
 .detail-item-button, .detail-item-button-selected, .detail-item-button-static {
   position: relative;
-  width: 315px;
+  width: 400px;
   height: 73px;
   padding: 15px;
   float: left;
@@ -667,4 +671,12 @@ div {
 
 .video-js {
   width: 100% !important;
+}
+
+#AmazonServicesPurchaseItem > * {
+  z-index: 200;
+}
+
+.detail-row-container-buttons .btnPurchase, .detail-row-container-buttons .btnSubscribe{
+  display: none;
 }

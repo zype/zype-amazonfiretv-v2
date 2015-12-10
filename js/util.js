@@ -1,8 +1,8 @@
-/* Utilities 
+/* Utilities
  *
- * App utility methods 
- * 
- */ 
+ * App utility methods
+ *
+ */
 
 (function(exports) {
     "use strict";
@@ -14,6 +14,19 @@
         }
 
         this.prefix = '';
+
+        /**
+         * @function makeSSL
+         * @param {url} incoming url
+         * @description Makes a url https.
+         */
+        this.makeSSL = function(url) {
+            if(url) {
+                var uri = new URI(url);
+                uri.protocol("https");
+                return uri.href();
+            }
+        };
 
         /**
          * @function buildTemplate
