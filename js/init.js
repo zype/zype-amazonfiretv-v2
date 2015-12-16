@@ -9,7 +9,6 @@
         app_key: appConfig.app_key,
         endpoint: appConfig.endpoint,
         player_endpoint: appConfig.player_endpoint,
-        avod: appConfig.avod,
         IAP: appConfig.IAP
     };
 
