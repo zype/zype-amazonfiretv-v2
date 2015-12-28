@@ -65,6 +65,7 @@
         * Remove the oneDView element
         */
         this.remove = function () {
+            $(".one-d-no-items-container").remove();
             if(this.el) {
                 $(this.el).remove();
             }

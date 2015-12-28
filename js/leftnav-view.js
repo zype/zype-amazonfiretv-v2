@@ -213,6 +213,12 @@
             touches.registerTouchHandler("leftnav-list-item-static", this.handleListItemSelection);
         };
 
+        /**
+         * Remove the leftnave view
+         */
+        this.remove = function () {
+            this.$el.remove();
+        };
 
        /**
         * Key event handler

@@ -34,6 +34,7 @@
           settings.avod = app_json.response.avod;
           settings.IAP = app_json.response.in_app_purchase;
           settings.autoplay = app_json.response.autoplay;
+          settings.nested_categories = app_json.response.nested;
 
           if(!settings.avod) {
             settings.displayButtons = true;

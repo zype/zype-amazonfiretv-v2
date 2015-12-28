@@ -21,6 +21,9 @@
          this.settingsParams = appSettings;
          this.plans = [];
 
+         this.categoriesData = [];
+         this.currentNestedCategory = 0;
+
         /**
          * This function loads the initial data needed to start the app and calls the provided callback with the data when it is fully loaded
          * @param {function} the callback function to call with the loaded data
@@ -37,7 +40,8 @@
 
         }.bind(this);
 
-        this.loadCategoryData = function(categoryDataLoadedCallback) {
+        this.loadCategoryData = function(categoryDataLoadedCallback){
+          console.log('load.category.data');
           $.ajax({
             url: this.settingsParams.endpoint + "categories/" + this.settingsParams.category_id + "/?app_key=" + this.settingsParams.app_key,
             type: 'GET',
@@ -48,11 +52,12 @@
             success:function() {
               var contentData = arguments[0];
               this.getCategoryRowValues(contentData);
+              this.getPlaylistTitle();
             },
             error:function() {
               var contentData = {response: {title: 'Videos', values: ['All Videos']}}
               this.getCategoryRowValues(contentData);
-              console.log(arguments);
+              this.getPlaylistTitle();
             },
             complete:function() {
               console.log('loadData.complete');
@@ -67,15 +72,12 @@
         */
         this.getCategoryRowValues = function (jsonData) {
             this.categoryData = jsonData.response.values;
-
             this.categoryTitle = jsonData.response.title;
          }.bind(this);
 
-         this.getPlaylistRowValue = function (jsonData) {
-           console.log(this.categoryData[0]);
+         this.getPlaylistRowValue = function(jsonData) {
            var playlistTitle = jsonData.response.title;
            this.categoryData.unshift(playlistTitle);
-           console.log(this.categoryData[0]);
          }.bind(this);
 
        /**
@@ -85,6 +87,56 @@
           Plan.getPlans(this.settingsParams, callback);
         };
 
+        /**
+         * Get the nested categories data
+         * @param {function} the callback function
+         */
+        this.getCategories = function(callback) {
+          $.ajax({
+            url: this.settingsParams.endpoint + "/zobjects/?app_key=" + this.settingsParams.app_key + "&zobject_type=channels&per_page=100&sort=priority&order=asc",
+            type: 'GET',
+            crossDomain: true,
+            dataType: 'json',
+            context: this,
+            cache: true,
+            success: function() {
+              var contentData = arguments[0].response;
+              var formattedCategories = [];
+              for (var i = 0; i < contentData.length; i++) {
+                var args = {
+                  id: contentData[i]._id,
+                  title: contentData[i].title,
+                  playlist_id: contentData[i].playlist_id,
+                  category_id: contentData[i].category_id,
+                  imgUrl: contentData[i].pictures[0].url,
+                  description: contentData[i].description
+                };
+                var c = new Category(args);
+                formattedCategories.push(c)
+              }
+              this.categoriesData = formattedCategories;
+            },
+            error: function() {
+              console.log(arguments);
+            },
+            complete: function() {
+              console.log('loadData.complete');
+              callback(this.categoriesData);
+            }
+          });
+        };
+
+        this.setCurrentNestedCategory = function(index) {
+          this.currentNestedCategory = index;
+        };
+
+        this.setCategoryId = function(id) {
+          this.settingsParams.category_id = id;
+        };
+
+        this.setPlaylistId = function(id) {
+          this.settingsParams.playlist_id = id;
+        };
 
        /***************************
         *
@@ -149,29 +201,36 @@
         * Content Item Methods
         *
         ***************************/
+
         /**
          * Return the category items for the left-nav view
          */
-         this.getVideoRows = function () {
-          $.ajax({
-             url: this.settingsParams.endpoint + "playlists/" + this.settingsParams.playlist_id + "/?app_key=" + this.settingsParams.app_key,
-             type: 'GET',
-             crossDomain: true,
-             dataType: 'json',
-             context : this,
-             cache : true,
-             async: false,
-             success:function() {
-                 var contentData = arguments[0];
-                 this.categoryData.unshift(contentData.response.title);
-                 return this.categoryData;
-             },
-             error:function() {
-               this.categoryData.unshift('New Releases');
-               return this.categoryData;
-             }
-         });
-             return this.categoryData;
+        this.getPlaylistTitle = function() {
+          if (this.settingsParams.playlist_id) {
+            $.ajax({
+              url: this.settingsParams.endpoint + "playlists/" + this.settingsParams.playlist_id + "/?app_key=" + this.settingsParams.app_key,
+              type: 'GET',
+              crossDomain: true,
+              dataType: 'json',
+              context: this,
+              cache: true,
+              async: false,
+              success: function() {
+                var contentData = arguments[0];
+                this.categoryData.unshift(contentData.response.title);
+              },
+              error: function() {
+                this.categoryData.unshift('New Releases');
+              }
+            });
+          }
+        };
+
+         /**
+          * Get category titles
+          */
+         this.getCategoryItems = function(callback) {
+           callback(this.categoryData);
          };
 
         /**
@@ -213,7 +272,6 @@
 
           if (this.settingsParams.playlist_id) {
             var playlist_url = this.settingsParams.endpoint + "playlists/" + this.settingsParams.playlist_id + "/videos/?app_key=" + this.settingsParams.app_key;
-            console.log(playlist_url);
           } else {
             var playlist_url = this.settingsParams.endpoint + "videos/?app_key=" + this.settingsParams.app_key + "&per_page=10&dpt=true&sort=created_at&order=desc"
           }
