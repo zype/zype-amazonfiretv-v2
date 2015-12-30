@@ -65,6 +65,9 @@
             console.log('amazonPlatformReady!');
             initApp(settings);
           });
+
+          // uncomment to test on the browser
+          // initApp(settings);
         },
         error:function() {
           alert("There was an error configuring your Fire TV App. Please exit.")

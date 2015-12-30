@@ -373,8 +373,11 @@
          * Set the UI appropriately for the category
          */
         this.transitionToCategory = function() {
+          this.showContentLoadingSpinner();
           console.log('transition.to.category');
           this.nestedCategoriesOneDView.shovelerView.remove();
+          this.nestedCategoriesOneDView.remove();
+          this.nestedCategoriesOneDView = null;
           this.data.loadCategoryData(function() {
             this.initializeLeftNavView();
             this.initializeOneDView();
@@ -387,9 +390,13 @@
          * Set the UI appropriately for the categories
          */
         this.transitionToCategories = function() {
+          this.showContentLoadingSpinner();
+          console.log('transition.to.categories');
           this.oneDView.shovelerView.remove();
           this.oneDView.remove();
+          this.oneDView = null;
           this.leftNavView.remove();
+          this.leftNavView = null;
           this.initializeNestedCategories();
           this.selectView(this.nestedCategoriesOneDView);
         };

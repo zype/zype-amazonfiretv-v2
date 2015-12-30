@@ -65,7 +65,6 @@
         * Remove the oneDView element
         */
         this.remove = function () {
-            $(".one-d-no-items-container").remove();
             if(this.el) {
                 $(this.el).remove();
             }
@@ -288,7 +287,7 @@
 
             //use the dirty flag to make sure we are not handling the
             //event twice - once for this view and once in the child view
-            if(!dirty) {
+            if(!dirty && this.currentView) {
                 this.currentView.handleControls(e);
             }
         }.bind(this);
@@ -303,7 +302,7 @@
             window.setTimeout(function () {
                 //add description
                 $("#" + ID_ONED_SUMMARY_TITLE).html(this.rowElements[index].title);
-                $("#" + ID_ONED_SUMMARY_DATE).html(this.parseTime(this.rowElements[index].seconds));
+                $("#" + ID_ONED_SUMMARY_DATE).html((this.rowElements[index].seconds) ? (this.parseTime(this.rowElements[index].seconds)) : ("<br/>"));
                 $("#" + ID_ONED_SUMMARY_DESC).html(this.rowElements[index].description);
                 if(this.shouldShowButtons(this.rowElements[index])) {
                     // show entire button container
