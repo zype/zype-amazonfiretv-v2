@@ -92,6 +92,12 @@
          * @param {function} the callback function
          */
         this.getCategories = function(callback) {
+
+          if (this.categoriesData.length > 0) {
+            callback(this.categoriesData);
+            return;
+          }
+
           $.ajax({
             url: this.settingsParams.endpoint + "/zobjects/?app_key=" + this.settingsParams.app_key + "&zobject_type=channels&per_page=100&sort=priority&order=asc",
             type: 'GET',
