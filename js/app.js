@@ -398,7 +398,10 @@
           this.leftNavView.remove();
           this.leftNavView = null;
           this.initializeNestedCategories();
-          this.selectView(this.nestedCategoriesOneDView);
+          this.nestedCategoriesOneDView.on('loadComplete', function() {
+            this.nestedCategoriesOneDView.changeIndex(this.data.currentNestedCategory);
+            this.selectView(this.nestedCategoriesOneDView);
+           }, this);
         };
 
        /***************************
