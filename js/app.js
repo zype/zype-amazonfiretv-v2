@@ -316,7 +316,7 @@
          * Nested Categories One D View
          */
         this.initializeNestedCategories = function() {
-            var nestedCategoriesOneDView = this.nestedCategoriesOneDView = new OneDView();
+            var nestedCategoriesOneDView = this.nestedCategoriesOneDView = new OneDView(true);
 
             /**
              * Event handler - select shoveler item
@@ -399,7 +399,6 @@
           this.leftNavView = null;
           this.initializeNestedCategories();
           this.nestedCategoriesOneDView.on('loadComplete', function() {
-            this.nestedCategoriesOneDView.changeIndex(this.data.currentNestedCategory);
             this.selectView(this.nestedCategoriesOneDView);
            }, this);
         };

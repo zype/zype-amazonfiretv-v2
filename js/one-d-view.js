@@ -24,7 +24,7 @@
      * @class OneDView
      * @description The 1D view object, this handles everything about the 1D menu.
      */
-    var OneDView = function () {
+    var OneDView = function (fromSubCat) {
         // mixin inheritance, initialize this as an event handler for these events:
         Events.call(this, ['noContent', 'exit', 'startScroll', 'indexChange', 'stopScroll', 'select', 'bounce', 'loadComplete', 'makeIAP']);
 
@@ -128,6 +128,10 @@
             // create the shoveler subview
             this.$shovelerContainer = this.$el.children("#" + ID_ONED_SHOVELER_CONTAINER);
             var shovelerView = this.shovelerView = new ShovelerView();
+
+            if (fromSubCat) {
+              this.shovelerView.setSelectedElement(app.data.currentNestedCategory);
+            }
             this.shovelerView.render(this.$shovelerContainer, rowData);
 
             shovelerView.on('exit', function() {
