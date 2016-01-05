@@ -99,7 +99,7 @@
           }
 
           $.ajax({
-            url: this.settingsParams.endpoint + "/zobjects/?app_key=" + this.settingsParams.app_key + "&zobject_type=channels&per_page=100&sort=priority&order=asc",
+            url: this.settingsParams.endpoint + "zobjects/?app_key=" + this.settingsParams.app_key + "&zobject_type=channels&per_page=100&sort=priority&order=asc",
             type: 'GET',
             crossDomain: true,
             dataType: 'json',
