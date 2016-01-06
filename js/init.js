@@ -8,8 +8,7 @@
         showSearch: true,
         app_key: appConfig.app_key,
         endpoint: appConfig.endpoint,
-        player_endpoint: appConfig.player_endpoint,
-        IAP: appConfig.IAP
+        player_endpoint: appConfig.player_endpoint
     };
 
     var initApp = function(settings) {
@@ -33,6 +32,7 @@
           settings.per_page = app_json.response.per_page;
 
           settings.avod = app_json.response.avod;
+          settings.IAP = app_json.response.in_app_purchase;
           settings.autoplay = app_json.response.autoplay;
 
           if(!settings.avod) {
