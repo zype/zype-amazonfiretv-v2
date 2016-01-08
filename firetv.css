@@ -121,7 +121,9 @@ div {
   box-orient: vertical;
   -webkit-line-clamp: 1;
   -moz-line-clamp: 1;
-  line-clamp: 1; }
+  line-clamp: 1;
+  height: 90px;
+}
 
 .leftnav-list-item-container:first-child {
   margin-top: 148px; }

@@ -34,6 +34,7 @@
           settings.avod = app_json.response.avod;
           settings.IAP = app_json.response.in_app_purchase;
           settings.autoplay = app_json.response.autoplay;
+          settings.nested_categories = app_json.response.nested;
 
           if(!settings.avod) {
             settings.displayButtons = true;
@@ -64,6 +65,9 @@
             console.log('amazonPlatformReady!');
             initApp(settings);
           });
+
+          // uncomment to test on the browser
+          // initApp(settings);
         },
         error:function() {
           alert("There was an error configuring your Fire TV App. Please exit.")

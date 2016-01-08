@@ -86,7 +86,6 @@
         * Callback from XHR to load the data model, this really starts the app UX
         */
         this.dataLoaded = function() {
-
           // initialize custom styles
           this.updateStyleSheet();
           var logo = this.settingsParams.icon;
@@ -96,14 +95,15 @@
 
           this.$appContainer.append(html);
 
-          this.initializeLeftNavView();
-
-          this.selectView(this.leftNavView);
-
-          this.leftNavView.expand();
-
-          this.initializeOneDView();
-
+          if (this.settingsParams.nested_categories) {
+            this.initializeNestedCategories();
+            this.selectView(this.nestedCategoriesOneDView);
+          } else {
+            this.initializeLeftNavView();
+            this.initializeOneDView();
+            this.selectView(this.leftNavView);
+            this.leftNavView.expand();
+          }
         }.bind(this);
 
         // overrides css with configs
@@ -249,9 +249,13 @@
            /**
             * Event Handler - exit the application
             */
-            leftNavView.on('exit', function() {
+           leftNavView.on('exit', function() {
+             if (this.settingsParams.nested_categories) {
+               this.transitionToCategories();
+             } else {
                this.exitApp();
-            }, this);
+             }
+           }, this);
 
             if (this.showSearch) {
                 this.searchInputView.on('searchQueryEntered', function() {
@@ -289,15 +293,114 @@
 
             }, this);
 
-            //render the left nav right now
-            var leftNavData = app.data.getVideoRows().slice(0);
+            var successCallback = function(categoryItems) {
+              var leftNavData = categoryItems;
 
-            var startIndex = 0;
-            if (this.showSearch) {
+              var startIndex = 0;
+              if (this.showSearch) {
                 leftNavData.unshift(this.searchInputView);
                 startIndex = 1;
-            }
-            leftNavView.render(app.$appContainer, leftNavData, startIndex);
+              }
+
+              leftNavView.render(this.$appContainer, leftNavData, startIndex);
+            }.bind(this);
+
+            leftNavView.updateCategoryItems = function() {
+              this.data.getCategoryItems(successCallback);
+            }.bind(this);
+
+            this.leftNavView.updateCategoryItems();
+        };
+
+        /**
+         * Nested Categories One D View
+         */
+        this.initializeNestedCategories = function() {
+            var nestedCategoriesOneDView = this.nestedCategoriesOneDView = new OneDView(true);
+
+            /**
+             * Event handler - select shoveler item
+             * @param {number} index the index of the selected item
+             */
+            nestedCategoriesOneDView.on('select', function(index) {
+              console.log('on.select.event');
+              app.data.setCurrentNestedCategory(index);
+              var data = this.categoriesData[index];
+
+              app.data.setCategoryId(data.category_id);
+              app.data.setPlaylistId(data.playlist_id);
+
+              this.transitionToCategory();
+            }, this);
+
+          /**
+           * Exit if the user presses back
+           */
+          nestedCategoriesOneDView.on('exit', function() {
+            this.exitApp();
+          }, this);
+
+          /**
+           * Event handler - Load complete
+           * @param {Number} index the index of the selected item
+           */
+          nestedCategoriesOneDView.on('loadComplete', function() {
+            this.hideContentLoadingSpinner();
+            handleDeviceOrientation();
+          }, this);
+
+          /**
+           * Success Callback handler for categories data request
+           * @param {Object} categories data
+           */
+          var successCallback = function(categoriesData) {
+            console.log(categoriesData);
+            this.categoriesData = categoriesData;
+            nestedCategoriesOneDView.render(this.$appContainer, this.categoriesData, this.settingsParams.displayButtons);
+          }.bind(this);
+
+          /*
+           * Get the categories data from the data model
+           */
+          nestedCategoriesOneDView.updateCategories = function() {
+            this.data.getCategories(successCallback);
+          }.bind(this);
+
+          this.nestedCategoriesOneDView.updateCategories();
+        };
+
+        /**
+         * Set the UI appropriately for the category
+         */
+        this.transitionToCategory = function() {
+          this.showContentLoadingSpinner();
+          console.log('transition.to.category');
+          this.nestedCategoriesOneDView.shovelerView.remove();
+          this.nestedCategoriesOneDView.remove();
+          this.nestedCategoriesOneDView = null;
+          this.data.loadCategoryData(function() {
+            this.initializeLeftNavView();
+            this.initializeOneDView();
+            this.selectView(this.leftNavView);
+            this.leftNavView.expand();
+          }.bind(this));
+        };
+
+        /**
+         * Set the UI appropriately for the categories
+         */
+        this.transitionToCategories = function() {
+          this.showContentLoadingSpinner();
+          console.log('transition.to.categories');
+          this.oneDView.shovelerView.remove();
+          this.oneDView.remove();
+          this.oneDView = null;
+          this.leftNavView.remove();
+          this.leftNavView = null;
+          this.initializeNestedCategories();
+          this.nestedCategoriesOneDView.on('loadComplete', function() {
+            this.selectView(this.nestedCategoriesOneDView);
+           }, this);
         };
 
        /***************************
@@ -398,7 +501,7 @@
             */
             oneDView.updateCategoryFromSearch = function(searchTerm) {
                 app.data.getDataFromSearch(searchTerm, successCallback);
-            }.bind(this),
+            }.bind(this);
 
             oneDView.updateCategory = function() {
 
@@ -409,7 +512,7 @@
                 app.data.getPlaylistData(successCallback);
                 // this is the featured playlist grab of videos
               }
-            }.bind(this),
+            }.bind(this);
 
             //get the first video row right now when it loads
             this.oneDView.updateCategory();

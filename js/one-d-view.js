@@ -24,7 +24,7 @@
      * @class OneDView
      * @description The 1D view object, this handles everything about the 1D menu.
      */
-    var OneDView = function () {
+    var OneDView = function (fromSubCat) {
         // mixin inheritance, initialize this as an event handler for these events:
         Events.call(this, ['noContent', 'exit', 'startScroll', 'indexChange', 'stopScroll', 'select', 'bounce', 'loadComplete', 'makeIAP']);
 
@@ -128,6 +128,10 @@
             // create the shoveler subview
             this.$shovelerContainer = this.$el.children("#" + ID_ONED_SHOVELER_CONTAINER);
             var shovelerView = this.shovelerView = new ShovelerView();
+
+            if (fromSubCat) {
+              this.shovelerView.setSelectedElement(app.data.currentNestedCategory);
+            }
             this.shovelerView.render(this.$shovelerContainer, rowData);
 
             shovelerView.on('exit', function() {
@@ -287,7 +291,7 @@
 
             //use the dirty flag to make sure we are not handling the
             //event twice - once for this view and once in the child view
-            if(!dirty) {
+            if(!dirty && this.currentView) {
                 this.currentView.handleControls(e);
             }
         }.bind(this);
@@ -302,7 +306,7 @@
             window.setTimeout(function () {
                 //add description
                 $("#" + ID_ONED_SUMMARY_TITLE).html(this.rowElements[index].title);
-                $("#" + ID_ONED_SUMMARY_DATE).html(this.parseTime(this.rowElements[index].seconds));
+                $("#" + ID_ONED_SUMMARY_DATE).html((this.rowElements[index].seconds) ? (this.parseTime(this.rowElements[index].seconds)) : ("<br/>"));
                 $("#" + ID_ONED_SUMMARY_DESC).html(this.rowElements[index].description);
                 if(this.shouldShowButtons(this.rowElements[index])) {
                     // show entire button container

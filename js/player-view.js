@@ -269,12 +269,12 @@
 
                 case buttons.LEFT:
                 case buttons.REWIND:
-                    this.seekVideo(this.videoElement.currentTime - 10);
+                    this.seekVideo(this.videoElement.currentTime - 30);
                     break;
 
                 case buttons.RIGHT:
                 case buttons.FAST_FORWARD:
-                    this.seekVideo(this.videoElement.currentTime + 10);
+                    this.seekVideo(this.videoElement.currentTime + 30);
                     break;
 
                 case buttons.SELECT:
