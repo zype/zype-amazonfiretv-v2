@@ -114,9 +114,11 @@
                   title: contentData[i].title,
                   playlist_id: contentData[i].playlist_id,
                   category_id: contentData[i].category_id,
-                  imgUrl: contentData[i].pictures[0].url,
                   description: contentData[i].description
                 };
+                if (contentData[i].pictures && contentData[i].pictures.length > 0) {
+                  args.imgUrl = contentData[i].pictures[0].url;
+                }
                 var c = new Category(args);
                 formattedCategories.push(c)
               }
