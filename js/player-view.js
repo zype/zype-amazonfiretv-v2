@@ -179,11 +179,22 @@
             this.$el.append(this.videoElement);
             // add the script to load the preroll ad
             if (settings.avod) {
+              /**
+               * Here we provide an ad tag, but we want to be sure that
+               * we do not have an empty XML response.
+               */
               console.log('getting ad');
               playedAd = false;
+              if (video.ad_schedule.length > 0 && video.ad_schedule[0].hasOwnProperty("tag")) {
+                var ad_tag = new URI(video.ad_schedule[0].tag).href();
+              } else {
+                var ad_tag = "";
+              }
               var vid = videojs('zype_' + video.id.toString() + '-' + seconds);
               vid.ads();
-              vid.vast({url: appConfig.vast_url});
+              vid.vast({
+                url: ad_tag
+              });
             } else {
               playedAd = true;
             }
