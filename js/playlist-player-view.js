@@ -126,6 +126,17 @@
                         } else if (output.name === 'mp4') {
                           video.format = 'video/mp4';
                         }
+
+                        // add ad schedule to video json
+                        if (player_json.response.body.advertising) {
+                          video.ad_schedule = []
+                          var schedule = player_json.response.body.advertising.schedule;
+                          for(i = 0; i < schedule.length; i++) {
+                            // add each ad tag in, make played be false
+                            var seconds = schedule[i].offset / 1000;
+                            video.ad_schedule.push({offset: seconds, tag: schedule[i].tag, played: false});
+                          }
+                        }
                       }
                       // issue is that this is the ajax response, not what I think it is outside the ajax block
                       this.startNextVideo();
