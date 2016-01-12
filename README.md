@@ -7,13 +7,12 @@
 
 ## Running your local app on the Fire TV
 1. Navigate to zype-amazonfiretv
-2. Fill in your api key, app key, and VAST tag URL. You will find the api key
-and app key in js/init.js. You will find your VAST tag URL in app/js/player-view.js
+2. Fill in your app key. You will find the app key in config/config.js.
 3. Set up HTTP server: $ python -m SimpleHTTPServer
 4. Open the Web App Tester and target your launch path to http://localhost:8000
 5. Enable Devtools inside the Web App Tester
 6. Go to http://localhost:9222 in Chrome to launch Chrome debugger
 7. If you want to develop via desktop browser, use Safari to be able to view HLS videos. Note,
-some UI/UX is different in browser than in Fire TV.
+some UI/UX is different in browser than in Fire TV. You will also need to go to init.js and uncomment initApp(settings). To play videos you will need to spoof the 'AmazonWebAppPlatform' user agent.
 
 *Find localhost ip address in System Preferences > Network*
