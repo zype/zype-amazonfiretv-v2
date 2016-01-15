@@ -10,13 +10,15 @@
     //module constants
     var ID_ONED_SHOVELER_CONTAINER   = "one-D-shoveler-container",
 
+        ID_ONED_DESCRIPTION_CONTAINER = "one-D-description-container",
+
         ID_ONED_SUMMARY_TITLE     = "summaryTitle",
 
         ID_ONED_SUMMARY_DATE      = "summaryDate",
 
         ID_ONED_SUMMARY_DESC      = "summaryDesc",
 
-        BUTTON_CONTAINER          = "detail-row-container-buttons";
+        BUTTON_CONTAINER          = "one-D-buttons";
 
     var TIME_TIMEOUT_DISPLAY_INFO = 350;
 
@@ -33,6 +35,8 @@
         this.currentView = null;
         this.titleText = null;
         this.$shovelerContainer = null;
+        this.$descContainer = null;
+        this.$buttonsContainer = null;
         this.noItems = false;
 
         //jquery global variables
@@ -116,8 +120,43 @@
             this.$elementWidths = [];
             this.createShovelerView(rowData);
             this.createButtonView(displayButtonsParam, this.$el);
-
+            this.createDescView();
             this.setCurrentView(this.shovelerView);
+        };
+
+        /**
+         * Initialize the desc view
+         * @param {Object} data for desc details
+         */
+        this.createDescView = function() {
+          this.$descContainer = this.$el.children("#" + ID_ONED_DESCRIPTION_CONTAINER);
+          var descView = this.descView = new DescView();
+
+          descView.on('exit', function() {
+            this.transitionToShovelerView();
+          }.bind(this));
+
+          descView.on('bounce', function() {
+            this.transitionToShovelerView();
+          }.bind(this));
+
+          descView.update = function() {
+            var video = this.currentVideo();
+            this.descView.render(this.$descContainer, video);
+          }.bind(this);
+
+          this.descView.update();
+        };
+
+        this.transitionToDescView = function() {
+          //change to button view
+          this.descView.update();
+          this.buttonView.hide();
+          this.descView.show();
+          this.setCurrentView(this.descView);
+
+          //change opacity of the shoveler
+          this.shovelerView.fadeSelected();
         };
 
        /**
@@ -175,7 +214,8 @@
         this.createButtonView = function (displayButtonsParam, $el) {
             if(!displayButtonsParam) {return;}
 
-            // create and set up the 1D view
+            // create and set up the button
+            this.$buttonsContainer = this.$el.children("#" + BUTTON_CONTAINER);
             var buttonView = this.buttonView = new ButtonView();
 
             buttonView.on('exit', function() {
@@ -186,12 +226,14 @@
                 this.trigger('makeIAP', sku);
             }, this);
 
+            buttonView.on('showDesc', function(){
+              console.log('show.desc');
+              this.transitionToDescView();
+            }, this);
+
             var subscribeButtons = iapHandler.getAvailableSubscriptionButtons();
-            var video = this.currentVideo();
             var purchaseButtons = iapHandler.getAvailablePurchaseButtons();
-            if (subscribeButtons.length > 0 || purchaseButtons.length > 0) {
-                buttonView.render($el, subscribeButtons, purchaseButtons);
-            }
+            buttonView.render(this.$buttonsContainer, subscribeButtons, purchaseButtons);
         };
 
         /**
@@ -208,6 +250,10 @@
         * Make the shoveler the active view
         */
         this.transitionToShovelerView = function () {
+            // hide the desc view
+            this.descView.hide();
+            this.buttonView.show();
+
             //change to shoveler view
             this.setCurrentView(this.shovelerView);
 
@@ -219,6 +265,7 @@
         };
 
         this.shouldShowButtons = function(video) {
+            return true;
             return (app.settingsParams.IAP == true && !iapHandler.canPlayVideo(video));
         }
 
@@ -227,9 +274,11 @@
         */
         this.transitionToButtonView = function () {
             var currentVid = this.currentVideo();
+
             if ( !this.shouldShowButtons(currentVid) ) {
                 return false;
             }
+
             //change to button view
             this.setCurrentView(this.buttonView);
 
@@ -310,8 +359,6 @@
                 $("#" + ID_ONED_SUMMARY_DESC).html(this.rowElements[index].description);
                 if(this.shouldShowButtons(this.rowElements[index])) {
                     // show entire button container
-                    $("." + BUTTON_CONTAINER).show();
-
                     this.showAvailableButtons();
                 }
             }.bind(this), TIME_TIMEOUT_DISPLAY_INFO);
@@ -319,6 +366,10 @@
 
         this.showAvailableButtons = function() {
             var video = this.currentVideo();
+
+            $("#" + BUTTON_CONTAINER).show();
+
+            $('#descButton').show();
 
             // show rental button if a subcription is required and they haven't rented
             if(video.purchase_required == true && !iapHandler.hasValidPurchase(video.id)) {
@@ -354,7 +405,7 @@
             $("#" + ID_ONED_SUMMARY_DATE).text("");
             $("#" + ID_ONED_SUMMARY_DESC).text("");
             $('.detail-row-container-buttons .btnIAP').hide();
-            $("." + BUTTON_CONTAINER).hide();
+            $("#" + BUTTON_CONTAINER).hide();
         };
     };
 

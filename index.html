@@ -94,11 +94,13 @@
         <div id="one-D-view-item-elements" class="one-D-details-container">
             <div id="one-d-no-items" class="one-d-no-items-container">No content found.</div>
             <div id="one-D-shoveler-container"></div>
+            <div id="one-D-description-container"></div>
             <div id="one-D-summary-container" class="one-D-details-summary-text">
                 <div id="summaryTitle" class="one-D-summary-title"></div>
                 <div id="summaryDate" class="one-D-summary-pubdate"></div>
                 <div id="summaryDesc" class="one-D-summary-description"></div>
             </div>
+            <div id="one-D-buttons" class="one-D-buttons-container"></div>
         </div>
     </script>
 
@@ -112,9 +114,19 @@
         </div>
     </script>
 
+    <!-- Description View Template -->
+    <script id="description-template" type="text/x-handlebars-template">
+      <div class="description-view">
+        <div id="descriptionTitle" class="description-title">{{title}}</div>
+        <div id="descriptionDate" class="description-pubdate">{{seconds}}</div>
+        <div id="descriptionText" class="description-text">{{text}}</div>
+      </div>
+    </script>
+
     <!-- Buttons View Template -->
     <script id="button-view-template" type="text/x-handlebars-template">
         <div class="detail-row-container-buttons">
+            <div id="descButton" class="detail-item-button-static">View More</div>
             {{#each subscribeButtons}}
                 <div id="{{id}}" class="detail-item-button-static btnIAP btnSubscribe">{{name}}</div>
             {{/each}}
@@ -206,6 +218,7 @@
     <script src="js/touches.js"></script>
     <script src="js/leftnav-view.js"></script>
     <script src="js/one-d-view.js"></script>
+    <script src="js/description-view.js"></script>
     <script src="js/shoveler-view.js"></script>
     <script src="js/player-view.js"></script>
     <script src="js/playlist-player-view.js"></script>
