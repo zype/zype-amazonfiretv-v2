@@ -3,6 +3,5 @@
 var appConfig = {
   app_key: '<APPKEY>',
   endpoint: "https://api.zype.com/",
-  player_endpoint: "https://player.zype.com/",
-  subscriptionSkus: <SKUS_ARRAY>
+  player_endpoint: "https://player.zype.com/"
 };

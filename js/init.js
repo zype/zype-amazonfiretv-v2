@@ -13,6 +13,7 @@
 
     var initApp = function(settings) {
       if (settings.IAP == true) {
+        iapHandler.settingsParams = settings;
         iapHandler.iapInit();
       }
       var app = new App(settings);

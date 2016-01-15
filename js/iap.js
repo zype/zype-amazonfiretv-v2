@@ -17,7 +17,7 @@
     // mixin inheritance, initialize this as an event handler for these events:
     Events.call(this, ['purchaseSuccess', 'purchaseFail']);
 
-    this.settingsParams = appConfig;
+    this.settingsParams = null;
     this.oneDView = null;
     this.state = {
       lastPurchaseCheckTime: null,
@@ -159,7 +159,7 @@
     };
 
     this.allSubscriptions = function() {
-      return this.settingsParams.subscriptionSkus;
+      return _.select(app.data.plans, function(p){ return p.amazon_id; });
     };
 
     this.allSubscriptionIds = function() {
@@ -167,21 +167,7 @@
     };
 
     this.getAvailableSubscriptionButtons = function() {
-      // these are all the buttons as statically setup in this model (ids and names to display)
-      var buttons = this.allSubscriptions();
-
-      // these are the plans that the user has setup on zype core
-      var zype_plans = _.map(app.data.plans, function(p){ return p.amazon_id; });
-
-      // these are the ids in the buttons
-      var button_ids = _.map(buttons, function(b) { return b.id; })
-
-      // lets get an intersect between all the arrays
-      var intersect = _.intersection(zype_plans, button_ids);;
-
-      return _.select(buttons, function(b) {
-        return _.includes(intersect, b.id);
-      });
+      return _.map(this.allSubscriptions(), function(p){ return { "name": p.name, "id": p.amazon_id } })
     };
 
     this.getAvailablePurchaseButtons = function() {
