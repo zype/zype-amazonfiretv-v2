@@ -18,7 +18,7 @@
     var ButtonView = function () {
 
         // mixin inheritance, initialize this as an event handler for these events:
-        Events.call(this, ['exit', 'revoke', 'select', 'makeIAP']);
+        Events.call(this, ['exit', 'revoke', 'select', 'makeIAP', 'showDesc']);
 
         //global variables
         this.selectedButton = -1;
@@ -80,9 +80,12 @@
         * Event handler for remote "select" button press
         */
         this.handleButtonEvent = function () {
+            console.log(this.$buttons);
             if (this.$buttons[this.selectedButton].classList.contains('btnIAP')) {
                 var visibleBtns = this.visibleButtons();
                 this.trigger('makeIAP', visibleBtns[this.selectedButton].id);
+            } else {
+              this.trigger('showDesc');
             }
         }.bind(this);
 
