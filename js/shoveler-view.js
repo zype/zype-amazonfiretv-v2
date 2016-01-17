@@ -15,7 +15,7 @@
      */
     var ShovelerView = function () {
         // mixin inheritance, initialize this as an event handler for these events:
-        Events.call(this, ['loadComplete', 'exit', 'bounce', 'startScroll', 'indexChange', 'stopScroll', 'select', 'bounce']);
+        Events.call(this, ['loadComplete', 'exit', 'bounce', 'startScroll', 'indexChange', 'stopScroll', 'select']);
 
         //global variables
         this.currSelection = 0;
