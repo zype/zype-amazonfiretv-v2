@@ -12,8 +12,8 @@
     };
 
     var initApp = function(settings) {
+      iapHandler.settingsParams = settings;
       if (settings.IAP == true) {
-        iapHandler.settingsParams = settings;
         iapHandler.iapInit();
       }
       var app = new App(settings);
