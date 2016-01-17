@@ -8,7 +8,9 @@
     "use strict";
 
     //module constants
-    var ID_ONED_SHOVELER_CONTAINER   = "one-D-shoveler-container",
+    var ID_ONED_VIEW_ELEMENTS = "#one-D-view-item-elements",
+
+        ID_ONED_SHOVELER_CONTAINER   = "one-D-shoveler-container",
 
         ID_ONED_DESCRIPTION_CONTAINER = "one-D-description-container",
 
@@ -35,9 +37,13 @@
         this.currentView = null;
         this.titleText = null;
         this.$shovelerContainer = null;
+        this.$shovelerContainerOffset = null;
+        this.$buttonsContainerOffset = null;
         this.$descContainer = null;
         this.$buttonsContainer = null;
+        this.$scrollingContainerEle = null;
         this.noItems = false;
+        this.translateAmount = null;
 
         //jquery global variables
         this.$el = null;
@@ -124,6 +130,7 @@
             this.createButtonView(displayButtonsParam, this.$el);
             this.createDescView();
             this.setCurrentView(this.shovelerView);
+            this.scrollingContainerEle = $(ID_ONED_VIEW_ELEMENTS)[0];
         };
 
         /**
@@ -163,6 +170,8 @@
             // create the shoveler subview
             this.$shovelerContainer = this.$el.children("#" + ID_ONED_SHOVELER_CONTAINER);
             var shovelerView = this.shovelerView = new ShovelerView();
+
+            this.$shovelerContainerOffset = $(this.$shovelerContainer)[0].getBoundingClientRect().top;
 
             if (fromSubCat) {
               this.shovelerView.setSelectedElement(app.data.currentNestedCategory);
@@ -213,6 +222,8 @@
             // create and set up the button
             this.$buttonsContainer = this.$el.children("#" + BUTTON_CONTAINER);
             var buttonView = this.buttonView = new ButtonView();
+
+            this.$buttonsContainerOffset = $(this.$buttonsContainer)[0].getBoundingClientRect().top;
 
             buttonView.on('exit', function() {
                 this.trigger('exit');
@@ -330,12 +341,14 @@
                              break;
                          }
                          dirty = true;
+                         this.shiftOneDContainer();
                          break;
                     case buttons.DOWN:
                          if(this.buttonView && this.currentView !== this.buttonView) {
                              this.transitionToButtonView();
                          }
                          dirty = true;
+                         this.shiftOneDContainer();
                          break;
                 }
             }
@@ -398,6 +411,14 @@
 
           return (hours < 10 ? "0" + hours : hours) + ":" + (minutes < 10 ? "0" + minutes : minutes) + ":" + (seconds  < 10 ? "0" + seconds : seconds);
         }
+
+        /**
+         * Move the One D container as new components are selected
+         */
+        this.shiftOneDContainer = function() {
+          if (this.currentView == this.shovelerView) this.scrollingContainerEle.style.webkitTransform = "translateY(" + 0 + "px)";
+          if (this.currentView == this.buttonView) this.scrollingContainerEle.style.webkitTransform = "translateY(" + (-this.$buttonsContainerOffset + 50) + "px)";
+        };
 
         /**
          * Hide the text in the 1D view when scrolling starts
