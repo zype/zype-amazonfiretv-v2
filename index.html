@@ -72,7 +72,8 @@
                     {{#each leftNavItems}}
                     <div class="leftnav-list-item-container">
                         <div class="leftnav-list-item-static">
-                            {{this}}
+                            <div class="leftnav-list-item-menu-icon"><img src="../assets/menu.png" alt="Menu Icon" /></div>
+                            <div class="leftnav-list-item-text">{{this}}</div>
                         </div>
                     </div>
                     {{/each}}
@@ -83,8 +84,8 @@
 
     <!-- Search Row View Template -->
     <script id="search-input-template" type="text/x-handlebars-template">
-        <input id="search-input" class="leftnav-list-item-static leftnav-search-box" type="text" placeholder="Search">
-        </input>
+        <input id="search-input" class="leftnav-list-item-static leftnav-search-box" type="text" placeholder="Search"></input>
+        <div class="leftnav-list-item-search-menu-icon"><img src="../assets/menu.png" alt="Menu Icon" /></div>
     </script>
 
 

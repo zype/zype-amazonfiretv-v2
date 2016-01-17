@@ -67,6 +67,12 @@
             this.leftNavContainerEle.classList.remove('leftnav-menulist-expanded');
             this.leftNavContainerEle.classList.add('leftnav-menulist-collapsed');
 
+            // let's handle menu icon
+            $(this.currentSelectionEle).find(".leftnav-list-item-text").hide();
+            $(this.currentSelectionEle).find(".leftnav-list-item-menu-icon").show();
+            $(this.leftNavContainerEle).find("#search-input").css("opacity", 0);
+            $(this.leftNavContainerEle).find(".leftnav-list-item-search-menu-icon").show();
+
             //set the chosen item style
             this.setChosenElement();
 
@@ -83,6 +89,12 @@
         this.expand = function () {
             this.leftNavContainerEle.classList.remove('leftnav-menulist-collapsed');
             this.leftNavContainerEle.classList.add('leftnav-menulist-expanded');
+
+            // let's handle menu icon
+            $(this.currentSelectionEle).find(".leftnav-list-item-text").show();
+            $(this.currentSelectionEle).find(".leftnav-list-item-menu-icon").hide();
+            $(this.leftNavContainerEle).find("#search-input").css("opacity", 100);
+            $(this.leftNavContainerEle).find(".leftnav-list-item-search-menu-icon").hide();
 
             //set the selected item style
             this.setSelectedElement();
