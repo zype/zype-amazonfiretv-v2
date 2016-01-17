@@ -56,6 +56,7 @@
      * @param {Object} data object for the description
      */
     this.render = function(el, data) {
+      // remove the previous rendered view if it does exist
       this.remove();
 
       this.parentContainer = el;
@@ -76,9 +77,8 @@
     this.handleControls = function(e) {
       if (e.type === 'buttonpress') {
         switch (e.keyCode) {
-          case buttons.BACK:
-            this.trigger("exit");
-            break;
+          default:
+            this.trigger('bounce');
         }
       }
     };
