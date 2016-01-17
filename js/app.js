@@ -110,27 +110,27 @@
         this.updateStyleSheet = function() {
           var sheet = document.styleSheets[0];
           // set up background theme colors
-          sheet.insertRule('.content-load-spinner > div {background-color: ' + this.settingsParams.brandColor + ' !important;}', 1);
-          sheet.insertRule('#app-container {background-color: ' + this.settingsParams.backgroundColor + ' !important;}', 1);
+          // sheet.insertRule('.content-load-spinner > div {background-color: ' + this.settingsParams.brandColor + ' !important;}', 1);
+          // sheet.insertRule('#app-container {background-color: ' + this.settingsParams.backgroundColor + ' !important;}', 1);
           sheet.insertRule('.app-top-bar {background-color: ' + this.settingsParams.topBarColor + ' !important;}', 1);
           sheet.insertRule('.app-logo {right: ' + this.settingsParams.iconXPosition + ' !important;}', 1);
           sheet.insertRule('.app-logo {bottom: ' + this.settingsParams.iconYPosition + ' !important;}', 1);
 
           // set up left nav colors
-          sheet.insertRule('.leftnav-list-item-highlighted { color: ' + this.settingsParams.leftNavHoverTextColor + ' !important;}', 1);
-          sheet.insertRule('.leftnav-list-item-selected { color: ' + this.settingsParams.leftNavHoverTextColor + ' !important;}', 1);
-          sheet.insertRule('.leftnav-list-item-static { color: ' + this.settingsParams.leftNavTextColor + ' !important;}', 1);
-          sheet.insertRule('.leftnav-list-item-container { background-color: ' + this.settingsParams.leftNavBackgroundColor + ' !important;}', 1);
-          sheet.insertRule('.leftnav-list-item-selected { background-color: ' + this.settingsParams.leftNavHoverBackgroundColor + ' !important;}', 1);
-          sheet.insertRule('.leftnav-list-item-selected { color: ' + this.settingsParams.leftNavHoverTextColor + ' !important; }', 1);
-          sheet.insertRule('#left-nav-list-container { background-color: ' + this.settingsParams.topBarColor + ' !important;}', 1);
-          sheet.insertRule('.leftnav-list-item-highlighted { border-color: ' + this.settingsParams.leftNavHoverBackgroundColor + ' !important;}', 1);
-          sheet.insertRule('.leftnav-list-item-highlighted { background-color: ' + this.settingsParams.leftNavHoverBackgroundColor + ' !important;}', 1);
-
+          // sheet.insertRule('.leftnav-list-item-highlighted { color: ' + this.settingsParams.leftNavHoverTextColor + ' !important;}', 1);
+          // sheet.insertRule('.leftnav-list-item-selected { color: ' + this.settingsParams.leftNavHoverTextColor + ' !important;}', 1);
+          // sheet.insertRule('.leftnav-list-item-static { color: ' + this.settingsParams.leftNavTextColor + ' !important;}', 1);
+          // sheet.insertRule('.leftnav-list-item-container { background-color: ' + this.settingsParams.leftNavBackgroundColor + ' !important;}', 1);
+          // sheet.insertRule('.leftnav-list-item-selected { background-color: ' + this.settingsParams.leftNavHoverBackgroundColor + ' !important;}', 1);
+          // sheet.insertRule('.leftnav-list-item-selected { color: ' + this.settingsParams.leftNavHoverTextColor + ' !important; }', 1);
+          // sheet.insertRule('#left-nav-list-container { background-color: ' + this.settingsParams.topBarColor + ' !important;}', 1);
+          // sheet.insertRule('.leftnav-list-item-highlighted { border-color: ' + this.settingsParams.leftNavHoverBackgroundColor + ' !important;}', 1);
+          // sheet.insertRule('.leftnav-list-item-highlighted { background-color: ' + this.settingsParams.leftNavHoverBackgroundColor + ' !important;}', 1);
+          
           // set up text color for video thumbnails
-          sheet.insertRule('#summaryDate {color: ' + this.settingsParams.mutedTextColor + ' !important;}', 1);
-          sheet.insertRule('#summaryTitle {color: ' + this.settingsParams.textColor + ' !important;}', 1);
-          sheet.insertRule('#summaryDesc {color: ' + this.settingsParams.textColor + ' !important;}', 1);
+          // sheet.insertRule('#summaryDate {color: ' + this.settingsParams.mutedTextColor + ' !important;}', 1);
+          // sheet.insertRule('#summaryTitle {color: ' + this.settingsParams.textColor + ' !important;}', 1);
+          // sheet.insertRule('#summaryDesc {color: ' + this.settingsParams.textColor + ' !important;}', 1);
         }
 
        /**
