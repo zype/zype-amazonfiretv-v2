@@ -132,12 +132,8 @@
           this.$descContainer = this.$el.children("#" + ID_ONED_DESCRIPTION_CONTAINER);
           var descView = this.descView = new DescView();
 
-          descView.on('exit', function() {
-            this.transitionToShovelerView();
-          }.bind(this));
-
           descView.on('bounce', function() {
-            this.transitionToShovelerView();
+            this.transitionToButtonView();
           }.bind(this));
 
           descView.update = function() {
@@ -149,14 +145,12 @@
         };
 
         this.transitionToDescView = function() {
-          //change to button view
+          //change to desc view
           this.descView.update();
-          this.buttonView.hide();
-          this.descView.show();
           this.setCurrentView(this.descView);
-
-          //change opacity of the shoveler
-          this.shovelerView.fadeSelected();
+          this.descView.show();
+          //set buttons back to static
+          if(this.buttonView) this.buttonView.setStaticButton();
         };
 
        /**
@@ -250,9 +244,6 @@
         * Make the shoveler the active view
         */
         this.transitionToShovelerView = function () {
-            // hide the desc view
-            this.descView.hide();
-            this.buttonView.show();
 
             //change to shoveler view
             this.setCurrentView(this.shovelerView);
@@ -273,11 +264,14 @@
         * Make the buttons the active view
         */
         this.transitionToButtonView = function () {
+
             var currentVid = this.currentVideo();
 
             if ( !this.shouldShowButtons(currentVid) ) {
                 return false;
             }
+
+            this.descView.hide();
 
             //change to button view
             this.setCurrentView(this.buttonView);
@@ -322,10 +316,16 @@
             if (e.type === 'buttonpress') {
                 switch (e.keyCode) {
                     case buttons.UP:
-                         if(this.currentView !== this.shovelerView) {
-                             this.transitionToShovelerView();
-                         } else {
+                         switch (this.currentView) {
+                           case this.shovelerView:
                              this.trigger('bounce');
+                             break;
+                           case this.buttonView:
+                             this.transitionToShovelerView();
+                             break;
+                           case this.descView:
+                             this.transitionToButtonView();
+                             break;
                          }
                          dirty = true;
                          break;
