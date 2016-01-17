@@ -80,11 +80,12 @@
         * Event handler for remote "select" button press
         */
         this.handleButtonEvent = function () {
-            console.log(this.$buttons);
             if (this.$buttons[this.selectedButton].classList.contains('btnIAP')) {
                 var visibleBtns = this.visibleButtons();
                 this.trigger('makeIAP', visibleBtns[this.selectedButton].id);
-            } else {
+            }
+
+            if (this.$buttons[this.selectedButton].classList.contains('btnDesc')) {
               this.trigger('showDesc');
             }
         }.bind(this);
