@@ -476,6 +476,11 @@
                 // these are the videos
                 this.categoryData = categoryData;
 
+                var categoryTitle = "";
+                if (this.leftNavView.currSelectedIndex > 0) {
+                  categoryTitle = this.data.categoryData[this.leftNavView.currSelectedIndex];
+                }
+
                 if(this.settingsParams.IAP == true) {
                   // add video ids to iapHandler
                   var video_ids = _.map(this.categoryData, function(v) { return v.id; });
@@ -487,10 +492,10 @@
 
                   // get the available items from amazon
                   iapHandler.checkAvailableItems(function() {
-                    oneDView.render(app.$appContainer, app.categoryData, app.settingsParams.displayButtons);
+                  oneDView.render(app.$appContainer, categoryTitle, app.categoryData, app.settingsParams.displayButtons);
                   });
                 } else {
-                  oneDView.render(app.$appContainer, app.categoryData, app.settingsParams.displayButtons);
+                  oneDView.render(app.$appContainer, categoryTitle, app.categoryData, app.settingsParams.displayButtons);
                 }
 
 

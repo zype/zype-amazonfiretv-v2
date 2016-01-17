@@ -93,14 +93,16 @@
          * @param {Element} $el application container
          * @param {Object} rowData data object for the row
          */
-        this.render = function ($el, rowData, displayButtonsParam) {
+        this.render = function ($el, category, rowData, displayButtonsParam) {
             //Make sure we don't already have a full container
             this.remove();
 
             // Build the main content template and add it
             this.titleText = rowData.title;
             this.rowElements = rowData;
-            var html = utils.buildTemplate($("#one-D-view-items-template"), {});
+            var html = utils.buildTemplate($("#one-D-view-items-template"), {
+              category: category
+            });
 
             $el.append(html);
 

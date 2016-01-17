@@ -298,10 +298,19 @@ div {
   position: absolute;
   display: none;
   top: 300px;
-  left: 200px;
-  color: #B3DAF2;
+  left: 160px;
+  color: #fff;
   font-size: 3em;
 }
+
+.one-d-title-container {
+  position: absolute;
+  top: 150px;
+  left: 320px;
+  color: #fff;
+  font-size: 2.0em;
+}
+
 .one-D-details-container {
   position: absolute;
   top: 0;
@@ -336,14 +345,14 @@ div {
 }
 .one-D-buttons-container {
   position: absolute;
-  top: 900px;
+  top: 950px;
   width: 80%;
   left: 150px;
   color: #eaeff3;
 }
 .one-D-details-summary-text {
   position: absolute;
-  top: 690px;
+  top: 740px;
   width: 80%;
   left: 150px;
   color: #eaeff3;
@@ -446,9 +455,10 @@ div {
   background-color: #555C73;
   line-height: 45px;
 }
+
 #one-D-shoveler-container {
   position: absolute;
-  top: 290px;
+  top: 340px;
   left: 0px;
   width: 100%;
   height: 380px;
@@ -469,6 +479,7 @@ div {
   -moz-transition-timing-function: linear;
   transition-timing-function: linear;
 }
+
 .shoveler-dynamic-row-container {
   position: absolute;
   width: 1000%;
