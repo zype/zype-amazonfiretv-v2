@@ -97,6 +97,11 @@
                 "purchase_required": video.purchase_required,
                 "pass_required": video.pass_required
               }
+              
+              if (args.description == null) {
+                  args.description = "";
+              }
+              
               var video = new Video(args);
               console.log(video);
               this.sliderData.push(video);
@@ -393,7 +398,12 @@
                 "rental_required": videos[i].rental_required,
                 "purchase_required": videos[i].purchase_required,
                 "pass_required": videos[i].pass_required
-              }
+              };
+            if (args.description == null) {
+              args.description = "";
+            }
+              
+              
             var video = new Video(args);
             formattedVideos.push(video)
           }
