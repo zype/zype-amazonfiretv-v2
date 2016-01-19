@@ -10,6 +10,8 @@
     //module constants
     var ID_ONED_VIEW_ELEMENTS = "#one-D-view-item-elements",
 
+        ID_ONED_SLIDER_CONTAINER = "one-D-slider-container",
+
         ID_ONED_SHOVELER_CONTAINER   = "one-D-shoveler-container",
 
         ID_ONED_DESCRIPTION_CONTAINER = "one-D-description-container",
@@ -20,7 +22,8 @@
 
         ID_ONED_SUMMARY_DESC      = "summaryDesc",
 
-        BUTTON_CONTAINER          = "one-D-buttons";
+        BUTTON_CONTAINER          = "one-D-buttons",
+        ID_APP_CONTAINER = "app-container";
 
     var TIME_TIMEOUT_DISPLAY_INFO = 350;
 
@@ -36,6 +39,8 @@
         this.currSelection = 0;
         this.currentView = null;
         this.titleText = null;
+        this.$sliderContainer = null;
+        this.$sliderContainerOffset = null;
         this.$shovelerContainer = null;
         this.$shovelerContainerOffset = null;
         this.$buttonsContainerOffset = null;
@@ -61,6 +66,7 @@
         this.hide = function () {
             this.$el.css('visibility', 'hidden');
             this.shovelerView.hide();
+            this.sliderView.hide();
         };
 
        /**
@@ -69,6 +75,7 @@
         this.show = function () {
             this.$el.css('visibility', 'visible');
             this.shovelerView.show();
+            this.sliderView.show();
         };
 
        /**
@@ -126,11 +133,60 @@
             this.noItems = false;
             //gather widths of all the row elements
             this.$elementWidths = [];
+
+            this.createSliderView(app.data.sliderData);
             this.createShovelerView(rowData);
             this.createButtonView(displayButtonsParam, this.$el);
             this.createDescView();
-            this.setCurrentView(this.shovelerView);
+            this.setCurrentView(this.sliderView);
             this.scrollingContainerEle = $(ID_ONED_VIEW_ELEMENTS)[0];
+        };
+
+        /**
+         * Initialize the slider view
+         * @param {Object} rowData data for the content items
+         */
+        this.createSliderView = function(rowData) {
+          // create the slider subview
+          this.$sliderContainer = this.$el.children("#" + ID_ONED_SLIDER_CONTAINER);
+          var sliderView = this.sliderView = new SliderView();
+
+          this.sliderView.render(this.$sliderContainer, rowData);
+          this.$sliderContainerOffset = $(this.$sliderContainer)[0].getBoundingClientRect().top;
+
+          sliderView.on('exit', function() {
+            this.trigger('exit');
+          }, this);
+
+          sliderView.on('select', function(index) {
+            // this.currSelection = index;
+            this.trigger('select', index);
+          }, this);
+
+          sliderView.on('bounce', function(direction) {
+            this.trigger('bounce', direction);
+          }, this);
+
+          sliderView.on('startScroll', function(direction) {
+            // this.hideExtraData();
+            this.trigger('startScroll', direction);
+          }, this);
+
+          sliderView.on('stopScroll', function(index) {
+            // this.currSelection = index;
+            // this.showExtraData(index);
+            this.trigger('stopScroll', index);
+          }, this);
+
+          sliderView.on('indexChange', function(index) {
+            // this.currSelection = index;
+            this.trigger('indexChange', index);
+          }, this);
+
+          sliderView.on('loadComplete', function() {
+            this.trigger('loadComplete');
+            // this.showExtraData();
+          }, this);
         };
 
         /**
@@ -147,7 +203,7 @@
 
           descView.update = function() {
             var video = this.currentVideo();
-            this.descView.render(this.$descContainer, video);
+            this.descView.render($("#" + ID_APP_CONTAINER), video);
           }.bind(this);
 
           this.descView.update();
@@ -171,12 +227,12 @@
             this.$shovelerContainer = this.$el.children("#" + ID_ONED_SHOVELER_CONTAINER);
             var shovelerView = this.shovelerView = new ShovelerView();
 
-            this.$shovelerContainerOffset = $(this.$shovelerContainer)[0].getBoundingClientRect().top;
-
             if (fromSubCat) {
               this.shovelerView.setSelectedElement(app.data.currentNestedCategory);
             }
+
             this.shovelerView.render(this.$shovelerContainer, rowData);
+            this.$shovelerContainerOffset = $(this.$shovelerContainer)[0].getBoundingClientRect().top;
 
             shovelerView.on('exit', function() {
                 this.trigger('exit');
@@ -217,7 +273,9 @@
         * Create the buttons that will appear under the media content
         */
         this.createButtonView = function (displayButtonsParam, $el) {
+
             if(!displayButtonsParam) {return;}
+
 
             // create and set up the button
             this.$buttonsContainer = this.$el.children("#" + BUTTON_CONTAINER);
@@ -252,6 +310,21 @@
             this.shovelerView.trigger("stopScroll", this.shovelerView.currSelection);
         };
 
+        /** Make the slider the active view
+         *
+         */
+        this.transitionToSliderView = function() {
+          // change to shoveler view
+          this.setCurrentView(this.sliderView);
+
+          // change opacity of the slider
+          this.sliderView.unfadeSelected();
+          this.sliderView.setTransforms();
+
+          this.shovelerView.fadeSelected();
+          this.shovelerView.shrinkSelected();
+        };
+
 
        /**
         * Make the shoveler the active view
@@ -263,6 +336,10 @@
 
             //change opacity of the shoveler
             this.shovelerView.unfadeSelected();
+            this.shovelerView.setTransforms();
+
+            this.sliderView.fadeSelected();
+            this.sliderView.shrinkSelected();
 
             //set buttons back to static
             if(this.buttonView) this.buttonView.setStaticButton();
@@ -291,32 +368,48 @@
 
             //change opacity of the shoveler
             this.shovelerView.fadeSelected();
+            this.shovelerView.shrinkSelected();
 
             //set default selected button and apply selected style
             this.buttonView.setCurrentSelectedIndex(0);
             this.buttonView.setSelectedButton();
         };
 
-       /**
-        * Return to selected shoveler state
-        */
-        this.transition = function () {
-            this.shovelerView.unfadeSelected();
-        };
+        /**
+         * Return to selected shoveler and slider state
+         */
+         this.transition = function () {
+             this.shovelerView.unfadeSelected();
+             this.slider.unfadeSelected();
+         };
 
-       /**
-        * Shrink the selected shoveler item for 'out of focus' effect
-        */
-        this.shrinkShoveler = function () {
-            this.shovelerView.shrinkSelected();
-        };
+        /**
+         * Shrink the selected shoveler item for 'out of focus' effect
+         */
+         this.shrinkShoveler = function () {
+             this.shovelerView.shrinkSelected();
+         };
 
-       /**
-        * Expand the selected shoveler item for 'in focus' effect
-        */
-        this.expandShoveler = function () {
-            this.shovelerView.setTransforms();
-        };
+        /**
+         * Expand the selected shoveler item for 'in focus' effect
+         */
+         this.expandShoveler = function () {
+             this.shovelerView.setTransforms();
+         };
+
+         /**
+          * Shrink the selected slider item for 'out of focus' effect
+          */
+         this.shrinkSlider = function() {
+           this.sliderView.shrinkSelected();
+         };
+
+         /**
+          * Expand the selected slider item for 'in focus' effect
+          */
+         this.expandSlider = function() {
+           this.sliderView.setTransforms();
+         };
 
         /**
          * Handle key events
@@ -329,9 +422,13 @@
             if (e.type === 'buttonpress') {
                 switch (e.keyCode) {
                     case buttons.UP:
+                        //  console.log(this.currentView);
                          switch (this.currentView) {
-                           case this.shovelerView:
+                           case this.sliderView:
                              this.trigger('bounce');
+                             break;
+                           case this.shovelerView:
+                             this.transitionToSliderView();
                              break;
                            case this.buttonView:
                              this.transitionToShovelerView();
@@ -344,8 +441,14 @@
                          this.shiftOneDContainer();
                          break;
                     case buttons.DOWN:
-                         if(this.buttonView && this.currentView !== this.buttonView) {
+                        //  console.log(this.currentView);
+                         switch (this.currentView) {
+                           case this.sliderView:
+                             this.transitionToShovelerView();
+                             break;
+                           case this.shovelerView:
                              this.transitionToButtonView();
+                             break;
                          }
                          dirty = true;
                          this.shiftOneDContainer();
@@ -359,6 +462,14 @@
                 this.currentView.handleControls(e);
             }
         }.bind(this);
+
+        /**
+         * Move the One D container as new components are selected
+         */
+        this.shiftOneDContainer = function() {
+          if (this.currentView == this.shovelerView) this.scrollingContainerEle.style.webkitTransform = "translateY(" + (-this.$shovelerContainerOffset + 300) + "px)";
+          if (this.currentView == this.sliderView) this.scrollingContainerEle.style.webkitTransform = "translateY(" + 0 + "px)";
+        };
 
         /**
          * Show summary text in the 1D View
@@ -411,14 +522,6 @@
 
           return (hours < 10 ? "0" + hours : hours) + ":" + (minutes < 10 ? "0" + minutes : minutes) + ":" + (seconds  < 10 ? "0" + seconds : seconds);
         }
-
-        /**
-         * Move the One D container as new components are selected
-         */
-        this.shiftOneDContainer = function() {
-          if (this.currentView == this.shovelerView) this.scrollingContainerEle.style.webkitTransform = "translateY(" + 0 + "px)";
-          if (this.currentView == this.buttonView) this.scrollingContainerEle.style.webkitTransform = "translateY(" + (-this.$buttonsContainerOffset + 50) + "px)";
-        };
 
         /**
          * Hide the text in the 1D view when scrolling starts

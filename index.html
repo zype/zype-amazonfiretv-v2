@@ -95,8 +95,8 @@
         <div id="one-D-view-item-elements" class="one-D-details-container">
             <div id="one-d-no-items" class="one-d-no-items-container">No content found.</div>
             <div id="one-d-title" class="one-d-title-container">{{category}}</div>
+            <div id="one-D-slider-container"></div>
             <div id="one-D-shoveler-container"></div>
-            <div id="one-D-description-container"></div>
             <div id="one-D-summary-container" class="one-D-details-summary-text">
                 <div id="summaryTitle" class="one-D-summary-title"></div>
                 <div id="summaryDate" class="one-D-summary-pubdate"></div>
@@ -104,6 +104,16 @@
             </div>
             <div id="one-D-buttons" class="one-D-buttons-container"></div>
         </div>
+    </script>
+
+    <!-- Slider View Template -->
+    <script id="slider-template" type="text/x-handlebars-template">
+      <div id="slider-view" class="slider-row-container">
+        {{#each items}}
+        <div id="{{id}}" class="slider-rowitem-static">
+        </div>
+        {{/each}}
+      </div>
     </script>
 
     <!-- Shoveler View Template -->
@@ -220,6 +230,7 @@
     <script src="js/touches.js"></script>
     <script src="js/leftnav-view.js"></script>
     <script src="js/one-d-view.js"></script>
+    <script src="js/slider-view.js"></script>
     <script src="js/description-view.js"></script>
     <script src="js/shoveler-view.js"></script>
     <script src="js/player-view.js"></script>

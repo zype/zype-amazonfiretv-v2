@@ -37,9 +37,9 @@
           settings.autoplay = app_json.response.autoplay;
           settings.nested_categories = app_json.response.nested;
 
-          if(!settings.avod) {
-            settings.displayButtons = true;
-          }
+          // if(!settings.avod) {
+          settings.displayButtons = true;
+          // }
 
           // // main colors
           // settings.backgroundColor = app_json.response.background_color;

@@ -126,7 +126,7 @@
           // sheet.insertRule('#left-nav-list-container { background-color: ' + this.settingsParams.topBarColor + ' !important;}', 1);
           // sheet.insertRule('.leftnav-list-item-highlighted { border-color: ' + this.settingsParams.leftNavHoverBackgroundColor + ' !important;}', 1);
           // sheet.insertRule('.leftnav-list-item-highlighted { background-color: ' + this.settingsParams.leftNavHoverBackgroundColor + ' !important;}', 1);
-          
+
           // set up text color for video thumbnails
           // sheet.insertRule('#summaryDate {color: ' + this.settingsParams.mutedTextColor + ' !important;}', 1);
           // sheet.insertRule('#summaryTitle {color: ' + this.settingsParams.textColor + ' !important;}', 1);
@@ -354,7 +354,6 @@
            * @param {Object} categories data
            */
           var successCallback = function(categoriesData) {
-            console.log(categoriesData);
             this.categoriesData = categoriesData;
             nestedCategoriesOneDView.render(this.$appContainer, this.categoriesData, this.settingsParams.displayButtons);
           }.bind(this);
@@ -574,7 +573,8 @@
             this.selectView(this.leftNavView);
             this.leftNavView.setHighlightedElement();
 
-            //change size of selected shoveler item
+            //change size of selected slider and shoveler item
+            this.oneDView.shrinkSlider();
             this.oneDView.shrinkShoveler();
         };
 
@@ -589,6 +589,7 @@
             this.leftNavView.expand();
 
             //change size of selected shoveler item
+            this.oneDView.shrinkSlider();
             this.oneDView.shrinkShoveler();
         };
 
@@ -600,11 +601,12 @@
                 this.leftNavView.setHighlightedElement();
                 return;
             }
+
             this.leftNavView.collapse();
             this.selectView(this.oneDView);
-
-            //change size of selected shoveler item
-            this.oneDView.expandShoveler();
+            //change size of selected slider item
+            this.oneDView.expandSlider();
+            this.oneDView.setCurrentView(this.oneDView.sliderView);
         };
 
        /**

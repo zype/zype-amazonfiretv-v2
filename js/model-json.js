@@ -24,6 +24,9 @@
          this.categoriesData = [];
          this.currentNestedCategory = 0;
 
+         this.zobjectData = [];
+         this.sliderData = [];
+
         /**
          * This function loads the initial data needed to start the app and calls the provided callback with the data when it is fully loaded
          * @param {function} the callback function to call with the loaded data
@@ -39,6 +42,70 @@
           });
 
         }.bind(this);
+
+        this.loadZObjectData = function(callback) {
+          console.log('load.zobject.data');
+          $.ajax({
+            url: this.settingsParams.endpoint + "zobjects/?zobject_type=slider&app_key=" + this.settingsParams.app_key,
+            type: 'GET',
+            crossDomain: true,
+            dataType: 'json',
+            context: this,
+            cache: true,
+            success: function() {
+              var data = arguments[0].response;
+              for (var i = 0; i < data.length; i++) {
+                this.zobjectData.push({
+                  id: data[i].video_ids[0],
+                  thumbnail: data[i].pictures[0].url
+                });
+              }
+            },
+            error: function() {
+              console.log('loadZObjectData.error');
+            },
+            complete: function() {
+              for (var i = 0; i < this.zobjectData.length; i++) {
+                this.loadSliderVideoDetails(this.zobjectData[i].id, this.zobjectData[i].thumbnail);
+              }
+              callback();
+            }
+          });
+        };
+
+        this.loadSliderVideoDetails = function(video_id, thumbnail) {
+          $.ajax({
+            url: this.settingsParams.endpoint + "videos/" + video_id + "?app_key=" + this.settingsParams.app_key,
+            type: 'GET',
+            crossDomain: true,
+            dataType: 'json',
+            context: this,
+            cache: true,
+            success: function() {
+              var video = arguments[0].response;
+              var args = {
+                "id": video._id,
+                "title": video.title,
+                "pubDate": video.published_at,
+                "thumbURL": thumbnail,
+                "imgURL": thumbnail,
+                // parse videoURL at playtime
+                "description": video.description,
+                "seconds": video.duration,
+                "subscription_required": video.subscription_required,
+                "rental_required": video.rental_required,
+                "purchase_required": video.purchase_required,
+                "pass_required": video.pass_required
+              }
+              var video = new Video(args);
+              console.log(video);
+              this.sliderData.push(video);
+            },
+            error: function() {
+              console.log('loadVideoDetails.error');
+            }
+          });
+        };
 
         this.loadCategoryData = function(categoryDataLoadedCallback){
           console.log('load.category.data');
@@ -61,7 +128,8 @@
             },
             complete:function() {
               console.log('loadData.complete');
-              categoryDataLoadedCallback();
+              this.loadZObjectData(categoryDataLoadedCallback);
+              // categoryDataLoadedCallback();
             }
           });
         };

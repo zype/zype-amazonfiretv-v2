@@ -84,7 +84,6 @@
         this.render = function (el, row) {
             this.parentContainer = el;
             // Build the main content template and add it
-            this.titleText = row.title;
             var html = utils.buildTemplate($("#shoveler-template"), {
                 items: row
             });
@@ -154,6 +153,7 @@
             }
 
             this.setTransforms(0);
+            this.shrinkSelected();
 
             window.setTimeout(function() {
                 this.$rowElements.css("transition", "");
