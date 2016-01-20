@@ -65,8 +65,10 @@
               console.log('loadZObjectData.error');
             },
             complete: function() {
-              for (var i = 0; i < this.zobjectData.length; i++) {
-                this.loadSliderVideoDetails(this.zobjectData[i].id, this.zobjectData[i].thumbnail);
+              if (this.zobjectData.length > 0) {
+                for (var i = 0; i < this.zobjectData.length; i++) {
+                    this.loadSliderVideoDetails(this.zobjectData[i].id, this.zobjectData[i].thumbnail);
+                }   
               }
               callback();
             }
