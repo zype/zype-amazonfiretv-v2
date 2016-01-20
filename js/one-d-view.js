@@ -165,7 +165,13 @@
 
             shovelerView.on('loadComplete', function() {
                 this.trigger('loadComplete');
-                this.showExtraData();
+                
+                if (fromSubCat) {
+                    this.showExtraData(app.data.currentNestedCategory);
+                } else {
+                    this.showExtraData();
+                }
+                
              }, this);
         };
 
