@@ -258,14 +258,14 @@
         * Shrink the selected shoveler item for 'out of focus' effect
         */
         this.shrinkShoveler = function () {
-            this.shovelerView.shrinkSelected();
+            if (this.shovelerView) this.shovelerView.shrinkSelected();
         };
 
        /**
         * Expand the selected shoveler item for 'in focus' effect
         */
         this.expandShoveler = function () {
-            this.shovelerView.setTransforms();
+            if (this.shovelerView) this.shovelerView.setTransforms();
         };
 
         /**
