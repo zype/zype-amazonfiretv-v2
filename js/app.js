@@ -207,7 +207,7 @@
 
                     //set the newly selected category index
                     if(this.showSearch) { index--;}
-                    app.data.setCurrentCategory(index);
+                    app.data.setCurrentCategory(index + 1);
 
                     //update the content
                     this.oneDView.updateCategory();
