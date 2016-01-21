@@ -491,10 +491,10 @@
 
                   // get the available items from amazon
                   iapHandler.checkAvailableItems(function() {
-                  oneDView.render(app.$appContainer, categoryTitle, app.categoryData, app.settingsParams.displayButtons, false);
+                  oneDView.render(app.$appContainer, categoryTitle, app.categoryData, app.settingsParams.displayButtons, true);
                   });
                 } else {
-                  oneDView.render(app.$appContainer, categoryTitle, app.categoryData, app.settingsParams.displayButtons, false);
+                  oneDView.render(app.$appContainer, categoryTitle, app.categoryData, app.settingsParams.displayButtons, true);
                 }
 
 

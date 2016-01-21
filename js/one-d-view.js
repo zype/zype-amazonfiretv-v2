@@ -532,8 +532,8 @@
          * Move the One D container as new components are selected
          */
         this.shiftOneDContainer = function() {
-        //   if (this.currentView == this.shovelerView) this.scrollingContainerEle.style.webkitTransform = "translateY(" + (-this.$shovelerContainerOffset + 300) + "px)";
-        //   if (this.currentView == this.sliderView) this.scrollingContainerEle.style.webkitTransform = "translateY(" + 0 + "px)";
+          if (this.currentView == this.shovelerView) this.scrollingContainerEle.style.webkitTransform = "translateY(" + (-this.$shovelerContainerOffset - 200) + "px)";
+          if (this.currentView == this.sliderView) this.scrollingContainerEle.style.webkitTransform = "translateY(" + 0 + "px)";
         };
 
         /**
