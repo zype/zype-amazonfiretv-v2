@@ -491,10 +491,10 @@
 
                   // get the available items from amazon
                   iapHandler.checkAvailableItems(function() {
-                  oneDView.render(app.$appContainer, categoryTitle, app.categoryData, app.settingsParams.displayButtons);
+                  oneDView.render(app.$appContainer, categoryTitle, app.categoryData, app.settingsParams.displayButtons, false);
                   });
                 } else {
-                  oneDView.render(app.$appContainer, categoryTitle, app.categoryData, app.settingsParams.displayButtons);
+                  oneDView.render(app.$appContainer, categoryTitle, app.categoryData, app.settingsParams.displayButtons, false);
                 }
 
 
@@ -574,8 +574,7 @@
             this.leftNavView.setHighlightedElement();
 
             //change size of selected slider and shoveler item
-            this.oneDView.shrinkSlider();
-            this.oneDView.shrinkShoveler();
+            this.oneDView.shrink();
         };
 
        /**
@@ -589,8 +588,7 @@
             this.leftNavView.expand();
 
             //change size of selected shoveler item
-            this.oneDView.shrinkSlider();
-            this.oneDView.shrinkShoveler();
+            this.oneDView.shrink();
         };
 
        /**
@@ -605,8 +603,7 @@
             this.leftNavView.collapse();
             this.selectView(this.oneDView);
             //change size of selected slider item
-            this.oneDView.expandSlider();
-            this.oneDView.setCurrentView(this.oneDView.sliderView);
+            this.oneDView.expand();
         };
 
        /**

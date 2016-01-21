@@ -8,22 +8,27 @@
     "use strict";
 
     //module constants
-    var ID_ONED_VIEW_ELEMENTS = "#one-D-view-item-elements",
+    var ID_ONED_VIEW_ELEMENTS         = "#one-D-view-item-elements",
 
-        ID_ONED_SLIDER_CONTAINER = "one-D-slider-container",
+        ID_ONED_SLIDER_CONTAINER      = "one-D-slider-container",
 
-        ID_ONED_SHOVELER_CONTAINER   = "one-D-shoveler-container",
+        ID_ONED_SHOVELER_CONTAINER    = "one-D-shoveler-container",
 
         ID_ONED_DESCRIPTION_CONTAINER = "one-D-description-container",
+        
+        ID_ONED_SUMMARY_CONTAINER = "one-D-summary-container",
 
-        ID_ONED_SUMMARY_TITLE     = "summaryTitle",
+        ID_ONED_SUMMARY_TITLE         = "summaryTitle",
 
-        ID_ONED_SUMMARY_DATE      = "summaryDate",
+        ID_ONED_SUMMARY_DATE          = "summaryDate",
 
-        ID_ONED_SUMMARY_DESC      = "summaryDesc",
+        ID_ONED_SUMMARY_DESC          = "summaryDesc",
 
-        BUTTON_CONTAINER          = "one-D-buttons",
-        ID_APP_CONTAINER = "app-container";
+        BUTTON_CONTAINER              = "one-D-buttons",
+
+        ID_ONED_TITLE                 = "one-d-title",
+
+        ID_APP_CONTAINER              = "app-container";
 
     var TIME_TIMEOUT_DISPLAY_INFO = 350;
 
@@ -39,11 +44,13 @@
         this.currSelection = 0;
         this.currentView = null;
         this.titleText = null;
+        this.$title = null;
         this.$sliderContainer = null;
         this.$sliderContainerOffset = null;
         this.$shovelerContainer = null;
         this.$shovelerContainerOffset = null;
         this.$buttonsContainerOffset = null;
+        this.$summaryContainer = null;
         this.$descContainer = null;
         this.$buttonsContainer = null;
         this.$scrollingContainerEle = null;
@@ -66,7 +73,7 @@
         this.hide = function () {
             this.$el.css('visibility', 'hidden');
             this.shovelerView.hide();
-            this.sliderView.hide();
+            if (this.sliderView !== undefined) this.sliderView.hide();
         };
 
        /**
@@ -75,7 +82,7 @@
         this.show = function () {
             this.$el.css('visibility', 'visible');
             this.shovelerView.show();
-            this.sliderView.show();
+            if (this.sliderView !== undefined)  this.sliderView.show();
         };
 
        /**
@@ -106,12 +113,13 @@
          * @param {Element} $el application container
          * @param {Object} rowData data object for the row
          */
-        this.render = function ($el, category, rowData, displayButtonsParam) {
+        this.render = function ($el, category, rowData, displayButtonsParam, displaySliderParam) {
             //Make sure we don't already have a full container
             this.remove();
 
             // Build the main content template and add it
             this.titleText = rowData.title;
+            this.$title = $("#" + ID_ONED_TITLE);
             this.rowElements = rowData;
             var html = utils.buildTemplate($("#one-D-view-items-template"), {
               category: category
@@ -134,12 +142,23 @@
             //gather widths of all the row elements
             this.$elementWidths = [];
 
-            this.createSliderView(app.data.sliderData);
+            
+            this.scrollingContainerEle = $(ID_ONED_VIEW_ELEMENTS)[0];
+            
             this.createShovelerView(rowData);
             this.createButtonView(displayButtonsParam, this.$el);
             this.createDescView();
-            this.setCurrentView(this.sliderView);
-            this.scrollingContainerEle = $(ID_ONED_VIEW_ELEMENTS)[0];
+            if (displaySliderParam && app.data.sliderData.length > 0) {
+                this.createSliderView(app.data.sliderData);
+                $("#" + ID_ONED_SLIDER_CONTAINER).show();
+                this.setCurrentView(this.sliderView);
+            } else {
+                // $("#" + ID_ONED_SUMMARY_CONTAINER).css("top", "840px");
+                // this.$buttonsContainer.css("top", "1140px");
+                // this.$shovelerContainer.css("top", "360px");
+                $("#" + ID_ONED_SLIDER_CONTAINER).hide();
+                this.setCurrentView(this.shovelerView);
+            }
         };
 
         /**
@@ -264,8 +283,8 @@
             }, this);
 
             shovelerView.on('loadComplete', function() {
-                this.trigger('loadComplete');
                 this.showExtraData();
+                this.trigger('loadComplete');
              }, this);
         };
 
@@ -318,8 +337,8 @@
           this.setCurrentView(this.sliderView);
 
           // change opacity of the slider
-          this.sliderView.unfadeSelected();
-          this.sliderView.setTransforms();
+          if (this.sliderView !== undefined) this.sliderView.unfadeSelected();
+          if (this.sliderView !== undefined) this.sliderView.setTransforms();
 
           this.shovelerView.fadeSelected();
           this.shovelerView.shrinkSelected();
@@ -337,9 +356,10 @@
             //change opacity of the shoveler
             this.shovelerView.unfadeSelected();
             this.shovelerView.setTransforms();
-
-            this.sliderView.fadeSelected();
-            this.sliderView.shrinkSelected();
+            
+            console.log(this.sliderView)
+            if (this.sliderView !== undefined) this.sliderView.fadeSelected();
+            if (this.sliderView !== undefined) this.sliderView.shrinkSelected();
 
             //set buttons back to static
             if(this.buttonView) this.buttonView.setStaticButton();
@@ -401,16 +421,48 @@
           * Shrink the selected slider item for 'out of focus' effect
           */
          this.shrinkSlider = function() {
-           this.sliderView.shrinkSelected();
+           if (this.sliderView !== undefined) this.sliderView.shrinkSelected();
          };
 
          /**
           * Expand the selected slider item for 'in focus' effect
           */
          this.expandSlider = function() {
-           this.sliderView.setTransforms();
+           if (this.sliderView !== undefined) this.sliderView.setTransforms();
          };
+         
+         /**
+          * Shrink the selected item for the current view
+          */
+          this.shrink = function () {
+              switch (this.currentView) {
+                  case this.sliderView:
+                      this.sliderView.shrinkSelected();
+                      break;
+                  case this.shovelerView:
+                      this.shovelerView.shrinkSelected();
+                      break;
+                  default:
+                      break;
+              }
+          };
 
+          /**
+           * Expand the selected item the current view
+           */
+          this.expand = function () {
+              switch (this.currentView) {
+                  case this.sliderView:
+                      this.sliderView.setTransforms();
+                      break;
+                  case this.shovelerView:
+                      this.shovelerView.setTransforms();
+                      break;
+                  default:
+                      break;
+              }
+          };
+          
         /**
          * Handle key events
          * @param {event} the keydown event
@@ -428,7 +480,11 @@
                              this.trigger('bounce');
                              break;
                            case this.shovelerView:
-                             this.transitionToSliderView();
+                             if (this.sliderView) {
+                                this.transitionToSliderView();
+                             } else {
+                                 this.trigger('bounce');
+                             }
                              break;
                            case this.buttonView:
                              this.transitionToShovelerView();
@@ -438,7 +494,12 @@
                              break;
                          }
                          dirty = true;
-                         this.shiftOneDContainer();
+                         
+                         if (this.sliderView !== undefined) {
+                            this.shiftOneDContainer();
+                         }
+                         
+                         
                          break;
                     case buttons.DOWN:
                         //  console.log(this.currentView);
@@ -451,7 +512,11 @@
                              break;
                          }
                          dirty = true;
-                         this.shiftOneDContainer();
+                         
+                         if (this.sliderView !== undefined) {
+                            this.shiftOneDContainer();
+                         }
+                         
                          break;
                 }
             }
@@ -467,8 +532,8 @@
          * Move the One D container as new components are selected
          */
         this.shiftOneDContainer = function() {
-          if (this.currentView == this.shovelerView) this.scrollingContainerEle.style.webkitTransform = "translateY(" + (-this.$shovelerContainerOffset + 300) + "px)";
-          if (this.currentView == this.sliderView) this.scrollingContainerEle.style.webkitTransform = "translateY(" + 0 + "px)";
+        //   if (this.currentView == this.shovelerView) this.scrollingContainerEle.style.webkitTransform = "translateY(" + (-this.$shovelerContainerOffset + 300) + "px)";
+        //   if (this.currentView == this.sliderView) this.scrollingContainerEle.style.webkitTransform = "translateY(" + 0 + "px)";
         };
 
         /**
