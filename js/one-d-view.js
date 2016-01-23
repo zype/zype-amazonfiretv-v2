@@ -15,7 +15,7 @@
         ID_ONED_SHOVELER_CONTAINER    = "one-D-shoveler-container",
 
         ID_ONED_DESCRIPTION_CONTAINER = "one-D-description-container",
-        
+
         ID_ONED_SUMMARY_CONTAINER = "one-D-summary-container",
 
         ID_ONED_SUMMARY_TITLE         = "summaryTitle",
@@ -113,17 +113,18 @@
          * @param {Element} $el application container
          * @param {Object} rowData data object for the row
          */
-        this.render = function ($el, category, rowData, displayButtonsParam, displaySliderParam) {
+        this.render = function ($el, title, rowData, displayButtonsParam, displaySliderParam) {
             //Make sure we don't already have a full container
             this.remove();
 
             // Build the main content template and add it
-            this.titleText = rowData.title;
+            if (title.length > 0) {
+                this.titleText = title + " | "
+            }
+
             this.$title = $("#" + ID_ONED_TITLE);
             this.rowElements = rowData;
-            var html = utils.buildTemplate($("#one-D-view-items-template"), {
-              category: category
-            });
+            var html = utils.buildTemplate($("#one-D-view-items-template"), {});
 
             $el.append(html);
 
@@ -142,12 +143,17 @@
             //gather widths of all the row elements
             this.$elementWidths = [];
 
-            
+
             this.scrollingContainerEle = $(ID_ONED_VIEW_ELEMENTS)[0];
-            
+
+
             this.createShovelerView(rowData);
-            this.createButtonView(displayButtonsParam, this.$el);
-            this.createDescView();
+
+            if (!fromSubCat){
+              this.createButtonView(displayButtonsParam, this.$el);
+              this.createDescView();
+            }
+
             if (displaySliderParam && app.data.sliderData.length > 0) {
                 this.createSliderView(app.data.sliderData);
                 $("#" + ID_ONED_SLIDER_CONTAINER).show();
@@ -314,7 +320,7 @@
               console.log('show.desc');
               this.transitionToDescView();
             }, this);
-
+            
             var subscribeButtons = iapHandler.getAvailableSubscriptionButtons();
             var purchaseButtons = iapHandler.getAvailablePurchaseButtons();
             buttonView.render(this.$buttonsContainer, subscribeButtons, purchaseButtons);
@@ -356,7 +362,7 @@
             //change opacity of the shoveler
             this.shovelerView.unfadeSelected();
             this.shovelerView.setTransforms();
-            
+
             console.log(this.sliderView)
             if (this.sliderView !== undefined) this.sliderView.fadeSelected();
             if (this.sliderView !== undefined) this.sliderView.shrinkSelected();
@@ -430,7 +436,7 @@
          this.expandSlider = function() {
            if (this.sliderView !== undefined) this.sliderView.setTransforms();
          };
-         
+
          /**
           * Shrink the selected item for the current view
           */
@@ -462,7 +468,7 @@
                       break;
               }
           };
-          
+
         /**
          * Handle key events
          * @param {event} the keydown event
@@ -494,12 +500,12 @@
                              break;
                          }
                          dirty = true;
-                         
+
                          if (this.sliderView !== undefined) {
                             this.shiftOneDContainer();
                          }
-                         
-                         
+
+
                          break;
                     case buttons.DOWN:
                         //  console.log(this.currentView);
@@ -512,11 +518,11 @@
                              break;
                          }
                          dirty = true;
-                         
+
                          if (this.sliderView !== undefined) {
                             this.shiftOneDContainer();
                          }
-                         
+
                          break;
                 }
             }
@@ -532,7 +538,7 @@
          * Move the One D container as new components are selected
          */
         this.shiftOneDContainer = function() {
-          if (this.currentView == this.shovelerView) this.scrollingContainerEle.style.webkitTransform = "translateY(" + (-this.$shovelerContainerOffset - 200) + "px)";
+          if (this.currentView == this.shovelerView) this.scrollingContainerEle.style.webkitTransform = "translateY(" + (-this.$shovelerContainerOffset - 350) + "px)";
           if (this.currentView == this.sliderView) this.scrollingContainerEle.style.webkitTransform = "translateY(" + 0 + "px)";
         };
 

@@ -207,7 +207,7 @@
 
                     //set the newly selected category index
                     if(this.showSearch) { index--;}
-                    app.data.setCurrentCategory(index);
+                    app.data.setCurrentCategory(index + 1);
 
                     //update the content
                     this.oneDView.updateCategory();
@@ -347,6 +347,7 @@
           nestedCategoriesOneDView.on('loadComplete', function() {
             this.hideContentLoadingSpinner();
             handleDeviceOrientation();
+            this.nestedCategoriesOneDView.expand();
           }, this);
 
           /**
@@ -355,7 +356,7 @@
            */
           var successCallback = function(categoriesData) {
             this.categoriesData = categoriesData;
-            nestedCategoriesOneDView.render(this.$appContainer, this.categoriesData, this.settingsParams.displayButtons);
+            nestedCategoriesOneDView.render(this.$appContainer, "", this.categoriesData, false, false);
           }.bind(this);
 
           /*
@@ -491,10 +492,10 @@
 
                   // get the available items from amazon
                   iapHandler.checkAvailableItems(function() {
-                  oneDView.render(app.$appContainer, categoryTitle, app.categoryData, app.settingsParams.displayButtons, true);
+                  oneDView.render(app.$appContainer, categoryTitle, app.categoryData, app.settingsParams.displayButtons, false);
                   });
                 } else {
-                  oneDView.render(app.$appContainer, categoryTitle, app.categoryData, app.settingsParams.displayButtons, true);
+                  oneDView.render(app.$appContainer, categoryTitle, app.categoryData, app.settingsParams.displayButtons, false);
                 }
 
 
