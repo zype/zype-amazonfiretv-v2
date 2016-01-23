@@ -43,7 +43,7 @@
         //global variables
         this.currSelection = 0;
         this.currentView = null;
-        this.titleText = null;
+        this.titleText = "";
         this.$title = null;
         this.$sliderContainer = null;
         this.$sliderContainerOffset = null;
@@ -545,7 +545,7 @@
 
             window.setTimeout(function () {
                 //add description
-                $("#" + ID_ONED_SUMMARY_TITLE).html(this.rowElements[index].title);
+                $("#" + ID_ONED_SUMMARY_TITLE).html(this.titleText +  this.rowElements[index].title);
                 $("#" + ID_ONED_SUMMARY_DATE).html((this.rowElements[index].seconds) ? (this.parseTime(this.rowElements[index].seconds)) : ("<br/>"));
                 $("#" + ID_ONED_SUMMARY_DESC).html(this.rowElements[index].description);
                 if(this.shouldShowButtons(this.rowElements[index])) {
