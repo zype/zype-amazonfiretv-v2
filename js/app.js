@@ -191,11 +191,11 @@
     this.initializeLeftNavView = function() {
 
       var leftNavView = this.leftNavView = new LeftNavView();
+
       if (this.showSearch) {
         this.searchInputView = new SearchInputView();
       }
 
-      app.data.setCurrentCategory(1);
       /**
        * Event Handler - Select menu item
        * @param {Number} index the index of the selected item
@@ -209,10 +209,12 @@
           this.showContentLoadingSpinner(true);
 
           //set the newly selected category index
-          if (this.showSearch) {
-            index--;
-          }
-          app.data.setCurrentCategory(index + 1);
+          // if (this.showSearch) {
+          //   index;
+          // }
+
+          app.data.setCurrentCategory(index);
+          console.log(app.data.currentCategory);
 
           //update the content
           this.oneDView.updateCategory();
@@ -234,6 +236,10 @@
 
           //show the spinner
           this.showContentLoadingSpinner(true);
+
+          app.data.setCurrentCategory(index);
+          console.log(app.data.currentCategory);
+
           this.oneDView.updateCategoryFromSearch(this.searchInputView.currentSearchQuery);
 
           //set the selected view
@@ -285,10 +291,13 @@
           this.searchInputView.select();
         } else {
           if (this.showSearch) {
-            app.data.setCurrentCategory(index - 1);
+            app.data.setCurrentCategory(index);
+            console.log(app.data.currentCategory);
           } else {
             app.data.setCurrentCategory(index);
+            console.log(app.data.currentCategory);
           }
+
           if (this.showSearch) {
             this.searchInputView.deselect();
           }
@@ -303,7 +312,11 @@
         if (this.showSearch) {
           leftNavData.unshift(this.searchInputView);
           startIndex = 1;
+          app.data.setCurrentCategory(startIndex);
         }
+
+        console.log(app.data.categoryData);
+        console.log(app.data.currentCategory);
 
         leftNavView.render(this.$appContainer, leftNavData, startIndex);
       }.bind(this);
@@ -487,6 +500,17 @@
           categoryTitle = this.data.categoryData[this.leftNavView.currSelectedIndex];
         }
 
+        var showSlider = function() {
+          console.log(this.showSearch);
+          console.log(app.data.currentCategory);
+          if (this.showSearch && app.data.currentCategory === 1) {
+            return true;
+          } else if (!this.showSearch && app.data.currentCategory === 0) {
+            return true;
+          }
+          return false;
+        }.bind(this);
+
         if (this.settingsParams.IAP === true) {
           // add video ids to iapHandler
           var video_ids = _.map(this.categoryData, function(v) {
@@ -500,20 +524,19 @@
 
           // get the available items from amazon
           iapHandler.checkAvailableItems(function() {
-            if (app.data.currentCategory !== 1) {
-              oneDView.render(app.$appContainer, categoryTitle, app.categoryData, app.settingsParams.displayButtons, false);
-            } else {
+            if (showSlider()) {
               oneDView.render(app.$appContainer, categoryTitle, app.categoryData, app.settingsParams.displayButtons, true);
+            } else {
+              oneDView.render(app.$appContainer, categoryTitle, app.categoryData, app.settingsParams.displayButtons, false);
             }
           });
         } else {
-          if (app.data.currentCategory !== 1) {
-            oneDView.render(app.$appContainer, categoryTitle, app.categoryData, app.settingsParams.displayButtons, false);
-          } else {
+          if (showSlider()) {
             oneDView.render(app.$appContainer, categoryTitle, app.categoryData, app.settingsParams.displayButtons, true);
+          } else {
+            oneDView.render(app.$appContainer, categoryTitle, app.categoryData, app.settingsParams.displayButtons, false);
           }
         }
-
 
       }.bind(this);
 
@@ -526,13 +549,16 @@
 
       oneDView.updateCategory = function() {
 
-        if (this.leftNavView.currSelectedIndex > 1) {
+        if (this.showSearch && this.leftNavView.currSelectedIndex > 1) {
           // this is a category grab of videos
+          app.data.getCategoryData(successCallback);
+        } else if (!this.showSearch && this.leftNavView.currSelectedIndex > 0) {
           app.data.getCategoryData(successCallback);
         } else {
           app.data.getPlaylistData(successCallback);
           // this is the featured playlist grab of videos
         }
+
       }.bind(this);
 
       //get the first video row right now when it loads
