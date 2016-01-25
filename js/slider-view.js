@@ -5,7 +5,7 @@
  */
 
 (function(exports) {
-  "use strict;"
+  "use strict";
 
   var SLIDER_ROW_ITEM_SELECTED = "slider-rowitem-selected";
 
@@ -80,7 +80,7 @@
 
       // gather widths of all the row elemets
       this.initialLayout();
-    }
+    };
 
     /**
      * Performs the initial layout of the elements of the row
@@ -89,6 +89,19 @@
       // compute all widths
       this.transformLimit = this.$el.width();
       this.limitTransforms = false;
+
+      //set a callback to make sure all images are loaded
+      var imagesLoaded = function(elt, currImage) {
+        currImage.on("load", function() {
+          elt.children("img.slider-full-img")[0].style.visibility = "visible";
+          this.relayoutOnLoadedImages();
+        }.bind(this));
+        // handle error case for loading screen
+        currImage.on("error", function() {
+          elt.children("img.slider-full-img")[0].style.visibility = "visible";
+          this.relayoutOnLoadedImages();
+        }.bind(this));
+      }.bind(this);
 
       for (var i = 0; i < this.$rowElements.length; i++) {
         var $currElt = $(this.$rowElements[i]);
@@ -99,17 +112,7 @@
         }
 
         //set a callback to make sure all images are loaded
-        (function($elt) {
-          $currImage.on("load", function() {
-            $elt.children("img.slider-full-img")[0].style.visibility = "visible";
-            this.relayoutOnLoadedImages();
-          }.bind(this));
-          // handle error case for loading screen
-          $currImage.on("error", function() {
-            $elt.children("img.slider-full-img")[0].style.visibility = "visible";
-            this.relayoutOnLoadedImages();
-          }.bind(this));
-        }.bind(this))($currElt);
+        imagesLoaded($currElt, $currImage);
 
         this.loadingImages++;
       }

@@ -31,8 +31,8 @@
      */
     this.remove = function() {
       // remove this element from the dom
-      if(this.$el) {
-          this.$el.remove();
+      if (this.$el) {
+        this.$el.remove();
       }
     };
 
@@ -77,8 +77,7 @@
     this.handleControls = function(e) {
       if (e.type === 'buttonpress') {
         switch (e.keyCode) {
-          default:
-            this.trigger('bounce');
+          default: this.trigger('bounce');
         }
       }
     };
@@ -90,7 +89,7 @@
       var seconds = totalSec % 60;
 
       return (hours < 10 ? "0" + hours : hours) + ":" + (minutes < 10 ? "0" + minutes : minutes) + ":" + (seconds < 10 ? "0" + seconds : seconds);
-    }
+    };
 
   };
 
