@@ -556,7 +556,7 @@
      * Move the One D container as new components are selected
      */
     this.shiftOneDContainer = function() {
-      if (this.currentView == this.shovelerView) this.scrollingContainerEle.style.webkitTransform = "translateY(" + (-this.$shovelerContainerOffset - 350) + "px)";
+      if (this.currentView == this.shovelerView) this.scrollingContainerEle.style.webkitTransform = "translateY(" + (-this.$shovelerContainerOffset - 210) + "px)";
       if (this.currentView == this.sliderView) this.scrollingContainerEle.style.webkitTransform = "translateY(" + 0 + "px)";
     };
 
