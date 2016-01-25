@@ -122,6 +122,15 @@
             //Make sure we don't already have a full container
             this.remove();
 
+      if (app.data.sliderData.length <= 0) {
+        displaySliderParam = false;
+      }
+
+      // make sure to clean slider's objects if we do not want to show
+      if (displaySliderParam === false) {
+        this.sliderView = null;
+      }
+
             // Build the main content template and add it
             if (title.length > 0) {
                 this.titleText = title + " | "

@@ -193,6 +193,7 @@
                 this.searchInputView = new SearchInputView();
             }
 
+      app.data.setCurrentCategory(1);
            /**
             * Event Handler - Select menu item
             * @param {Number} index the index of the selected item
@@ -492,10 +493,18 @@
 
                   // get the available items from amazon
                   iapHandler.checkAvailableItems(function() {
+            if (app.data.currentCategory !== 1) {
                   oneDView.render(app.$appContainer, categoryTitle, app.categoryData, app.settingsParams.displayButtons, false);
+            } else {
+              oneDView.render(app.$appContainer, categoryTitle, app.categoryData, app.settingsParams.displayButtons, true);
+            }
                   });
                 } else {
+          if (app.data.currentCategory !== 1) {
                   oneDView.render(app.$appContainer, categoryTitle, app.categoryData, app.settingsParams.displayButtons, false);
+          } else {
+            oneDView.render(app.$appContainer, categoryTitle, app.categoryData, app.settingsParams.displayButtons, true);
+          }
                 }
 
 
