@@ -204,7 +204,7 @@
                     this.oneDView.remove();
 
                     //show the spinner
-                    this.showContentLoadingSpinner();
+          this.showContentLoadingSpinner(true);
 
                     //set the newly selected category index
                     if(this.showSearch) { index--;}
@@ -229,7 +229,7 @@
                     this.oneDView.remove();
 
                     //show the spinner
-                    this.showContentLoadingSpinner();
+          this.showContentLoadingSpinner(true);
                     this.oneDView.updateCategoryFromSearch(this.searchInputView.currentSearchQuery);
 
                     //set the selected view
@@ -374,7 +374,7 @@
          * Set the UI appropriately for the category
          */
         this.transitionToCategory = function() {
-          this.showContentLoadingSpinner();
+      this.showContentLoadingSpinner(true);
           console.log('transition.to.category');
           this.nestedCategoriesOneDView.shovelerView.remove();
           this.nestedCategoriesOneDView.remove();
@@ -391,7 +391,7 @@
          * Set the UI appropriately for the categories
          */
         this.transitionToCategories = function() {
-          this.showContentLoadingSpinner();
+      this.showContentLoadingSpinner(true);
           console.log('transition.to.categories');
           this.oneDView.shovelerView.remove();
           this.oneDView.remove();
