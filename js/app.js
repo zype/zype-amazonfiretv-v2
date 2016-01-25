@@ -481,7 +481,9 @@
         this.categoryData = categoryData;
 
         var categoryTitle = "";
-        if (this.leftNavView.currSelectedIndex > 0) {
+        if (this.showSearch && this.leftNavView.currSelectedIndex === 0) {
+          categoryTitle = "Search";
+        } else {
           categoryTitle = this.data.categoryData[this.leftNavView.currSelectedIndex];
         }
 
