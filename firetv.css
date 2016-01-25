@@ -523,6 +523,60 @@ div {
 
 /* One D View Summary View Style */
 
+#slider-summary-container {
+  position: absolute;
+  top: 600px;
+  width: 60%;
+  height: 150px;
+  overflow: hidden;
+  left: 150px;
+  color: #eaeff3;
+}
+.slider-summary-text .slider-summary-title {
+  line-height: 1.4;
+  color: #eaeff3;
+  font-size: 1.8em;
+  font-family: "Regular Medium", sans-serif;
+  height: 62px;
+  overflow: hidden;
+  margin-top: 10px;
+  display: -webkit-box;
+  /* NEW - Chrome */
+  display: -moz-box;
+  /* OLD - Firefox 19- (buggy but mostly works) */
+  display: -ms-flexbox;
+  /* TWEENER - IE 10 */
+  display: box;
+  /* NEW, Spec - Opera 12.1, Firefox 20+ */
+  -webkit-box-orient: vertical;
+  -moz-box-orient: vertical;
+  box-orient: vertical;
+  -webkit-line-clamp: 1;
+  -moz-line-clamp: 1;
+  line-clamp: 1;
+}
+.slider-summary-text .slider-summary-description {
+  font-family: "Roboto Regular";
+  color: #FFFFFF;
+  /*font-style: italic;*/
+  font-size: 1.1em;
+  overflow: hidden;
+  align-items: center;
+  display: -webkit-box;
+  /* NEW - Chrome */
+  display: -moz-box;
+  /* OLD - Firefox 19- (buggy but mostly works) */
+  display: -ms-flexbox;
+  /* TWEENER - IE 10 */
+  display: box;
+  /* NEW, Spec - Opera 12.1, Firefox 20+ */
+  -webkit-box-orient: vertical;
+  -moz-box-orient: vertical;
+  box-orient: vertical;
+  -webkit-line-clamp: 2;
+  -moz-line-clamp: 2;
+  line-clamp: 2;
+}
 #one-D-summary-container {
     position: relative;
     top: 340px;

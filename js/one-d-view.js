@@ -31,6 +31,9 @@
         ID_APP_CONTAINER              = "app-container";
 
     var TIME_TIMEOUT_DISPLAY_INFO = 350;
+    ID_SLIDER_SUMMARY_TITLE = "sliderTitle",
+
+    ID_SLIDER_SUMMARY_DESC = "sliderDesc";
 
     /**
      * @class OneDView
@@ -42,6 +45,7 @@
 
         //global variables
         this.currSelection = 0;
+    this.currSliderSelection = 0;
         this.currentView = null;
         this.titleText = "";
         this.$title = null;
@@ -56,6 +60,7 @@
         this.$scrollingContainerEle = null;
         this.noItems = false;
         this.translateAmount = null;
+    this.sliderData = null;
 
         //jquery global variables
         this.$el = null;
@@ -155,7 +160,9 @@
             }
 
             if (displaySliderParam && app.data.sliderData.length > 0) {
-                this.createSliderView(app.data.sliderData);
+        this.sliderData = app.data.sliderData;
+        // console.log(this.sliderData);
+        this.createSliderView(this.sliderData);
                 $("#" + ID_ONED_SLIDER_CONTAINER).show();
                 this.setCurrentView(this.sliderView);
             } else {
@@ -184,7 +191,7 @@
           }, this);
 
           sliderView.on('select', function(index) {
-            // this.currSelection = index;
+        this.currSliderSelection = index;
             this.trigger('select', index);
           }, this);
 
@@ -193,24 +200,24 @@
           }, this);
 
           sliderView.on('startScroll', function(direction) {
-            // this.hideExtraData();
+        this.hideSliderExtraData();
             this.trigger('startScroll', direction);
           }, this);
 
           sliderView.on('stopScroll', function(index) {
-            // this.currSelection = index;
-            // this.showExtraData(index);
+        this.currSliderSelection = index;
+        this.showSliderExtraData(index);
             this.trigger('stopScroll', index);
           }, this);
 
           sliderView.on('indexChange', function(index) {
-            // this.currSelection = index;
+        this.currSliderSelection = index;
             this.trigger('indexChange', index);
           }, this);
 
           sliderView.on('loadComplete', function() {
             this.trigger('loadComplete');
-            // this.showExtraData();
+        this.showSliderExtraData();
           }, this);
         };
 
@@ -560,6 +567,30 @@
                 }
             }.bind(this), TIME_TIMEOUT_DISPLAY_INFO);
         };
+
+    /**
+     * Show summary text in the Slider View
+     * @param {Number} index number of current element to show data for
+     */
+    this.showSliderExtraData = function(index) {
+      index = index || 0;
+
+      window.setTimeout(function() {
+        //add description
+        // console.log(this.sliderData[index].title);
+        // console.log(this.sliderData[index].description);
+        $("#" + ID_SLIDER_SUMMARY_TITLE).html(this.sliderData[index].title);
+        $("#" + ID_SLIDER_SUMMARY_DESC).html(this.sliderData[index].description);
+      }.bind(this), TIME_TIMEOUT_DISPLAY_INFO);
+    };
+
+    /**
+     * Hide the text in the Slider view when scrolling starts
+     */
+    this.hideSliderExtraData = function() {
+      $("#" + ID_SLIDER_SUMMARY_TITLE).text("");
+      $("#" + ID_SLIDER_SUMMARY_DESC).text("");
+    };
 
         this.showAvailableButtons = function() {
             var video = this.currentVideo();
