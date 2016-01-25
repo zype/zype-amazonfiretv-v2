@@ -8,8 +8,8 @@ var Category = function(args) {
   this.title = args.title || "";
   this.imgURL = args.imgUrl || "";
   this.description = args.description || "";
-  this.playlist_id = args.playlist_id || "";
-  this.category_id = args.category_id || "";
+  this.playlist_id = args.playlist_id || null;
+  this.category_id = args.category_id || null;
 };
 
 Category.prototype = {
