@@ -134,12 +134,14 @@
 
       // Build the main content template and add it
       if (title.length > 0) {
-        this.titleText = title + " | ";
+        this.titleText = title;
       }
 
       this.$title = $("#" + ID_ONED_TITLE);
       this.rowElements = rowData;
-      var html = utils.buildTemplate($("#one-D-view-items-template"), {});
+      var html = utils.buildTemplate($("#one-D-view-items-template"), {
+        title: this.titleText
+      });
 
       $el.append(html);
 
@@ -569,7 +571,7 @@
 
       window.setTimeout(function() {
         //add description
-        $("#" + ID_ONED_SUMMARY_TITLE).html(this.titleText + this.rowElements[index].title);
+        $("#" + ID_ONED_SUMMARY_TITLE).html(this.rowElements[index].title);
         $("#" + ID_ONED_SUMMARY_DATE).html((this.rowElements[index].seconds) ? (this.parseTime(this.rowElements[index].seconds)) : ("<br/>"));
         $("#" + ID_ONED_SUMMARY_DESC).html(this.rowElements[index].description);
         if (this.shouldShowButtons(this.rowElements[index])) {
