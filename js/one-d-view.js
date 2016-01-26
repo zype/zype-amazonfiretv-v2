@@ -96,6 +96,7 @@
      */
     this.remove = function() {
       if (this.el) {
+        $(".description-view").remove();
         $(this.el).remove();
       }
     };
