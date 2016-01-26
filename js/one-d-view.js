@@ -78,7 +78,9 @@
      */
     this.hide = function() {
       this.$el.css('visibility', 'hidden');
+      $(".one-d-title-container").css('visibility', 'hidden');
       this.shovelerView.hide();
+      $();
       if (this.sliderView !== null) this.sliderView.hide();
     };
 
@@ -87,7 +89,9 @@
      */
     this.show = function() {
       this.$el.css('visibility', 'visible');
+      $(".one-d-title-container").css('visibility', 'visible');
       this.shovelerView.show();
+      $();
       if (this.sliderView !== null) this.sliderView.show();
     };
 
@@ -96,6 +100,7 @@
      */
     this.remove = function() {
       if (this.el) {
+        $(".one-d-title-container").remove();
         $(".description-view").remove();
         $(this.el).remove();
       }
