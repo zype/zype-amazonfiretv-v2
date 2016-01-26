@@ -69,9 +69,9 @@
 
       // let's handle menu icon
       $(this.currentSelectionEle).find(".leftnav-list-item-text").hide();
-      $(this.currentSelectionEle).find(".leftnav-list-item-menu-icon").show();
       $(this.leftNavContainerEle).find("#search-input").css("opacity", 0);
-      $(this.leftNavContainerEle).find(".leftnav-list-item-search-menu-icon").show();
+      $('#left-nav-menu-icon').show();
+      $('#left-nav-menu-icon').removeClass("leftnav-menu-icon-highlight");
 
       //set the chosen item style
       this.setChosenElement();
@@ -92,9 +92,8 @@
 
       // let's handle menu icon
       $(this.currentSelectionEle).find(".leftnav-list-item-text").show();
-      $(this.currentSelectionEle).find(".leftnav-list-item-menu-icon").hide();
       $(this.leftNavContainerEle).find("#search-input").css("opacity", 100);
-      $(this.leftNavContainerEle).find(".leftnav-list-item-search-menu-icon").hide();
+      $('#left-nav-menu-icon').hide();
 
       //set the selected item style
       this.setSelectedElement();
@@ -166,6 +165,8 @@
      */
     this.setHighlightedElement = function(ele) {
       ele = ele || this.currentSelectionEle;
+
+      $('#left-nav-menu-icon').addClass("leftnav-menu-icon-highlight");
 
       $(ele).removeClass(CLASS_MENU_ITEM_CHOSEN);
       $(ele).addClass(CLASS_MENU_ITEM_HIGHLIGHTED);

@@ -66,12 +66,12 @@
   <!-- Left Nav View Template -->
   <script id="left-nav-template" type="text/x-handlebars-template">
     <div id="left-nav" class="leftnav-main-container">
+      <div id="left-nav-menu-icon" class="leftnav-menu-icon"><img src="../assets/menu.png" alt="Menu Icon" /></div>
       <div id="left-nav-list-container" class="leftnav-menulist-expanded">
         <div id="left-nav-scrolling-list" class="leftnav-menu-scrolling-list">
           {{#each leftNavItems}}
           <div class="leftnav-list-item-container">
             <div class="leftnav-list-item-static">
-              <div class="leftnav-list-item-menu-icon"><img src="../assets/menu.png" alt="Menu Icon" /></div>
               <div class="leftnav-list-item-text">{{this}}</div>
             </div>
           </div>
@@ -84,10 +84,7 @@
   <!-- Search Row View Template -->
   <script id="search-input-template" type="text/x-handlebars-template">
     <input id="search-input" class="leftnav-list-item-static leftnav-search-box" type="text" placeholder="Search"></input>
-    <div class="leftnav-list-item-search-menu-icon"><img src="../assets/menu.png" alt="Menu Icon" /></div>
   </script>
-
-
 
   <!-- 1D View Template  -->
   <script id="one-D-view-items-template" type="text/x-handlebars-template">
