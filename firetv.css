@@ -13,10 +13,6 @@
 body {
   background: linear-gradient(to bottom, #000000 0%, #000000 40%, #4c4c4c 100%) !important;
 }
-.summaryTitle {
-  font-family: "Roboto Medium";
-  text-transform: uppercase;
-}
 * {
   box-sizing: Border-box;
 }
@@ -32,7 +28,7 @@ body {
   font-size: 20pt;
   font-family: "Roboto Regular";
   background: #000000 none no-repeat left top;
-  background-size: 100% 100%;
+  summ background-size: 100% 100%;
 }
 div {
   -webkit-box-sizing: border-box;
@@ -53,9 +49,9 @@ div {
 }
 .app-logo {
   position: absolute;
-  bottom: -7px;
+  top: 50px;
   z-index: 500;
-  right: 150px;
+  right: 55px;
 }
 
 /* Description View Style */
@@ -101,15 +97,13 @@ div {
 
 #left-nav-menu-icon {
   position: absolute;
-  top: 80px;
-  left: 150px;
+  top: 75px;
+  left: 75px;
 }
-
 .leftnav-menu-icon {
   z-index: 50;
   display: none;
 }
-
 .leftnav-menu-icon-highlight {
   -webkit-filter: brightness(200%);
   -moz-filter: brightness(200%);
@@ -197,7 +191,7 @@ div {
   margin-top: 148px;
 }
 .leftnav-list-item-highlighted {
-  color: white;
+  color: #fff;
   border-width: 1px 1px 1px 0px;
   background: transparent none no-repeat right 40px center;
   -webkit-filter: brightness(200%);
@@ -205,18 +199,18 @@ div {
   filter: brightness(200%);
 }
 .leftnav-list-item-container .leftnav-list-item-selected {
-  color: white;
+  color: #fff;
   background: transparent none no-repeat right 40px center;
 }
 .leftnav-list-item-chosen {
   border-color: transparent;
   border-style: solid;
   border-width: 1px 1px 1px 0px;
-  color: white;
+  color: #fff;
   background: transparent none no-repeat right 40px center;
 }
 .leftnav-menulist-expanded {
-  background: linear-gradient(to right, #000000 0%, #000000 70%, transparent 100%) !important;
+  background: linear-gradient(to right, #000000 0%, #000000 50%, transparent 100%) !important;
 }
 .leftnav-menu-scrolling-list {
   -webkit-transition-property: -webkit-transform, top;
@@ -226,6 +220,7 @@ div {
 .leftnav-list-item-static {
   font-family: "Roboto Bold";
   font-weight: bold;
+  letter-spacing: 1px;
   text-transform: uppercase;
   color: #878b98;
   font-size: 1.6em !important;
@@ -252,16 +247,52 @@ div {
 .leftnav-search-box {
   border: none;
   width: 100%;
-  color: white;
+  color: inherit;
+  ;
   background-repeat: no-repeat;
   background-origin: initial;
   background-clip: initial;
   background-attachment: initial;
   outline-width: 0;
 }
+.leftnav-search-box::-webkit-input-placeholder {
+  /* WebKit, Blink, Edge */
+  color: #878b98;
+  -webkit-transition-property: opacity;
+  -webkit-transition-duration: 0.25s;
+  opacity: 0.40;
+}
+.leftnav-search-box:-moz-placeholder {
+  /* Mozilla Firefox 4 to 18 */
+  color: #878b98;
+  -webkit-transition-property: opacity;
+  -webkit-transition-duration: 0.25s;
+  opacity: 0.40;
+}
+.leftnav-search-box::-moz-placeholder {
+  /* Mozilla Firefox 19+ */
+  color: #878b98;
+  -webkit-transition-property: opacity;
+  -webkit-transition-duration: 0.25s;
+  opacity: 0.40;
+}
+.leftnav-search-box:-ms-input-placeholder {
+  /* Internet Explorer 10-11 */
+  color: #878b98;
+  -webkit-transition-property: opacity;
+  -webkit-transition-duration: 0.25s;
+  opacity: 0.40;
+}
+.leftnav-search-box:placeholder-shown {
+  /* Standard (https://drafts.csswg.org/selectors-4/#placeholder) */
+  color: #878b98;
+  -webkit-transition-property: opacity;
+  -webkit-transition-duration: 0.25s;
+  opacity: 0.40;
+}
 .leftnav-search-box.leftnav-list-item-highlighted {
-  color: white;
-  border-color: white;
+  color: #fff;
+  border-color: #fff;
   border-style: solid;
   border-width: 1px 1px 1px 0px;
   background: transparent none no-repeat right 40px center;
@@ -294,19 +325,24 @@ div {
 }
 .one-d-no-items-container {
   position: relative;
+  text-transform: uppercase;
   display: none;
-  top: 300px;
-  left: 160px;
-  color: #FFFFFF;
-  font-size: 3em;
+  top: 380px;
+  left: 150px;
+  color: #878b98;
+  font-size: 2em;
 }
 .one-d-title-container {
   position: relative;
-  top: 0px;
-  left: 160px;
-  color: #FFFFFF;
+  text-transform: uppercase;
+  top: 0;
+  font-family: "Roboto Bold";
+  font-weight: bold;
+  left: 150px;
+  color: #878b98;
   font-size: 1.5em;
-  margin-bottom: 20px;
+  letter-spacing: 2px;
+  margin-bottom: 30px;
 }
 
 /* Slider View Style */
@@ -482,9 +518,8 @@ div {
 
 #slider-summary-container {
   position: absolute;
-  top: 400px;
+  top: 230px;
   width: 40%;
-  height: 200px;
   overflow: hidden;
   left: 150px;
   color: #eaeaea;
@@ -497,13 +532,11 @@ div {
 }
 .slider-summary-text .slider-summary-title {
   text-transform: uppercase;
-  line-height: 1.4;
-  color: #eaeaea;
-  font-size: 1.8em;
-  font-family: "Regular Medium", sans-serif;
-  height: 62px;
+  color: #eaeff3;
+  font-size: 1.7em;
+  letter-spacing: 1px;
+  font-family: "Roboto Medium", sans-serif;
   overflow: hidden;
-  margin-top: 10px;
   display: -webkit-box;
   /* NEW - Chrome */
   display: -moz-box;
@@ -520,10 +553,12 @@ div {
   line-clamp: 1;
 }
 .slider-summary-text .slider-summary-description {
+  margin-top: 40px;
   font-family: "Roboto Regular";
   color: #eaeaea;
   /*font-style: italic;*/
-  font-size: 1.1em;
+  font-size: 1em;
+  letter-spacing: 1px;
   overflow: hidden;
   align-items: center;
   display: -webkit-box;
@@ -537,27 +572,25 @@ div {
   -webkit-box-orient: vertical;
   -moz-box-orient: vertical;
   box-orient: vertical;
-  -webkit-line-clamp: 3;
-  -moz-line-clamp: 3;
-  line-clamp: 3;
+  -webkit-line-clamp: 7;
+  -moz-line-clamp: 7;
+  line-clamp: 7;
 }
 #one-D-summary-container {
   position: relative;
-  top: 320px;
+  top: 355px;
   width: 80%;
   height: 210px;
   overflow: hidden;
   left: 150px;
-  color: #eaeff3;
+  letter-spacing: 1px;
 }
 .one-D-details-summary-text .one-D-summary-title {
-  line-height: 1.2;
   color: #eaeff3;
-  font-size: 1.4em;
-  font-family: "Regular Medium", sans-serif;
+  font-size: 1.3em;
+  font-family: "Regular Medium";
   height: 62px;
   overflow: hidden;
-  margin-top: 10px;
   display: -webkit-box;
   /* NEW - Chrome */
   display: -moz-box;
@@ -577,8 +610,8 @@ div {
   font-family: "Roboto Regular";
   font-weight: 200;
   height: 50px;
-  font-size: 1em;
-  color: #b3b3b3;
+  font-size: 0.75em;
+  color: #878b98;
 }
 .one-D-details-summary-text .one-D-summary-pubdate .time-now-live {
   color: #FF704D;
@@ -588,7 +621,7 @@ div {
 }
 .one-D-details-summary-text .one-D-summary-description {
   font-family: "Roboto Regular";
-  color: #FFFFFF;
+  color: #eaeff3;
   /*font-style: italic;*/
   font-size: 1em;
   overflow: hidden;
@@ -621,10 +654,9 @@ div {
 
 .one-D-buttons-container {
   position: relative;
-  top: 330px;
+  top: 340px;
   width: 80%;
   left: 150px;
-  color: #eaeff3;
 }
 .detail-row-container-buttons {
   height: 75px;
@@ -635,26 +667,24 @@ div {
   width: 315px;
   padding: 15px;
   float: left;
-  font-size: 1.4em;
+  font-size: 1.2em;
   margin-right: 20px;
   text-align: center;
   border: 1px solid #fff;
-  border-radius: 15px;
+  border-radius: 40px;
+  text-transform: uppercase;
 }
 .detail-item-button-selected {
   overflow: hidden;
   margin-top: 0px;
   color: #555C73;
   background-color: #fff;
-  border-color: #dadada;
   -webkit-box-shadow: 0px 10px 18px 3px rgba(0, 0, 0, 0.44);
   -moz-box-shadow: 0px 10px 18px 3px rgba(0, 0, 0, 0.44);
   box-shadow: 0px 10px 18px 3px rgba(0, 0, 0, 0.44);
 }
 .detail-item-button-static {
-  color: #fff;
-  background-color: #000;
-  line-height: 45px;
+  color: #eaeff3;
 }
 
 /* Player View Style */

@@ -68,7 +68,7 @@
       });
 
       // uncomment to test on the browser
-      initApp(settings);
+      // initApp(settings);
     },
     error: function() {
       alert("There was an error configuring your Fire TV App. Please exit.");
