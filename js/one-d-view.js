@@ -319,7 +319,7 @@
       shovelerView.on('loadComplete', function() {
         this.shovelerLoadComplete = true;
         this.showExtraData();
-        if (this.shovelerView) {
+        if (this.sliderView) {
           if (this.sliderLoadComplete) {
             this.trigger("loadComplete");
           }
