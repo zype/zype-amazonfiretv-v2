@@ -1,14 +1,17 @@
 @font-face {
-  font-family: "Roboto Regular";
+  font-family: "Roboto";
   src: url("assets/Roboto-Regular.ttf");
+  font-weight: normal;
 }
 @font-face {
-  font-family: "Roboto Bold";
+  font-family: "Roboto";
   src: url("assets/Roboto-Bold.ttf");
+  font-weight: bold;
 }
 @font-face {
-  font-family: "Roboto Medium";
+  font-family: "Roboto";
   src: url("assets/Roboto-Medium.ttf");
+  font-weight: medium;
 }
 body {
   /* Permalink - use to edit and share this gradient: http://colorzilla.com/gradient-editor/#1a2230+0,53cbf1+50,00000f+100 */
@@ -34,7 +37,7 @@ body {
   padding: 0;
   margin: 0;
   font-size: 20pt;
-  font-family: "Roboto Regular";
+  font-family: "Roboto";
   background: #000000 none no-repeat left top;
   background-size: 100% 100%;
 }
@@ -68,14 +71,14 @@ div {
   position: fixed;
   top: 0;
   left: 0;
-  font-family: "Roboto Regular", "Roboto Bold", "Roboto Medium";
+  font-family: "Roboto";
   height: 100%;
   width: 100%;
   font-size: 1em;
   color: #eaeff3;
   z-index: 550;
   margin: 0;
-  padding: 10%;
+  padding: 7%;
   overflow: hidden;
   background: rgb(34, 34, 34);
   /* for IE */
@@ -83,21 +86,21 @@ div {
   line-height: 1.7;
 }
 .description-view .description-title {
-  font-family: "Roboto Bold";
-  font-weight: 700;
+  font-family: "Roboto";
+  font-weight: bold;
   font-size: 1.5em;
   margin-bottom: 10px;
 }
 .description-view .description-pubdate {
   font-size: 0.75em;
-  font-weight: 400;
   color: #aaa;
   margin-bottom: 20px;
+  font-weight: normal;
 }
 .description-view .description-text {
   font-size: 1em;
   color: #eaeff3;
-  font-weight: 500;
+  font-weight: normal;
 }
 
 /* Left Nav View Style */
@@ -166,7 +169,7 @@ div {
 .leftnav-list-item-static {
   word-wrap: break-word;
   line-height: 2;
-  font-weight: lighter;
+  font-weight: normal;
   font-size: 1.7em;
   min-height: 92px;
   padding: 0 50px 0 150px;
@@ -225,7 +228,6 @@ div {
   -webkit-transition-timing-function: linear;
 }
 .leftnav-list-item-static {
-  font-family: "Roboto Bold";
   font-weight: bold;
   letter-spacing: 1px;
   text-transform: uppercase;
@@ -348,7 +350,7 @@ div {
   position: relative;
   text-transform: uppercase;
   top: 0;
-  font-family: "Roboto Bold";
+  font-family: "Roboto";
   font-weight: bold;
   left: 150px;
   color: #878b98;
@@ -543,7 +545,7 @@ div {
   color: #eaeff3;
   font-size: 1.5em;
   letter-spacing: 1px;
-  font-family: "Roboto Medium", sans-serif;
+  font-family: "Roboto", sans-serif;
   overflow: hidden;
   display: -webkit-box;
   /* NEW - Chrome */
@@ -562,7 +564,7 @@ div {
 }
 .slider-summary-text .slider-summary-description {
   margin-top: 40px;
-  font-family: "Roboto Regular";
+  font-family: "Roboto";
   color: #eaeff3;
   /*font-style: italic;*/
   font-size: 1em;
@@ -592,13 +594,14 @@ div {
   overflow: hidden;
   left: 150px;
   letter-spacing: 1px;
+  font-family: "Roboto";
 }
 .one-D-details-summary-text .one-D-summary-title {
   color: #eaeff3;
   font-size: 1.5em;
-  font-family: "Regular Medium";
   height: 62px;
   overflow: hidden;
+  font-weight: bold;
   display: -webkit-box;
   /* NEW - Chrome */
   display: -moz-box;
@@ -615,8 +618,7 @@ div {
   line-clamp: 1;
 }
 .one-D-details-summary-text .one-D-summary-duration {
-  font-family: "Roboto Regular";
-  font-weight: 200;
+  font-weight: normal;
   height: 50px;
   font-size: 0.75em;
   color: #878b98;
@@ -632,10 +634,10 @@ div {
   color: #66E066;
 }
 .one-D-details-summary-text .one-D-summary-description {
-  font-family: "Roboto Regular";
   color: #eaeff3;
   /*font-style: italic;*/
 
+  font-weight: normal;
   font-size: 1em;
   overflow: hidden;
   align-items: center;
@@ -675,17 +677,20 @@ div {
   left: 150px;
 }
 .detail-row-container-buttons {
+  font-family: "Roboto";
+  font-weight: bold;
   height: 75px;
-  margin: 20px 0;
+  margin: 15px 0;
 }
 .detail-item-button, .detail-item-button-selected, .detail-item-button-static {
   position: relative;
   width: 315px;
-  padding: 15px;
+  padding: 18px;
   float: left;
-  font-size: 1.2em;
+  font-size: 1em;
   margin-right: 20px;
   text-align: center;
+  letter-spacing: 1px;
   border: 1px solid #fff;
   border-radius: 40px;
   text-transform: uppercase;
@@ -785,7 +790,7 @@ div {
   margin-top: 16px;
   margin-left: 5px;
   margin-right: 20px;
-  font-weight: lighter;
+  font-weight: normal;
 }
 #forward-indicator {
   display: none;
@@ -813,7 +818,7 @@ div {
   height: 59px;
   color: #B3DAF2;
   font-size: 1.8em;
-  font-family: "Roboto Medium";
+  font-family: "Roboto";
   margin-top: 20px;
   overflow: hidden;
   display: -webkit-box;
@@ -844,7 +849,7 @@ div {
   width: 60%;
   height: 72px;
   color: #FFFFFF;
-  font-family: "Roboto Regular";
+  font-family: "Roboto";
   /*font-style: italic;*/
 
   font-size: 1.1em;
@@ -924,7 +929,7 @@ div {
   margin-left: 50px;
   margin-top: 30px;
   color: #B3DAF2;
-  font-weight: lighter;
+  font-weight: normal;
   font-size: 2.5em;
   line-height: 1;
 }
