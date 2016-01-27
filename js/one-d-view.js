@@ -62,6 +62,8 @@
     this.noItems = false;
     this.translateAmount = null;
     this.sliderData = null;
+    this.sliderLoadComplete = false;
+    this.shovelerLoadComplete = false;
 
     //jquery global variables
     this.$el = null;
@@ -170,11 +172,6 @@
 
       this.createShovelerView(rowData);
 
-      if (!fromSubCat) {
-        this.createButtonView(displayButtonsParam, this.$el);
-        this.createDescView();
-      }
-
       if (displaySliderParam && app.data.sliderData.length > 0) {
         this.sliderData = app.data.sliderData;
         // console.log(this.sliderData);
@@ -187,6 +184,11 @@
         // this.$shovelerContainer.css("top", "360px");
         $("#" + ID_ONED_SLIDER_CONTAINER).hide();
         this.setCurrentView(this.shovelerView);
+      }
+
+      if (!fromSubCat) {
+        this.createButtonView(displayButtonsParam, this.$el);
+        this.createDescView();
       }
     };
 
@@ -232,8 +234,11 @@
       }, this);
 
       sliderView.on('loadComplete', function() {
-        this.trigger('loadComplete');
+        this.sliderLoadComplete = true;
         this.showSliderExtraData();
+        if (this.shovelerLoadComplete) {
+          this.trigger('loadComplete');
+        }
       }, this);
     };
 
@@ -312,8 +317,15 @@
       }, this);
 
       shovelerView.on('loadComplete', function() {
+        this.shovelerLoadComplete = true;
         this.showExtraData();
-        this.trigger('loadComplete');
+        if (this.shovelerView) {
+          if (this.sliderLoadComplete) {
+            this.trigger("loadComplete");
+          }
+        } else {
+          this.trigger("loadComplete");
+        }
       }, this);
     };
 
