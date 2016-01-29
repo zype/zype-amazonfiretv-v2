@@ -358,6 +358,10 @@
         this.transitionToDescView();
       }, this);
 
+      buttonView.on('play', function() {
+        this.trigger('select', this.currSliderSelection);
+      }, this);
+
       var subscribeButtons = iapHandler.getAvailableSubscriptionButtons();
       var purchaseButtons = iapHandler.getAvailablePurchaseButtons();
       buttonView.render(this.$buttonsContainer, subscribeButtons, purchaseButtons);
@@ -648,7 +652,8 @@
 
       $("#" + BUTTON_CONTAINER).show();
 
-      $('#descButton').show();
+      //  $('#descButton').show();
+      $('#playBtn').show();
 
       // show rental button if a subcription is required and they haven't rented
       if (video.purchase_required === true && !iapHandler.hasValidPurchase(video.id)) {
