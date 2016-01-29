@@ -9,16 +9,12 @@
   // the model for the Media Sample Data
   // {Object} appSettings are the user-defined settings from the index page
   var JSONMediaModel = function(appSettings) {
-    this.mediaData = [];
-    this.categoryData = ['Featured'];
-    this.categoryTitle = '';
+    this.settingsParams = appSettings;
+    this.categoryData = [];
+    this.categoryTitle = "";
     this.currData = [];
     this.currentCategory = 0;
     this.currentItem = 0;
-    this.defaultTheme = "default";
-    this.currentlySearchData = false;
-    this.months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
-    this.settingsParams = appSettings;
     this.plans = [];
 
     this.categoriesData = [];
@@ -129,7 +125,7 @@
         success: function() {
           var contentData = arguments[0];
           this.getCategoryRowValues(contentData);
-          this.getPlaylistTitle();
+          this.loadPlaylistData();
         },
         error: function() {
           var contentData = {
@@ -139,7 +135,7 @@
             }
           };
           this.getCategoryRowValues(contentData);
-          this.getPlaylistTitle();
+          this.loadPlaylistData();
         },
         complete: function() {
           console.log('loadData.complete');
@@ -158,6 +154,36 @@
       this.categoryTitle = jsonData.response.title;
     }.bind(this);
 
+    /**
+     * Return the category items for the left-nav view
+     */
+    this.loadPlaylistData = function() {
+      console.log("load.playlist.data");
+      if (this.settingsParams.playlist_id) {
+        $.ajax({
+          url: this.settingsParams.endpoint + "playlists/" + this.settingsParams.playlist_id + "/?app_key=" + this.settingsParams.app_key,
+          type: 'GET',
+          crossDomain: true,
+          dataType: 'json',
+          context: this,
+          cache: true,
+          async: false,
+          success: function() {
+            var contentData = arguments[0];
+            this.getPlaylistRowValue(contentData);
+          },
+          error: function() {
+            var contentData = {
+              response: {
+                title: 'New Releases'
+              }
+            };
+            this.getPlaylistRowValue(contentData);
+          }
+        });
+      }
+    };
+
     this.getPlaylistRowValue = function(jsonData) {
       var playlistTitle = jsonData.response.title;
       this.categoryData.unshift(playlistTitle);
@@ -175,12 +201,6 @@
      * @param {function} the callback function
      */
     this.getCategories = function(callback) {
-
-      if (this.categoriesData.length > 0) {
-        callback(this.categoriesData);
-        return;
-      }
-
       $.ajax({
         url: this.settingsParams.endpoint + "zobjects/?app_key=" + this.settingsParams.app_key + "&zobject_type=channels&per_page=100&sort=priority&order=asc",
         type: 'GET',
@@ -189,32 +209,38 @@
         context: this,
         cache: true,
         success: function() {
-          var contentData = arguments[0].response;
-          var formattedCategories = [];
-          for (var i = 0; i < contentData.length; i++) {
-            var args = {
-              id: contentData[i]._id,
-              title: contentData[i].title,
-              playlist_id: contentData[i].playlist_id,
-              category_id: contentData[i].category_id,
-              description: contentData[i].description
-            };
-            if (contentData[i].pictures && contentData[i].pictures.length > 0) {
-              args.imgUrl = contentData[i].pictures[0].url;
-            }
-            var formatted_category = new Category(args);
-            formattedCategories.push(formatted_category);
-          }
-          this.categoriesData = formattedCategories;
+          var contentData = arguments[0];
+          this.formatCategories(contentData);
         },
         error: function() {
           console.log(arguments);
+          alert("There was an error configuring your Fire TV App. Please exit.");
         },
         complete: function() {
           console.log('loadData.complete');
           callback(this.categoriesData);
         }
       });
+    };
+
+    this.formatCategories = function(jsonData) {
+      var data = jsonData.response;
+      var formattedCategories = [];
+      for (var i = 0; i < data.length; i++) {
+        var args = {
+          id: data[i]._id,
+          title: data[i].title,
+          playlist_id: data[i].playlist_id,
+          category_id: data[i].category_id,
+          description: data[i].description
+        };
+        if (data[i].pictures && data[i].pictures.length > 0) {
+          args.imgUrl = data[i].pictures[0].url;
+        }
+        var formatted_category = new Category(args);
+        formattedCategories.push(formatted_category);
+      }
+      this.categoriesData = formattedCategories;
     };
 
     this.setCurrentNestedCategory = function(index) {
@@ -253,25 +279,14 @@
       var unixTimestamp = new Date(d * 1000);
 
       var year = unixTimestamp.getFullYear();
-      var month = this.months[unixTimestamp.getMonth()];
+      var months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+      var month = months[unixTimestamp.getMonth()];
       var date = unixTimestamp.getDate();
       var hour = unixTimestamp.getHours();
       var minute = unixTimestamp.getMinutes();
       var second = unixTimestamp.getSeconds();
 
       return date + ',' + month + ' ' + year + ' ' + hour + ':' + minute + ':' + second;
-    };
-
-    /***************************
-     *
-     * Media Data Methods
-     *
-     ***************************/
-    /**
-     * For single views just send the whole media object
-     */
-    this.getAllMedia = function() {
-      return mediaData;
     };
 
     /***************************
@@ -294,31 +309,7 @@
      ***************************/
 
     /**
-     * Return the category items for the left-nav view
-     */
-    this.getPlaylistTitle = function() {
-      if (this.settingsParams.playlist_id) {
-        $.ajax({
-          url: this.settingsParams.endpoint + "playlists/" + this.settingsParams.playlist_id + "/?app_key=" + this.settingsParams.app_key,
-          type: 'GET',
-          crossDomain: true,
-          dataType: 'json',
-          context: this,
-          cache: true,
-          async: false,
-          success: function() {
-            var contentData = arguments[0];
-            this.categoryData.unshift(contentData.response.title);
-          },
-          error: function() {
-            this.categoryData.unshift('New Releases');
-          }
-        });
-      }
-    };
-
-    /**
-     * Get category titles
+     * Get category titles + playlist title
      */
     this.getCategoryItems = function(callback) {
       callback(this.categoryData);
@@ -382,6 +373,7 @@
         },
         error: function() {
           console.log(arguments);
+          alert("There was an error configuring your Fire TV App. Please exit.");
         },
         complete: function() {
           categoryCallback(this.currData);
@@ -411,10 +403,6 @@
           "purchase_required": videos[i].purchase_required,
           "pass_required": videos[i].pass_required
         };
-        if (args.description === null) {
-          args.description = "";
-        }
-
 
         var video = new Video(args);
         formattedVideos.push(video);
@@ -452,6 +440,7 @@
         },
         error: function() {
           console.log(arguments);
+          alert("There was an error configuring your Fire TV App. Please exit.");
         },
         complete: function() {
           searchCallback(this.currData);
