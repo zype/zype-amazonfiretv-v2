@@ -101,10 +101,8 @@
      * Remove the oneDView element
      */
     this.remove = function() {
-      if (this.el) {
-        $(".one-d-title-container").remove();
-        $(".description-view").remove();
-        $(this.el).remove();
+      if (this.$el) {
+        $(this.$el).remove();
       }
     };
 
@@ -140,13 +138,13 @@
         this.sliderView = null;
       }
 
-      // Build the main content template and add it
+      // set up title
+      this.$title = $("#" + ID_ONED_TITLE);
       if (title.length > 0) {
         this.titleText = title;
       }
 
-      this.$title = $("#" + ID_ONED_TITLE);
-      this.rowElements = rowData;
+      // Build the main content template and add it
       var html = utils.buildTemplate($("#one-D-view-items-template"), {
         title: this.titleText
       });
@@ -155,6 +153,7 @@
 
       this.$el = $el.children().last();
       this.el = this.$el[0];
+
       //no results found
       if (rowData.length <= 0) {
         $(".one-d-no-items-container").show();
@@ -165,30 +164,29 @@
       }
 
       this.noItems = false;
+      this.rowElements = rowData;
+
       //gather widths of all the row elements
       this.$elementWidths = [];
 
       this.scrollingContainerEle = $(ID_ONED_VIEW_ELEMENTS)[0];
 
-      this.createShovelerView(rowData);
-
       if (displaySliderParam && app.data.sliderData.length > 0) {
         this.sliderData = app.data.sliderData;
         // console.log(this.sliderData);
         this.createSliderView(this.sliderData);
-        $("#" + ID_ONED_SLIDER_CONTAINER).show();
+        $("#" + ID_ONED_SLIDER_CONTAINER).show(); // we need this for scrolling
         this.setCurrentView(this.sliderView);
+        this.createShovelerView(rowData);
       } else {
-        // $("#" + ID_ONED_SUMMARY_CONTAINER).css("top", "840px");
-        // this.$buttonsContainer.css("top", "1140px");
-        // this.$shovelerContainer.css("top", "360px");
-        $("#" + ID_ONED_SLIDER_CONTAINER).hide();
+        $("#" + ID_ONED_SLIDER_CONTAINER).hide(); // we need this for scrolling
+        this.createShovelerView(rowData);
         this.setCurrentView(this.shovelerView);
       }
 
       if (!fromSubCat) {
         this.createButtonView(displayButtonsParam, this.$el);
-        this.createDescView();
+        // this.createDescView();
       }
     };
 
@@ -427,7 +425,7 @@
         return false;
       }
 
-      this.descView.hide();
+      // this.descView.hide();
 
       //change to button view
       this.setCurrentView(this.buttonView);
@@ -581,7 +579,7 @@
      */
     this.shiftOneDContainer = function() {
       if (this.currentView == this.shovelerView) {
-        this.scrollingContainerEle.style.webkitTransform = "translateY(" + (-this.$shovelerContainerOffset - 280) + "px)";
+        this.scrollingContainerEle.style.webkitTransform = "translateY(" + (-this.$shovelerContainerOffset + 240) + "px)";
         $('#slider-summary-container').css("opacity", 0);
         this.$sliderContainer.css("opacity", 0);
       }

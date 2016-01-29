@@ -295,14 +295,6 @@
           this.searchInputView.select();
         } else {
           if (this.showSearch) {
-            app.data.setCurrentCategory(index);
-            console.log(app.data.currentCategory);
-          } else {
-            app.data.setCurrentCategory(index);
-            console.log(app.data.currentCategory);
-          }
-
-          if (this.showSearch) {
             this.searchInputView.deselect();
           }
         }
@@ -316,17 +308,14 @@
         if (this.showSearch) {
           leftNavData.unshift(this.searchInputView);
           startIndex = 1;
-          app.data.setCurrentCategory(startIndex);
         }
 
-        console.log(app.data.categoryData);
-        console.log(app.data.currentCategory);
-
+        app.data.setCurrentCategory(startIndex);
         leftNavView.render(this.$appContainer, leftNavData, startIndex);
       }.bind(this);
 
       leftNavView.updateCategoryItems = function() {
-        this.data.getCategoryItems(successCallback);
+        app.data.getCategoryItems(successCallback);
       }.bind(this);
 
       this.leftNavView.updateCategoryItems();
@@ -336,6 +325,8 @@
      * Nested Categories One D View
      */
     this.initializeNestedCategories = function() {
+      // since we are using the One D View to show categories, we pass true
+      // to identify that we are creating the object for the categories
       var nestedCategoriesOneDView = this.nestedCategoriesOneDView = new OneDView(true);
 
       /**
@@ -345,8 +336,8 @@
       nestedCategoriesOneDView.on('select', function(index) {
         console.log('on.select.event');
         app.data.setCurrentNestedCategory(index);
-        var data = this.categoriesData[index];
 
+        var data = this.categoriesData[index];
         app.data.setCategoryId(data.category_id);
         app.data.setPlaylistId(data.playlist_id);
 
@@ -383,7 +374,7 @@
        * Get the categories data from the data model
        */
       nestedCategoriesOneDView.updateCategories = function() {
-        this.data.getCategories(successCallback);
+        app.data.getCategories(successCallback);
       }.bind(this);
 
       this.nestedCategoriesOneDView.updateCategories();
@@ -395,10 +386,12 @@
     this.transitionToCategory = function() {
       this.showContentLoadingSpinner(true);
       console.log('transition.to.category');
+
       this.nestedCategoriesOneDView.shovelerView.remove();
       this.nestedCategoriesOneDView.remove();
       this.nestedCategoriesOneDView = null;
-      this.data.loadCategoryData(function() {
+
+      app.data.loadCategoryData(function() {
         this.initializeLeftNavView();
         this.initializeOneDView();
         this.selectView(this.oneDView);
@@ -412,11 +405,14 @@
     this.transitionToCategories = function() {
       this.showContentLoadingSpinner(true);
       console.log('transition.to.categories');
+
       this.oneDView.shovelerView.remove();
       this.oneDView.remove();
       this.oneDView = null;
+
       this.leftNavView.remove();
       this.leftNavView = null;
+
       this.initializeNestedCategories();
       this.nestedCategoriesOneDView.on('loadComplete', function() {
         this.selectView(this.nestedCategoriesOneDView);
@@ -501,12 +497,14 @@
         if (this.showSearch && this.leftNavView.currSelectedIndex === 0) {
           categoryTitle = "Search";
         } else {
-          categoryTitle = this.data.categoryData[this.leftNavView.currSelectedIndex];
+          categoryTitle = app.data.categoryData[this.leftNavView.currSelectedIndex];
         }
 
+        /*
+         * Here we assume that a client has, so called, the "Featured" list by default
+         * @NOTE What if the client does not have that playlist?
+         */
         var showSlider = function() {
-          console.log(this.showSearch);
-          console.log(app.data.currentCategory);
           if (this.showSearch && app.data.currentCategory === 1) {
             return true;
           } else if (!this.showSearch && app.data.currentCategory === 0) {
@@ -516,6 +514,8 @@
         }.bind(this);
 
         if (this.settingsParams.IAP === true) {
+          // this part handles the IAP case
+
           // add video ids to iapHandler
           var video_ids = _.map(this.categoryData, function(v) {
             return v.id;
@@ -545,7 +545,7 @@
       }.bind(this);
 
       /**
-       * Get data set for newly-selected category
+       * Get data if the search feature is used
        */
       oneDView.updateCategoryFromSearch = function(searchTerm) {
         app.data.getDataFromSearch(searchTerm, successCallback);
@@ -760,6 +760,7 @@
         },
         error: function() {
           console.log(arguments);
+          alert("There was an error configuring your Fire TV App. Please exit.");
         }
       });
     };
