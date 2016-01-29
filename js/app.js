@@ -90,6 +90,7 @@
     this.dataLoaded = function() {
       // initialize custom styles
       this.updateStyleSheet();
+
       var logo = this.settingsParams.icon;
       var html = utils.buildTemplate($("#app-header-template"), {
         img_logo: logo,
@@ -97,14 +98,17 @@
 
       this.$appContainer.append(html);
 
+      /**
+       * Handles nested categories
+       */
       if (this.settingsParams.nested_categories) {
         this.initializeNestedCategories();
         this.selectView(this.nestedCategoriesOneDView);
       } else {
         this.initializeLeftNavView();
         this.initializeOneDView();
-        this.selectView(this.leftNavView);
-        this.leftNavView.expand();
+        this.selectView(this.oneDView);
+        this.leftNavView.collapse();
       }
     }.bind(this);
 
@@ -397,8 +401,8 @@
       this.data.loadCategoryData(function() {
         this.initializeLeftNavView();
         this.initializeOneDView();
-        this.selectView(this.leftNavView);
-        this.leftNavView.expand();
+        this.selectView(this.oneDView);
+        this.leftNavView.collapse();
       }.bind(this));
     };
 
