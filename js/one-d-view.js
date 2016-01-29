@@ -208,7 +208,9 @@
 
       sliderView.on('select', function(index) {
         this.currSliderSelection = index;
-        this.trigger('select', index);
+        // let's play a video from the slider
+        // to do that we trigger the 'select' event passing 3d arg true
+        this.trigger('select', index, true);
       }, this);
 
       sliderView.on('bounce', function(direction) {
@@ -217,18 +219,15 @@
 
       sliderView.on('startScroll', function(direction) {
         this.hideSliderExtraData();
-        this.trigger('startScroll', direction);
       }, this);
 
       sliderView.on('stopScroll', function(index) {
         this.currSliderSelection = index;
         this.showSliderExtraData(index);
-        this.trigger('stopScroll', index);
       }, this);
 
       sliderView.on('indexChange', function(index) {
         this.currSliderSelection = index;
-        this.trigger('indexChange', index);
       }, this);
 
       sliderView.on('loadComplete', function() {
@@ -291,7 +290,7 @@
 
       shovelerView.on('select', function(index) {
         this.currSelection = index;
-        this.trigger('select', index);
+        this.trigger('select', index, false);
       }, this);
 
       shovelerView.on('bounce', function(direction) {

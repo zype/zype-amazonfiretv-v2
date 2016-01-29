@@ -432,9 +432,13 @@
        * Event Handler - Select shoveler item
        * @param {Number} index the index of the selected item
        */
-      oneDView.on('select', function(index) {
-        this.data.setCurrentItem(index);
-        this.transitionToPlayer(index);
+      oneDView.on('select', function(index, fromSlider) {
+        if (fromSlider) {
+          this.transitionToPlayer(index, fromSlider);
+        } else {
+          app.data.setCurrentItem(index);
+          this.transitionToPlayer(index, fromSlider);
+        }
       }, this);
 
       /**
@@ -671,18 +675,29 @@
      * Opens a player view and starts video playing in it.
      * @param {Object} itemData data for currently selected item
      */
-    this.transitionToPlayer = function(index) {
-      var video = this.categoryData[index];
+    this.transitionToPlayer = function(index, fromSlider) {
+
+      var video = null;
+      if (fromSlider) {
+        video = app.data.sliderData[index];
+      } else {
+        video = this.categoryData[index];
+      }
+
+      // let's check if we can play this video
       if (!iapHandler.canPlayVideo(video)) {
         return false;
       }
+
       var playerView;
       this.playerSpinnerHidden = false;
-      if (this.settingsParams.PlaylistView) {
+
+      if (this.settingsParams.PlaylistView && !fromSlider) {
         playerView = this.playerView = new this.settingsParams.PlaylistView(this.settingsParams);
       } else {
         playerView = this.playerView = new this.settingsParams.PlayerView(this.settingsParams);
       }
+
       this.oneDView.hide();
       this.leftNavView.hide();
       this.hideHeaderBar();
@@ -703,8 +718,13 @@
       this.selectView(playerView);
 
       playerView.on('videoStatus', this.handleVideoStatus, this);
+
       // stream video first gets the stream and then renders the player
-      this.start_stream(playerView, this.$appContainer, this.categoryData, index);
+      if (fromSlider) {
+        this.start_stream(playerView, this.$appContainer, app.data.sliderData, index);
+      } else {
+        this.start_stream(playerView, this.$appContainer, this.categoryData, index);
+      }
     };
 
     this.start_stream = function(playerView, container, items, index) {

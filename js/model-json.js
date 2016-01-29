@@ -54,21 +54,26 @@
         cache: true,
         success: function() {
           var data = arguments[0].response;
+
           for (var i = 0; i < data.length; i++) {
+            // console.log(data[i]);
             this.zobjectData.push({
               id: data[i].video_ids[0],
+              title: data[i].title,
+              desc: data[i].description,
               thumbnail: data[i].pictures[0].url
             });
           }
 
           if (this.zobjectData.length > 0) {
             for (i = 0; i < this.zobjectData.length; i++) {
-              this.loadSliderVideoDetails(this.zobjectData[i].id, this.zobjectData[i].thumbnail);
+              this.loadSliderVideoDetails(this.zobjectData[i].id, this.zobjectData[i].title, this.zobjectData[i].desc, this.zobjectData[i].thumbnail);
             }
           }
         },
         error: function() {
           console.log('loadZObjectData.error');
+          alert("There was an error configuring your Fire TV App. Please exit.");
         },
         complete: function() {
           callback();
@@ -76,7 +81,7 @@
       });
     };
 
-    this.loadSliderVideoDetails = function(video_id, thumbnail) {
+    this.loadSliderVideoDetails = function(video_id, title, desc, thumbnail) {
       $.ajax({
         url: this.settingsParams.endpoint + "videos/" + video_id + "?app_key=" + this.settingsParams.app_key,
         type: 'GET',
@@ -88,12 +93,12 @@
           var video = arguments[0].response;
           var args = {
             "id": video._id,
-            "title": video.title,
+            "title": title,
             "pubDate": video.published_at,
             "thumbURL": thumbnail,
             "imgURL": thumbnail,
             // parse videoURL at playtime
-            "description": video.description,
+            "description": desc,
             "seconds": video.duration,
             "subscription_required": video.subscription_required,
             "rental_required": video.rental_required,
@@ -101,16 +106,13 @@
             "pass_required": video.pass_required
           };
 
-          if (args.description === null) {
-            args.description = "";
-          }
-
           var formatted_video = new Video(args);
           // console.log(formatted_video);
           this.sliderData.push(formatted_video);
         },
         error: function() {
           console.log('loadVideoDetails.error');
+          alert("There was an error configuring your Fire TV App. Please exit.");
         }
       });
     };
