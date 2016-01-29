@@ -42,6 +42,13 @@
     };
 
     /**
+     * Remove the button view
+     */
+    this.remove = function() {
+      this.$el.remove();
+    };
+
+    /**
      * Gets the currently visible buttons
      */
     this.visibleButtons = function() {
