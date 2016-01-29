@@ -60,6 +60,13 @@
     };
 
     /**
+     * Remove the leftnave view
+     */
+    this.remove = function() {
+      this.$el.remove();
+    };
+
+    /**
      * Hide the left-nav overlay that covers the one-d-view
      */
     this.collapse = function() {
@@ -94,6 +101,7 @@
       $(this.currentSelectionEle).find(".leftnav-list-item-text").show();
       $(this.leftNavContainerEle).find("#search-input").css("opacity", 100);
       $('#left-nav-menu-icon').hide();
+      $('#left-nav-menu-icon').removeClass("leftnav-menu-icon-highlight");
 
       //set the selected item style
       this.setSelectedElement();
@@ -103,7 +111,7 @@
 
       if (typeof this.leftNavItems[this.currSelectedIndex] === "object") {
         // this is a hack for dealing with selecting the input box, we need to wait for it to appear
-        // TODO: Find out why this is and get a better solution.
+        // @TODO: Find out why this is and get a better solution.
         setTimeout(this.leftNavItems[this.currSelectedIndex].select, 200);
       }
     };
@@ -155,6 +163,7 @@
       } else if ($(ele).hasClass(CLASS_MENU_ITEM_HIGHLIGHTED)) {
         $(ele).removeClass(CLASS_MENU_ITEM_HIGHLIGHTED);
       }
+
       $(ele).addClass(CLASS_MENU_ITEM_CHOSEN);
     };
 
@@ -166,7 +175,7 @@
     this.setHighlightedElement = function(ele) {
       ele = ele || this.currentSelectionEle;
 
-      $('#left-nav-menu-icon').addClass("leftnav-menu-icon-highlight");
+      $("#left-nav-menu-icon").addClass("leftnav-menu-icon-highlight");
 
       $(ele).removeClass(CLASS_MENU_ITEM_CHOSEN);
       $(ele).addClass(CLASS_MENU_ITEM_HIGHLIGHTED);
@@ -224,13 +233,6 @@
 
       //register touch handlers for the left-nav items
       touches.registerTouchHandler("leftnav-list-item-static", this.handleListItemSelection);
-    };
-
-    /**
-     * Remove the leftnave view
-     */
-    this.remove = function() {
-      this.$el.remove();
     };
 
     /**
