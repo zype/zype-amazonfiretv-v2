@@ -357,7 +357,7 @@
        */
       nestedCategoriesOneDView.on('loadComplete', function() {
         this.hideContentLoadingSpinner();
-        handleDeviceOrientation();
+        // handleDeviceOrientation();
         this.nestedCategoriesOneDView.expand();
       }, this);
 
@@ -473,7 +473,7 @@
        */
       oneDView.on('loadComplete', function() {
         this.hideContentLoadingSpinner();
-        handleDeviceOrientation();
+        // handleDeviceOrientation();
         this.oneDView.expand();
       }, this);
 
