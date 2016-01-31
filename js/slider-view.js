@@ -7,7 +7,10 @@
 (function(exports) {
   "use strict";
 
-  var SLIDER_ROW_ITEM_SELECTED = "slider-rowitem-selected";
+  var SLIDER_ROW_ITEM_SELECTED = "slider-rowitem-selected",
+
+    // @CHANGED for the pagination
+    SLIDER_PAGINATION = "slider-pagination-container";
 
   /**
    * @class SliderView
@@ -134,6 +137,15 @@
 
       this.setTransforms(0);
 
+      // @CHANGED let's add a pagination here
+      for (i = 0; i < this.$rowElements.length; i++) {
+        $("#" + SLIDER_PAGINATION).append('<div id="circle-' + i + '" class="circle"></div>');
+        if (i === 0) {
+          $("#circle-" + i).addClass("circle-current");
+        }
+      }
+      $("#" + SLIDER_PAGINATION).append('<div class="circle-clear"></div>');
+
       window.setTimeout(function() {
         this.$rowElements.css("transition", "");
         this.limitTransforms = true;
@@ -259,6 +271,11 @@
     this.transitionRow = function() {
       window.requestAnimationFrame(function() {
         this.setTransforms(this.currSelection);
+
+        // @CHANGED for the pagination
+        $('#' + SLIDER_PAGINATION + " div").removeClass("circle-current");
+        $("#circle-" + this.currSelection).addClass("circle-current");
+
       }.bind(this));
 
       this.trigger('indexChange', this.currSelection);
