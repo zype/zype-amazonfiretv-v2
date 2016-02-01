@@ -61,7 +61,7 @@ div {
 .app-logo {
   position: absolute;
   top: 50px;
-  z-index: 500;
+  z-index: 10;
   right: 55px;
 }
 

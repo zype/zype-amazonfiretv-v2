@@ -69,7 +69,7 @@
         },
         error: function() {
           console.log('loadZObjectData.error');
-          alert("There was an error configuring your Fire TV App. Please exit.");
+          // alert("There was an error configuring your Fire TV App. Please exit.");
         },
         complete: function() {
           callback();

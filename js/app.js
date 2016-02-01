@@ -119,8 +119,8 @@
       // sheet.insertRule('.content-load-spinner > div {background-color: ' + this.settingsParams.brandColor + ' !important;}', 1);
       // sheet.insertRule('#app-container {background-color: ' + this.settingsParams.backgroundColor + ' !important;}', 1);
       //sheet.insertRule('.app-top-bar {background-color: ' + this.settingsParams.topBarColor + ' !important;}', 1);
-      //sheet.insertRule('.app-logo {right: ' + this.settingsParams.iconXPosition + ' !important;}', 1);
-      //sheet.insertRule('.app-logo {bottom: ' + this.settingsParams.iconYPosition + ' !important;}', 1);
+      sheet.insertRule('.app-logo {right: ' + this.settingsParams.iconXPosition + ' !important;}', 1);
+      sheet.insertRule('.app-logo {top: ' + this.settingsParams.iconYPosition + ' !important;}', 1);
 
       // set up left nav colors
       // sheet.insertRule('.leftnav-list-item-highlighted { color: ' + this.settingsParams.leftNavHoverTextColor + ' !important;}', 1);
