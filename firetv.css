@@ -452,18 +452,18 @@ div {
 .circle {
   margin: 3px;
   border-radius: 50%;
-  width: 20px;
-  height: 20px;
-  border-width: 1px;
+  width: 25px;
+  height: 25px;
+  border-width: 2px;
   border-style: solid;
-  border-color: #efe;
+  border-color: #b2bbc5;
   float: left;
 }
 .circle-clear {
   clear: both;
 }
 .circle-current {
-  background-color: #efe;
+  background-color: #b2bbc5;
 }
 
 /* One D Shoveler View Style */

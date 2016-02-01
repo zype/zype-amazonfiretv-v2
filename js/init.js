@@ -65,6 +65,8 @@
       document.addEventListener("amazonPlatformReady", function() {
         console.log('amazonPlatformReady!');
         initApp(settings);
+
+        console.log(cordova);
       });
 
       // uncomment to test on the browser
