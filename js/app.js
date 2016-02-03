@@ -98,6 +98,25 @@
 
       this.$appContainer.append(html);
 
+
+      // Device Linking Checking Process
+      deviceLinkingHandler.isLinked(this.settingsParams.device_id, function(res) {
+        if (res === false) {
+          // Device Linking Acquiring PIN
+          this.initializeDeviceLinkingView();
+          this.selectView(this.deviceLinkingView);
+        } else {
+          this.build();
+        }
+      }.bind(this));
+    }.bind(this);
+
+    this.build = function() {
+
+      if (this.deviceLinkingView) {
+        this.deviceLinkingView.remove();
+      }
+
       /**
        * Handles nested categories
        */
@@ -110,7 +129,7 @@
         this.selectView(this.oneDView);
         this.leftNavView.collapse();
       }
-    }.bind(this);
+    };
 
     // overrides css with configs
     this.updateStyleSheet = function() {
@@ -185,6 +204,35 @@
         }
       }
       this.currentView.handleControls(e);
+    };
+
+
+    /**
+     *
+     * Device Linking View Object
+     *
+     */
+    this.initializeDeviceLinkingView = function(pin) {
+      var deviceLinkingView = this.deviceLinkingView = new DeviceLinkingView();
+
+      deviceLinkingView.on('exit', function() {
+        console.log("device.linking.view.exit.event");
+      }, this);
+
+      deviceLinkingView.on('loadComplete', function() {
+        this.hideContentLoadingSpinner();
+      }, this);
+
+      deviceLinkingView.on('linkingSuccess', function() {
+        console.log('linking.success');
+        this.build();
+      }, this);
+
+      deviceLinkingView.on('linkingFailure', function() {
+        console.log('linking.failure');
+      }, this);
+
+      deviceLinkingView.render(this.$appContainer);
     };
 
     /***************************

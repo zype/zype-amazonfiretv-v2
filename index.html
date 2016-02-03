@@ -138,6 +138,18 @@
     </div>
   </script>
 
+  <!-- Device Linking View Template -->
+  <script id="device-linking-view-template" type="text/x-handlebars-template">
+    <div class="device-linking-view">
+      <h1>Link your Fire TV</h1>
+      <ol>
+        <li>From your computer or mobile device, go to LINK</li>
+        <li>Enter Pin: {{pin}}</li>
+        <li>This screen will automatically update as soon as your activation is complete!</li>
+      </ol>
+    </div>
+  </script>
+
   <!-- Buttons View Template -->
   <script id="button-view-template" type="text/x-handlebars-template">
     <div class="detail-row-container-buttons">
@@ -210,6 +222,8 @@
 
   <script src="js/lib/underscore-1.8.3.min.js"></script>
   <script src="js/lib/URI.js"></script>
+  <script src="js/lib/uuid.js"></script>
+  <script src="js/lib/store.min.js"></script>
   <!-- Load videojs -->
   <script src="js/video.js"></script>
   <script src="js/videojs-media-sources.js"></script>
@@ -228,6 +242,8 @@
   <script src="js/button-view.js"></script>
   <script src="js/events.js"></script>
   <script src="js/iap.js"></script>
+  <script src="js/device-linking.js"></script>
+  <script src="js/device-linking-view.js"></script>
   <script src="js/buttons.js"></script>
   <script src="js/touches.js"></script>
   <script src="js/leftnav-view.js"></script>

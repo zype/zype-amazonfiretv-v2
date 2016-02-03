@@ -1029,6 +1029,16 @@ div {
   min-height: 500px;
   padding: 60px;
 }
+.device-linking-view {
+  position: absolute;
+  top: 0;
+  left: 0;
+  padding: 7%;
+  font-family: "Roboto";
+  font-weight: normal;
+  font-size: 1.2em;
+  color: #eaeff3;
+}
 .modal-dialog .dialog-title {
   margin-bottom: 30px;
   font-size: 48pt;

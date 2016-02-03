@@ -8,14 +8,27 @@
     showSearch: true,
     app_key: appConfig.app_key,
     endpoint: appConfig.endpoint,
-    player_endpoint: appConfig.player_endpoint
+    player_endpoint: appConfig.player_endpoint,
+    device_id: "00000000-0000-0000-0000-000000000000",
+    linking_url: "http://www.example.com"
   };
 
   var initApp = function(settings) {
     iapHandler.settingsParams = settings;
+    deviceLinkingHandler.settingsParams = settings;
+
     if (settings.IAP === true) {
       iapHandler.iapInit();
     }
+
+    // Device Linking Pre-Setup
+    if (settings.device_linking === true) {
+      settings.device_id = deviceLinkingHandler.getDeviceId();
+      if (settings.device_id === null) {
+        settings.device_id = deviceLinkingHandler.setDeviceId();
+      }
+    }
+
     var app = new App(settings);
     exports.app = app;
   };
@@ -40,6 +53,11 @@
       // if(!settings.avod) {
       settings.displayButtons = true;
       // }
+
+      // Device Linking Settings
+      // should come from API
+      settings.device_linking = true;
+
 
       // main colors
       // settings.backgroundColor = app_json.response.background_color;
