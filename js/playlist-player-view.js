@@ -98,7 +98,7 @@
 
       var video = this.items[this.currentIndex + 1];
 
-      if ((this.items.length > this.currentIndex + 1) && iapHandler.canPlayVideo(video)) {
+      if ((this.items.length > this.currentIndex + 1) && iapHandler.canPlayVideo(video) && deviceLinkingHandler.canPlayVideo()) {
         console.log("transition to next video");
 
         var url_base = this.settings.player_endpoint + 'embed/' + video.id + '.json';

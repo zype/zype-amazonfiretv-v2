@@ -733,7 +733,11 @@
       }
 
       // let's check if we can play this video
-      if (!iapHandler.canPlayVideo(video)) {
+      // console.log(video);
+      // console.log(iapHandler.canPlayVideo(video));
+      // console.log(deviceLinkingHandler.canPlayVideo());
+
+      if (!(iapHandler.canPlayVideo(video) && deviceLinkingHandler.canPlayVideo())) {
         return false;
       }
 
