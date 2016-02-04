@@ -93,7 +93,19 @@
       }
     };
 
+    /**
+     * This is for testing only.
+     * We need to add the SKUs to the validSkus. So hasValid* will work properly.
+     * Add the following code to the AJAX request
+     * @NOTE for testing only
+    .complete(function() {
+      var sku = receipt.sku;
+      console.log(sku);
+      this.addSku(sku);
+    });
+    */
     this.handleReceipt = function(receipt) {
+
       // send receipt purchase token to zype verification service
       var amazon_verify_receipt_url = this.settingsParams.endpoint + 'amazon_fire_receipts/process_receipt';
 
@@ -104,6 +116,7 @@
         url: amazon_verify_receipt_url,
         crossDomain: true,
         dataType: 'json',
+        context: this,
         data: {
           'app_key': this.settingsParams.app_key,
           'item_type': receipt.itemType,
@@ -116,6 +129,7 @@
       }).done(function(msg) {
         var consumer = msg.response;
         that.state.currentConsumer = new Consumer(consumer);
+        this.addSku(sku);
         that.trigger('purchaseSuccess', receipt);
       });
     };
