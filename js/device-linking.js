@@ -63,6 +63,20 @@
       });
     };
 
+    // can play video?
+    this.canPlayVideo = function() {
+      if (!this.settingsParams.device_linking) {
+        this.isLinked(this.settingsParams.device_id, function(res) {
+          if (res) {
+            return true;
+          }
+
+          return false;
+        });
+      }
+      return true;
+    };
+
     // generate UUID
     this.generateUuid = function() {
       var device_id = uuid.v4();
