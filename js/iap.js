@@ -30,8 +30,8 @@
 
     this.on('purchaseSuccess', function(receipt) {
       iapHandler.addSku(receipt.sku);
-      console.log('purchaseSuccess');
-      console.log(iapHandler.state.validSkus);
+      // console.log('purchaseSuccess');
+      // console.log(iapHandler.state.validSkus);
       app.trigger('purchaseSuccess');
     });
 
@@ -115,7 +115,6 @@
         that.trigger('purchaseFail', receipt);
       }).done(function(msg) {
         var consumer = msg.response;
-        consumer.id = consumer._id;
         that.state.currentConsumer = new Consumer(consumer);
         that.trigger('purchaseSuccess', receipt);
       });
@@ -165,36 +164,49 @@
 
     this.allSubscriptionIds = function() {
       return _.map(this.allSubscriptions(), function(s) {
-        return s.id;
+        return s.amazon_id;
       });
     };
 
     this.getAvailableSubscriptionButtons = function() {
-      return _.map(this.allSubscriptions(), function(p) {
-        return {
-          "name": p.name,
-          "id": p.amazon_id
-        };
-      });
+      if (this.settingsParams.IAP) {
+        return _.map(this.allSubscriptions(), function(p) {
+          return {
+            "name": p.name,
+            "id": p.amazon_id
+          };
+        });
+      } else {
+        return [];
+      }
     };
 
     this.getAvailablePurchaseButtons = function() {
       var buttons = [];
-      _.each(this.state.availableSkus, function(i) {
-        // purchase button
-        buttons.push({
-          id: i,
-          name: 'Purchase'
+
+      if (this.settingsParams.IAP) {
+        _.each(this.state.availableSkus, function(i) {
+          // purchase button
+          buttons.push({
+            id: i,
+            name: 'Purchase'
+          });
         });
-      });
+      }
+
       return buttons;
     };
 
     this.hasValidSubscription = function() {
       var sub_ids = this.allSubscriptionIds();
-      return _.find(this.state.validSkus, function(sku) {
+      var res = _.find(this.state.validSkus, function(sku) {
         return sub_ids.indexOf(sku) != -1;
       });
+      if (res !== undefined) {
+        return true;
+      } else {
+        return false;
+      }
     };
 
     this.hasValidPurchase = function(video_id) {
@@ -223,11 +235,13 @@
     };
 
     this.canPlayVideo = function(video) {
+
       if (!this.settingsParams.IAP) {
         return true;
       } else if (video.hasPaywall() === false) {
         return true;
       }
+
       if (video.subscription_required === true && this.hasValidSubscription()) {
         return true;
       } else if (video.purchase_required === true && this.hasValidPurchase(video.id)) {
@@ -235,6 +249,8 @@
       } else if (video.rental_required === true && this.hasValidRental(video.id)) {
         return true;
       }
+
+      return false;
     };
 
     this.iapInit = function() {
@@ -246,7 +262,7 @@
         // Registers the appropriate callback functions
         amzn_wa.IAP.registerObserver({
           // Called the the IAP API is available
-          'onSdkAvailable': function(resp) {
+          onSdkAvailable: function(resp) {
             if (resp.isSandboxMode) {
               // In a production application this should trigger either
               // shutting down IAP functionality or redirecting to some
@@ -261,11 +277,12 @@
 
             // get current user
             amzn_wa.IAP.getUserId();
+            console.log(amzn_wa.IAP);
           },
           // Called as response to getUserId
-          'onGetUserIdResponse': function(resp) {
-            console.log('onGetUserIdResponse');
-            console.log(resp);
+          onGetUserIdResponse: function(resp) {
+            // console.log('onGetUserIdResponse');
+            // console.log(resp);
             // it could be either of these depending on the varying whims of amazon
             if (resp.userIdRequestStatus == 'SUCCESSFUL' || resp.getUserIdRequestStatus == 'SUCCESSFUL') {
 
@@ -279,15 +296,15 @@
             }
           },
           // Called as response to getItemData
-          'onItemDataResponse': function(data) {
+          onItemDataResponse: function(data) {
             that.onItemDataResponse(data);
           },
           // Called as response to puchaseItem
-          'onPurchaseResponse': function(data) {
+          onPurchaseResponse: function(data) {
             that.onPurchaseResponse(data);
           },
           // Called as response to getPurchaseUpdates
-          'onPurchaseUpdatesResponse': function(resp) {
+          onPurchaseUpdatesResponse: function(resp) {
             that.onPurchaseUpdatesResponse(resp);
           }
         });
