@@ -100,15 +100,26 @@
 
 
       // Device Linking Checking Process
-      deviceLinkingHandler.isLinked(this.settingsParams.device_id, function(res) {
-        if (res === false) {
-          // Device Linking Acquiring PIN
-          this.initializeDeviceLinkingView();
-          this.selectView(this.deviceLinkingView);
-        } else {
-          this.build();
-        }
-      }.bind(this));
+      if (this.settingsParams.device_linking === true && this.settingsParams.IAP === false) {
+        deviceLinkingHandler.isLinked(this.settingsParams.device_id, function(res) {
+          if (res === false) {
+            // Device Linking Acquiring PIN
+            this.initializeDeviceLinkingView();
+            this.selectView(this.deviceLinkingView);
+          } else {
+            this.build();
+          }
+        }.bind(this));
+        // IAP Checking Process
+      } else if (this.settingsParams.device_linking === false && this.settingsParams.IAP === true) {
+        console.log("IAP");
+        this.build();
+      } else if (this.settingsParams.device_linking === true && this.settingsParams.IAP === true) {
+        alert("There was an error configuring your Fire TV App. Please exit.");
+        return;
+      } else {
+        this.build();
+      }
     }.bind(this);
 
     this.build = function() {
