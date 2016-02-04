@@ -4,7 +4,7 @@
  */
 
 var Plan = function(args) {
-  this.id = args.id;
+  this.id = args.id || args._id;
   this.name = args.name;
   this.description = args.description;
   this.amount = args.amount;
