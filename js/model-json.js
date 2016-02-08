@@ -151,6 +151,7 @@
      */
     this.getCategoryRowValues = function(jsonData) {
       this.categoryData = jsonData.response.values;
+      console.log(this.categoryData);
       this.categoryTitle = jsonData.response.title;
     }.bind(this);
 
@@ -321,7 +322,7 @@
      */
     this.getCategoryData = function(categoryCallback) {
       this.currData = [];
-      var categoryValue = this.categoryData[this.currentCategory];
+      var categoryValue = encodeURIComponent(this.categoryData[this.currentCategory]);
       //  we want to push all the videos with this category value into this.currData()
 
       var category_url = null;
@@ -350,7 +351,7 @@
 
     this.getPlaylistData = function(categoryCallback) {
       this.currData = [];
-      var categoryValue = this.categoryData[this.currentCategory];
+      var categoryValue = encodeURIComponent(this.categoryData[this.currentCategory]);
       //  we want to push all the videos with this category value into this.currData()
 
       var playlist_url = null;
