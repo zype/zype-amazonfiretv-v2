@@ -247,7 +247,7 @@
          */
          this.getCategoryData = function (categoryCallback) {
              this.currData = [];
-             var categoryValue = this.categoryData[this.currentCategory];
+             var categoryValue = encodeURIComponent(this.categoryData[this.currentCategory]);
             //  we want to push all the videos with this category value into this.currData()
 
             if (this.settingsParams.category_id) {
@@ -275,7 +275,7 @@
 
          this.getPlaylistData = function(categoryCallback) {
            this.currData = [];
-           var categoryValue = this.categoryData[this.currentCategory];
+           var categoryValue = encodeURIComponent(this.categoryData[this.currentCategory]);
           //  we want to push all the videos with this category value into this.currData()
 
           if (this.settingsParams.playlist_id) {
