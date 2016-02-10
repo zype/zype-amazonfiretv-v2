@@ -4,7 +4,7 @@
  */
 
 var Category = function(args) {
-  this.id = args.id || "";
+  this.id = args.id;
   this.title = args.title || "";
   this.imgURL = args.imgUrl || "";
   this.description = args.description || "";
