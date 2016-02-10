@@ -122,6 +122,8 @@
       sheet.insertRule('.app-logo {right: ' + this.settingsParams.iconXPosition + ' !important;}', 1);
       sheet.insertRule('.app-logo {top: ' + this.settingsParams.iconYPosition + ' !important;}', 1);
 
+      // @TODO fix these
+
       // set up left nav colors
       // sheet.insertRule('.leftnav-list-item-highlighted { color: ' + this.settingsParams.leftNavHoverTextColor + ' !important;}', 1);
       // sheet.insertRule('.leftnav-list-item-selected { color: ' + this.settingsParams.leftNavHoverTextColor + ' !important;}', 1);
