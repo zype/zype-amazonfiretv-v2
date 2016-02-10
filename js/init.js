@@ -41,6 +41,9 @@
       settings.displayButtons = true;
       // }
 
+
+      // @TODO fix me
+
       // main colors
       // settings.backgroundColor = app_json.response.background_color;
       // settings.topBarColor = app_json.response.top_bar_color;
