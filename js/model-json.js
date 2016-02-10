@@ -238,6 +238,8 @@
         if (data[i].pictures && data[i].pictures.length > 0) {
           args.imgUrl = data[i].pictures[0].url;
         }
+        // @TODO this 'new Category' should possibly be renamed Zobject or Channels
+        // becuase this is not an actual Category object from backend, but is a "Channel" Zobject type
         var formatted_category = new Category(args);
         formattedCategories.push(formatted_category);
       }
