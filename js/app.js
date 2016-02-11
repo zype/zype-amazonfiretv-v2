@@ -339,7 +339,7 @@
         console.log('on.select.event');
         app.data.setCurrentNestedCategory(index);
 
-        var data = this.categoriesData[index];
+        var data = this.channelsData[index];
         app.data.setCategoryId(data.category_id);
         app.data.setPlaylistId(data.playlist_id);
 

@@ -3,7 +3,7 @@
  * Model for Category
  */
 
-var Category = function(args) {
+var Channel = function(args) {
   this.id = args.id;
   this.title = args.title || "";
   this.imgURL = args.imgUrl || "";
@@ -12,6 +12,6 @@ var Category = function(args) {
   this.category_id = args.category_id || null;
 };
 
-Category.prototype = {
-  constructor: Category
+Channel.prototype = {
+  constructor: Channel
 };

@@ -17,7 +17,7 @@
     this.currentItem = 0;
     this.plans = [];
 
-    this.categoriesData = [];
+    this.channelsData = [];
     this.currentNestedCategory = 0;
 
     this.zobjectData = [];
@@ -219,14 +219,14 @@
         },
         complete: function() {
           console.log('loadData.complete');
-          callback(this.categoriesData);
+          callback(this.channelsData);
         }
       });
     };
 
     this.formatCategories = function(jsonData) {
       var data = jsonData.response;
-      var formattedCategories = [];
+      var formattedChannel = [];
       for (var i = 0; i < data.length; i++) {
         var args = {
           id: data[i]._id,
@@ -238,12 +238,13 @@
         if (data[i].pictures && data[i].pictures.length > 0) {
           args.imgUrl = data[i].pictures[0].url;
         }
-        // @TODO this 'new Category' should possibly be renamed Zobject or Channels
-        // becuase this is not an actual Category object from backend, but is a "Channel" Zobject type
-        var formatted_category = new Category(args);
-        formattedCategories.push(formatted_category);
+        // Channel (Channels) is a ZObject based item
+        var formatted_channel = new Channel(args);
+        formattedChannel.push(formatted_channel);
       }
-      this.categoriesData = formattedCategories;
+      // this push the channels to the channelsData and currData
+      // (Channel model is almost the same as Video)
+      this.channelsData = formattedChannel;
     };
 
     this.setCurrentNestedCategory = function(index) {
