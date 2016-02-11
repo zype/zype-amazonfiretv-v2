@@ -34,13 +34,13 @@
 
     ID_SLIDER_SUMMARY_DESC = "sliderDesc";
 
-  var TIME_TIMEOUT_DISPLAY_INFO = 150;
+  var TIME_TIMEOUT_DISPLAY_INFO = 350;
 
   /**
    * @class OneDView
    * @description The 1D view object, this handles everything about the 1D menu.
    */
-  var OneDView = function(fromSubCat) {
+  var OneDView = function() {
     // mixin inheritance, initialize this as an event handler for these events:
     Events.call(this, ['noContent', 'exit', 'startScroll', 'indexChange', 'stopScroll', 'select', 'bounce', 'loadComplete', 'makeIAP']);
 
@@ -125,23 +125,23 @@
      * @param {Element} $el application container
      * @param {Object} rowData data object for the row
      */
-    this.render = function($el, title, rowData, displayButtonsParam, displaySliderParam) {
+    this.render = function(args) {
       //Make sure we don't already have a full container
       this.remove();
 
       if (app.data.sliderData.length <= 0) {
-        displaySliderParam = false;
+        args.displaySliderParam = false;
       }
 
       // make sure to clean slider's objects if we do not want to show
-      if (displaySliderParam === false) {
+      if (args.displaySliderParam === false) {
         this.sliderView = null;
       }
 
       // set up title
       this.$title = $("#" + ID_ONED_TITLE);
-      if (title.length > 0) {
-        this.titleText = title;
+      if (args.title.length > 0) {
+        this.titleText = args.title;
       }
 
       // Build the main content template and add it
@@ -149,13 +149,13 @@
         title: this.titleText
       });
 
-      $el.append(html);
+      args.$el.append(html);
 
-      this.$el = $el.children().last();
+      this.$el = args.$el.children().last();
       this.el = this.$el[0];
 
       //no results found
-      if (rowData.length <= 0) {
+      if (args.rowData.length <= 0) {
         $(".one-d-no-items-container").show();
         this.trigger('loadComplete');
         this.trigger("noContent");
@@ -164,30 +164,27 @@
       }
 
       this.noItems = false;
-      this.rowElements = rowData;
+      this.rowElements = args.rowData;
 
       //gather widths of all the row elements
       this.$elementWidths = [];
 
       this.scrollingContainerEle = $(ID_ONED_VIEW_ELEMENTS)[0];
 
-      if (displaySliderParam && app.data.sliderData.length > 0) {
+      if (args.displaySliderParam && app.data.sliderData.length > 0) {
         this.sliderData = app.data.sliderData;
         // console.log(this.sliderData);
         this.createSliderView(this.sliderData);
         $("#" + ID_ONED_SLIDER_CONTAINER).show(); // we need this for scrolling
         this.setCurrentView(this.sliderView);
-        this.createShovelerView(rowData);
+        this.createShovelerView(args.rowData);
       } else {
         $("#" + ID_ONED_SLIDER_CONTAINER).hide(); // we need this for scrolling
-        this.createShovelerView(rowData);
+        this.createShovelerView(args.rowData);
         this.setCurrentView(this.shovelerView);
       }
 
-      if (!fromSubCat) {
-        this.createButtonView(displayButtonsParam, this.$el);
-        // this.createDescView();
-      }
+      this.createButtonView(args.displayButtonsParam, this.$el);
     };
 
     /**
@@ -280,10 +277,6 @@
       // create the shoveler subview
       this.$shovelerContainer = this.$el.children("#" + ID_ONED_SHOVELER_CONTAINER);
       var shovelerView = this.shovelerView = new ShovelerView();
-
-      if (fromSubCat) {
-        this.shovelerView.setSelectedElement(app.data.currentNestedCategory);
-      }
 
       this.shovelerView.render(this.$shovelerContainer, rowData);
       this.$shovelerContainerOffset = $(this.$shovelerContainer)[0].getBoundingClientRect().top;

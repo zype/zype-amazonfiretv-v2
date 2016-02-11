@@ -539,17 +539,25 @@
 
           // get the available items from amazon
           iapHandler.checkAvailableItems(function() {
-            if (showSlider()) {
-              oneDView.render(app.$appContainer, categoryTitle, app.categoryData, app.settingsParams.displayButtons, true);
-            } else {
-              oneDView.render(app.$appContainer, categoryTitle, app.categoryData, app.settingsParams.displayButtons, false);
-            }
+            renderOneDView();
           });
         } else {
+          renderOneDView();
+        }
+
+        function renderOneDView() {
+          var oneDViewArgs = {
+            $el: app.$appContainer,
+            title: categoryTitle,
+            rowData: app.categoryData,
+            displayButtonsParam: app.settingsParams.displayButtons,
+            displaySliderParam: false
+          };
           if (showSlider()) {
-            oneDView.render(app.$appContainer, categoryTitle, app.categoryData, app.settingsParams.displayButtons, true);
+            oneDViewArgs.displaySliderParam = true;
+            oneDView.render(oneDViewArgs);
           } else {
-            oneDView.render(app.$appContainer, categoryTitle, app.categoryData, app.settingsParams.displayButtons, false);
+            oneDView.render(oneDViewArgs);
           }
         }
 
