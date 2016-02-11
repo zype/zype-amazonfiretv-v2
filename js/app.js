@@ -329,7 +329,7 @@
     this.initializeNestedCategories = function() {
       // since we are using the One D View to show categories, we pass true
       // to identify that we are creating the object for the categories
-      var nestedCategoriesOneDView = this.nestedCategoriesOneDView = new OneDView(true);
+      var nestedCategoriesOneDView = this.nestedCategoriesOneDView = new OneDViewCategories();
 
       /**
        * Event handler - select shoveler item
@@ -367,9 +367,14 @@
        * Success Callback handler for categories data request
        * @param {Object} categories data
        */
-      var successCallback = function(categoriesData) {
-        this.categoriesData = categoriesData;
-        nestedCategoriesOneDView.render(this.$appContainer, "", this.categoriesData, false, false);
+      var successCallback = function(channelsData) {
+        this.channelsData = channelsData;
+        var OneDViewCategoriesArgs = {
+          $el: app.$appContainer,
+          title: "Categories",
+          rowData: channelsData
+        };
+        nestedCategoriesOneDView.render(OneDViewCategoriesArgs);
       }.bind(this);
 
       /*
