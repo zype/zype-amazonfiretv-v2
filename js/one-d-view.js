@@ -14,7 +14,7 @@
 
     ID_ONED_SHOVELER_CONTAINER = "one-D-shoveler-container",
 
-    ID_ONED_DESCRIPTION_CONTAINER = "one-D-description-container",
+    ID_ONED_DESCRIPTION_CONTAINER = "app-container",
 
     ID_ONED_SUMMARY_CONTAINER = "one-D-summary-container",
 
@@ -244,8 +244,12 @@
      * @param {Object} data for desc details
      */
     this.createDescView = function() {
-      this.$descContainer = this.$el.children("#" + ID_ONED_DESCRIPTION_CONTAINER);
+      this.$descContainer = $("#" + ID_ONED_DESCRIPTION_CONTAINER);
       var descView = this.descView = new DescView();
+
+      descView.on('exit', function() {
+        this.transitionToButtonView();
+      });
 
       descView.on('bounce', function() {
         this.transitionToButtonView();
@@ -253,7 +257,7 @@
 
       descView.update = function() {
         var video = this.currentVideo();
-        this.descView.render($("#" + ID_APP_CONTAINER), video);
+        this.descView.render(this.$descContainer, video);
       }.bind(this);
 
       this.descView.update();
@@ -352,6 +356,7 @@
 
       buttonView.on('showDesc', function() {
         console.log('show.desc');
+        this.createDescView();
         this.transitionToDescView();
       }, this);
 
@@ -423,8 +428,6 @@
       if (!this.shouldShowButtons(currentVid)) {
         return false;
       }
-
-      // this.descView.hide();
 
       //change to button view
       this.setCurrentView(this.buttonView);

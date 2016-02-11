@@ -131,7 +131,7 @@
 
   <!-- Description View Template -->
   <script id="description-template" type="text/x-handlebars-template">
-    <div class="description-view">
+    <div id="description-view" class="description-view-container">
       <div id="descriptionTitle" class="description-title">{{title}}</div>
       <div id="descriptionDate" class="description-pubdate">{{seconds}}</div>
       <div id="descriptionText" class="description-text">{{text}}</div>
@@ -142,7 +142,7 @@
   <script id="button-view-template" type="text/x-handlebars-template">
     <div class="detail-row-container-buttons">
       <div id="playBtn" class="detail-item-button-static btnPlay">Watch Now</div>
-      <!-- <div id="descButton" class="detail-item-button-static btnDesc">View More</div> -->
+      <div id="descButton" class="detail-item-button-static btnDesc">View Full Description</div>
       {{#each subscribeButtons}}
       <div id="{{id}}" class="detail-item-button-static btnIAP btnSubscribe">{{name}}</div>
       {{/each}} {{#each purchaseButtons}}

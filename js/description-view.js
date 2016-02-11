@@ -26,11 +26,18 @@
     this.$el = null;
     this.el = null;
 
+    this.on('exit', function() {
+      this.remove();
+    }, this);
+
+    this.on('bounce', function() {
+      this.remove();
+    }, this);
+
     /**
-     * Removes the main content view dom
+     * Removes the element from dom
      */
     this.remove = function() {
-      // remove this element from the dom
       if (this.$el) {
         this.$el.remove();
       }
@@ -59,7 +66,6 @@
       // remove the previous rendered view if it does exist
       this.remove();
 
-      this.parentContainer = el;
       // Build the main content template and add it
       var html = utils.buildTemplate($("#description-template"), {
         title: data.title,
@@ -71,7 +77,7 @@
       this.$el = el.children().last();
 
       //hide the element until we are done with layout
-      this.$el.hide();
+      this.hide();
     };
 
     this.handleControls = function(e) {

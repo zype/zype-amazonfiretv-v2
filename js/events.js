@@ -42,7 +42,7 @@
      * @param event : event (string) to stop listening, or undefined to match all events
      * @param callback : function to remove, or undefined to match all functions
      * @param context : context to remove, optional
-     * @CHANGED Khurshid Fayzullaev
+     * @CHANGED by Huric
      * Note: implication is that calling off() with no args removes all handlers for all events
      */
     this.off = function(event, callback, context) {
