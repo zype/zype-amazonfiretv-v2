@@ -50,9 +50,11 @@
       settings.autoplay = app_json.response.autoplay;
       settings.nested_categories = app_json.response.nested;
 
-      // if(!settings.avod) {
+      // this should be true
       settings.displayButtons = true;
-      // }
+
+
+      // @TODO fix me
 
       // Device Linking Settings
       // should come from API

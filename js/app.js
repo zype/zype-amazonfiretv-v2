@@ -152,6 +152,8 @@
       sheet.insertRule('.app-logo {right: ' + this.settingsParams.iconXPosition + ' !important;}', 1);
       sheet.insertRule('.app-logo {top: ' + this.settingsParams.iconYPosition + ' !important;}', 1);
 
+      // @TODO fix these
+
       // set up left nav colors
       // sheet.insertRule('.leftnav-list-item-highlighted { color: ' + this.settingsParams.leftNavHoverTextColor + ' !important;}', 1);
       // sheet.insertRule('.leftnav-list-item-selected { color: ' + this.settingsParams.leftNavHoverTextColor + ' !important;}', 1);
@@ -386,7 +388,7 @@
     this.initializeNestedCategories = function() {
       // since we are using the One D View to show categories, we pass true
       // to identify that we are creating the object for the categories
-      var nestedCategoriesOneDView = this.nestedCategoriesOneDView = new OneDView(true);
+      var nestedCategoriesOneDView = this.nestedCategoriesOneDView = new OneDViewCategories();
 
       /**
        * Event handler - select shoveler item
@@ -396,7 +398,7 @@
         console.log('on.select.event');
         app.data.setCurrentNestedCategory(index);
 
-        var data = this.categoriesData[index];
+        var data = this.channelsData[index];
         app.data.setCategoryId(data.category_id);
         app.data.setPlaylistId(data.playlist_id);
 
@@ -424,9 +426,14 @@
        * Success Callback handler for categories data request
        * @param {Object} categories data
        */
-      var successCallback = function(categoriesData) {
-        this.categoriesData = categoriesData;
-        nestedCategoriesOneDView.render(this.$appContainer, "", this.categoriesData, false, false);
+      var successCallback = function(channelsData) {
+        this.channelsData = channelsData;
+        var OneDViewCategoriesArgs = {
+          $el: app.$appContainer,
+          title: "Categories",
+          rowData: channelsData
+        };
+        nestedCategoriesOneDView.render(OneDViewCategoriesArgs);
       }.bind(this);
 
       /*
@@ -566,6 +573,7 @@
         /*
          * Here we assume that a client has, so called, the "Featured" list by default
          * @NOTE What if the client does not have that playlist?
+         * Actually that is not issue, we will add New Releases by default
          */
         var showSlider = function() {
           if (this.showSearch && app.data.currentCategory === 1) {
@@ -591,17 +599,25 @@
 
           // get the available items from amazon
           iapHandler.checkAvailableItems(function() {
-            if (showSlider()) {
-              oneDView.render(app.$appContainer, categoryTitle, app.categoryData, app.settingsParams.displayButtons, true);
-            } else {
-              oneDView.render(app.$appContainer, categoryTitle, app.categoryData, app.settingsParams.displayButtons, false);
-            }
+            renderOneDView();
           });
         } else {
+          renderOneDView();
+        }
+
+        function renderOneDView() {
+          var oneDViewArgs = {
+            $el: app.$appContainer,
+            title: categoryTitle,
+            rowData: app.categoryData,
+            displayButtonsParam: app.settingsParams.displayButtons,
+            displaySliderParam: false
+          };
           if (showSlider()) {
-            oneDView.render(app.$appContainer, categoryTitle, app.categoryData, app.settingsParams.displayButtons, true);
+            oneDViewArgs.displaySliderParam = true;
+            oneDView.render(oneDViewArgs);
           } else {
-            oneDView.render(app.$appContainer, categoryTitle, app.categoryData, app.settingsParams.displayButtons, false);
+            oneDView.render(oneDViewArgs);
           }
         }
 

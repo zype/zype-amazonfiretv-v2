@@ -67,7 +67,7 @@ div {
 
 /* Description View Style */
 
-.description-view {
+.description-view-container {
   position: fixed;
   top: 0;
   left: 0;
@@ -85,13 +85,13 @@ div {
   background: rgba(34, 34, 34, 0.95);
   line-height: 1.7;
 }
-.description-view .description-title {
+.description-view-container .description-title {
   font-family: "Roboto";
   font-weight: bold;
   font-size: 1.5em;
   margin-bottom: 10px;
 }
-.description-view .description-pubdate {
+.description-view-container .description-pubdate {
   font-size: 0.75em;
   color: #aaa;
   margin-bottom: 20px;

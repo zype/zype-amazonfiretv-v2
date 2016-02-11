@@ -40,9 +40,9 @@
    * @class OneDView
    * @description The 1D view object, this handles everything about the 1D menu.
    */
-  var OneDView = function() {
+  var OneDViewCategories = function() {
     // mixin inheritance, initialize this as an event handler for these events:
-    Events.call(this, ['noContent', 'exit', 'startScroll', 'indexChange', 'stopScroll', 'select', 'bounce', 'loadComplete', 'makeIAP']);
+    Events.call(this, ['noContent', 'exit', 'startScroll', 'indexChange', 'stopScroll', 'select', 'bounce', 'loadComplete']);
 
     //global variables
     this.currSelection = 0;
@@ -50,6 +50,7 @@
     this.currentView = null;
     this.titleText = "";
     this.$title = null;
+    this.slider = null;
     this.$sliderContainer = null;
     this.$sliderContainerOffset = null;
     this.$shovelerContainer = null;
@@ -58,7 +59,6 @@
     this.$summaryContainer = null;
     this.$descContainer = null;
     this.$buttonsContainer = null;
-    this.$scrollingContainerEle = null;
     this.noItems = false;
     this.translateAmount = null;
     this.sliderData = null;
@@ -129,15 +129,6 @@
       //Make sure we don't already have a full container
       this.remove();
 
-      if (app.data.sliderData.length <= 0) {
-        args.displaySliderParam = false;
-      }
-
-      // make sure to clean slider's objects if we do not want to show
-      if (args.displaySliderParam === false) {
-        this.sliderView = null;
-      }
-
       // set up title
       this.$title = $("#" + ID_ONED_TITLE);
       if (args.title.length > 0) {
@@ -169,104 +160,9 @@
       //gather widths of all the row elements
       this.$elementWidths = [];
 
-      this.scrollingContainerEle = $(ID_ONED_VIEW_ELEMENTS)[0];
-
-      if (args.displaySliderParam && app.data.sliderData.length > 0) {
-        this.sliderData = app.data.sliderData;
-        // console.log(this.sliderData);
-        this.createSliderView(this.sliderData);
-        $("#" + ID_ONED_SLIDER_CONTAINER).show(); // we need this for scrolling
-        this.setCurrentView(this.sliderView);
-        this.createShovelerView(args.rowData);
-      } else {
-        $("#" + ID_ONED_SLIDER_CONTAINER).hide(); // we need this for scrolling
-        this.createShovelerView(args.rowData);
-        this.setCurrentView(this.shovelerView);
-      }
-
-      this.createButtonView(args.displayButtonsParam, this.$el);
-    };
-
-    /**
-     * Initialize the slider view
-     * @param {Object} rowData data for the content items
-     */
-    this.createSliderView = function(rowData) {
-      // create the slider subview
-      this.$sliderContainer = this.$el.children("#" + ID_ONED_SLIDER_CONTAINER);
-      var sliderView = this.sliderView = new SliderView();
-
-      this.sliderView.render(this.$sliderContainer, rowData);
-      this.$sliderContainerOffset = $(this.$sliderContainer)[0].getBoundingClientRect().top;
-
-      sliderView.on('exit', function() {
-        this.trigger('exit');
-      }, this);
-
-      sliderView.on('select', function(index) {
-        this.currSliderSelection = index;
-        // let's play a video from the slider
-        // to do that we trigger the 'select' event passing 3d arg true
-        this.trigger('select', index, true);
-      }, this);
-
-      sliderView.on('bounce', function(direction) {
-        this.trigger('bounce', direction);
-      }, this);
-
-      sliderView.on('startScroll', function(direction) {
-        this.hideSliderExtraData();
-      }, this);
-
-      sliderView.on('stopScroll', function(index) {
-        this.currSliderSelection = index;
-        this.showSliderExtraData(index);
-      }, this);
-
-      sliderView.on('indexChange', function(index) {
-        this.currSliderSelection = index;
-      }, this);
-
-      sliderView.on('loadComplete', function() {
-        this.sliderLoadComplete = true;
-        this.showSliderExtraData();
-        if (this.shovelerLoadComplete) {
-          this.trigger('loadComplete');
-        }
-      }, this);
-    };
-
-    /**
-     * Initialize the desc view
-     * @param {Object} data for desc details
-     */
-    this.createDescView = function() {
-      this.$descContainer = $("#" + ID_ONED_DESCRIPTION_CONTAINER);
-      var descView = this.descView = new DescView();
-
-      descView.on('exit', function() {
-        this.transitionToButtonView();
-      });
-
-      descView.on('bounce', function() {
-        this.transitionToButtonView();
-      }.bind(this));
-
-      descView.update = function() {
-        var video = this.currentVideo();
-        this.descView.render(this.$descContainer, video);
-      }.bind(this);
-
-      this.descView.update();
-    };
-
-    this.transitionToDescView = function() {
-      //change to desc view
-      this.descView.update();
-      this.setCurrentView(this.descView);
-      this.descView.show();
-      //set buttons back to static
-      if (this.buttonView) this.buttonView.setStaticButton();
+      $("#" + ID_ONED_SLIDER_CONTAINER).hide(); // we need this for scrolling
+      this.createShovelerView(args.rowData);
+      this.setCurrentView(this.shovelerView);
     };
 
     /**
@@ -277,6 +173,8 @@
       // create the shoveler subview
       this.$shovelerContainer = this.$el.children("#" + ID_ONED_SHOVELER_CONTAINER);
       var shovelerView = this.shovelerView = new ShovelerView();
+
+      this.shovelerView.setSelectedElement(app.data.currentNestedCategory);
 
       this.shovelerView.render(this.$shovelerContainer, rowData);
       this.$shovelerContainerOffset = $(this.$shovelerContainer)[0].getBoundingClientRect().top;
@@ -324,66 +222,12 @@
     };
 
     /**
-     * Create the buttons that will appear under the media content
-     */
-    this.createButtonView = function(displayButtonsParam, $el) {
-
-      if (!displayButtonsParam) {
-        return;
-      }
-
-
-      // create and set up the button
-      this.$buttonsContainer = this.$el.children("#" + BUTTON_CONTAINER);
-      var buttonView = this.buttonView = new ButtonView();
-
-      this.$buttonsContainerOffset = $(this.$buttonsContainer)[0].getBoundingClientRect().top;
-
-      buttonView.on('exit', function() {
-        this.trigger('exit');
-      }, this);
-
-      buttonView.on('makeIAP', function(sku) {
-        this.trigger('makeIAP', sku);
-      }, this);
-
-      buttonView.on('showDesc', function() {
-        console.log('show.desc');
-        this.createDescView();
-        this.transitionToDescView();
-      }, this);
-
-      buttonView.on('play', function() {
-        this.trigger('select', this.currSliderSelection);
-      }, this);
-
-      var subscribeButtons = iapHandler.getAvailableSubscriptionButtons();
-      var purchaseButtons = iapHandler.getAvailablePurchaseButtons();
-      buttonView.render(this.$buttonsContainer, subscribeButtons, purchaseButtons);
-    };
-
-    /**
      * Externally change the index
      */
     this.changeIndex = function(index) {
       this.shovelerView.setSelectedElement(index);
       this.shovelerView.transitionRow();
       this.shovelerView.trigger("stopScroll", this.shovelerView.currSelection);
-    };
-
-    /** Make the slider the active view
-     *
-     */
-    this.transitionToSliderView = function() {
-      // change to shoveler view
-      this.setCurrentView(this.sliderView);
-
-      // change opacity of the slider
-      if (this.sliderView !== null) this.sliderView.unfadeSelected();
-      if (this.sliderView !== null) this.sliderView.setTransforms();
-
-      this.shovelerView.fadeSelected();
-      this.shovelerView.shrinkSelected();
     };
 
 
@@ -398,40 +242,6 @@
       //change opacity of the shoveler
       this.shovelerView.unfadeSelected();
       this.shovelerView.setTransforms();
-
-      if (this.sliderView !== null) this.sliderView.fadeSelected();
-      if (this.sliderView !== null) this.sliderView.shrinkSelected();
-
-      //set buttons back to static
-      if (this.buttonView) this.buttonView.setStaticButton();
-    };
-
-    this.shouldShowButtons = function(video) {
-      return true;
-      // return (app.settingsParams.IAP === true && !iapHandler.canPlayVideo(video));
-    };
-
-    /**
-     * Make the buttons the active view
-     */
-    this.transitionToButtonView = function() {
-
-      var currentVid = this.currentVideo();
-
-      if (!this.shouldShowButtons(currentVid)) {
-        return false;
-      }
-
-      //change to button view
-      this.setCurrentView(this.buttonView);
-
-      //change opacity of the shoveler
-      this.shovelerView.fadeSelected();
-      this.shovelerView.shrinkSelected();
-
-      //set default selected button and apply selected style
-      this.buttonView.setCurrentSelectedIndex(0);
-      this.buttonView.setSelectedButton();
     };
 
     /**
@@ -514,49 +324,16 @@
       // pressing play triggers select on the media element
       if (e.type === 'buttonpress') {
         switch (e.keyCode) {
-          case buttons.UP:
+          case buttons.BACK:
             //  console.log(this.currentView);
             switch (this.currentView) {
-              case this.sliderView:
+              case this.shovelerView:
                 this.trigger('bounce');
                 break;
-              case this.shovelerView:
-                if (this.sliderView) {
-                  this.transitionToSliderView();
-                } else {
-                  this.trigger('bounce');
-                }
-                break;
-              case this.buttonView:
-                this.transitionToShovelerView();
-                break;
-              case this.descView:
-                this.transitionToButtonView();
+              default:
                 break;
             }
             dirty = true;
-
-            if (this.sliderView !== null) {
-              this.shiftOneDContainer();
-            }
-
-
-            break;
-          case buttons.DOWN:
-            //  console.log(this.currentView);
-            switch (this.currentView) {
-              case this.sliderView:
-                this.transitionToShovelerView();
-                break;
-              case this.shovelerView:
-                this.transitionToButtonView();
-                break;
-            }
-            dirty = true;
-
-            if (this.sliderView !== null) {
-              this.shiftOneDContainer();
-            }
 
             break;
         }
@@ -570,23 +347,6 @@
     }.bind(this);
 
     /**
-     * Move the One D container as new components are selected
-     */
-    this.shiftOneDContainer = function() {
-      if (this.currentView == this.shovelerView) {
-        this.scrollingContainerEle.style.webkitTransform = "translateY(" + (-this.$shovelerContainerOffset + 240) + "px)";
-        $('#slider-summary-container').css("opacity", 0);
-        this.$sliderContainer.css("opacity", 0);
-      }
-
-      if (this.currentView == this.sliderView) {
-        this.scrollingContainerEle.style.webkitTransform = "translateY(" + 0 + "px)";
-        $('#slider-summary-container').css("opacity", 100);
-        this.$sliderContainer.css("opacity", 100);
-      }
-    };
-
-    /**
      * Show summary text in the 1D View
      * @param {Number} index number of current element to show data for
      */
@@ -598,10 +358,6 @@
         $("#" + ID_ONED_SUMMARY_TITLE).html(this.rowElements[index].title);
         $("#" + ID_ONED_SUMMARY_DATE).html((this.rowElements[index].seconds) ? (this.parseTime(this.rowElements[index].seconds)) : ("<br/>"));
         $("#" + ID_ONED_SUMMARY_DESC).html(this.rowElements[index].description);
-        if (this.shouldShowButtons(this.rowElements[index])) {
-          // show entire button container
-          this.showAvailableButtons();
-        }
       }.bind(this), TIME_TIMEOUT_DISPLAY_INFO);
     };
 
@@ -612,60 +368,9 @@
       $("#" + ID_ONED_SUMMARY_TITLE).text("");
       $("#" + ID_ONED_SUMMARY_DATE).text("");
       $("#" + ID_ONED_SUMMARY_DESC).text("");
-      $('.detail-row-container-buttons .btnIAP').hide();
-      $("#" + BUTTON_CONTAINER).hide();
-    };
-
-    /**
-     * Show summary text in the Slider View
-     * @param {Number} index number of current element to show data for
-     */
-    this.showSliderExtraData = function(index) {
-      index = index || 0;
-
-      window.setTimeout(function() {
-        //add description
-        // console.log(this.sliderData[index].title);
-        // console.log(this.sliderData[index].description);
-        $("#" + ID_SLIDER_SUMMARY_TITLE).html(this.sliderData[index].title);
-        $("#" + ID_SLIDER_SUMMARY_DESC).html(this.sliderData[index].description);
-      }.bind(this), TIME_TIMEOUT_DISPLAY_INFO);
-    };
-
-    /**
-     * Hide the text in the Slider view when scrolling starts
-     */
-    this.hideSliderExtraData = function() {
-      $("#" + ID_SLIDER_SUMMARY_TITLE).text("");
-      $("#" + ID_SLIDER_SUMMARY_DESC).text("");
-    };
-
-    this.showAvailableButtons = function() {
-      var video = this.currentVideo();
-
-      $("#" + BUTTON_CONTAINER).show();
-
-      //  $('#descButton').show();
-      $('#playBtn').show();
-
-      // show rental button if a subcription is required and they haven't rented
-      if (video.purchase_required === true && !iapHandler.hasValidPurchase(video.id)) {
-        $('#' + iapHandler.purchaseSku(video.id) + '-purchase').show();
-      }
-
-      // show purchase button if a subcription is required and they haven't purchased
-      if (video.rental_required === true && !iapHandler.hasValidRental(video.id)) {
-        $('#' + iapHandler.rentalSku(video.id)).show();
-      }
-
-      // show subscribe buttons if a subcription is required and they aren't subscribed
-      if (video.subscription_required === true && !iapHandler.hasValidSubscription()) {
-        $('.detail-row-container-buttons .btnSubscribe').show();
-      }
     };
 
     // Convert seconds to HH:MM:SS
-
     this.parseTime = function(totalSec) {
       var hours = parseInt(totalSec / 3600) % 24;
       var minutes = parseInt(totalSec / 60) % 60;
@@ -676,5 +381,5 @@
 
   };
 
-  exports.OneDView = OneDView;
+  exports.OneDViewCategories = OneDViewCategories;
 }(window));
