@@ -514,6 +514,7 @@
         /*
          * Here we assume that a client has, so called, the "Featured" list by default
          * @NOTE What if the client does not have that playlist?
+         * Actually that is not issue, we will add New Releases by default
          */
         var showSlider = function() {
           if (this.showSearch && app.data.currentCategory === 1) {
