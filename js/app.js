@@ -231,6 +231,7 @@
 
       deviceLinkingView.on('exit', function() {
         console.log("device.linking.view.exit.event");
+        this.exitApp();
       }, this);
 
       deviceLinkingView.on('loadComplete', function() {
