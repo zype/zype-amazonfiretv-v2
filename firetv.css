@@ -1031,7 +1031,7 @@ div {
 }
 .device-linking-view {
   position: absolute;
-  top: 0;
+  top: 240px;
   left: 0;
   padding: 7%;
   font-family: "Roboto";

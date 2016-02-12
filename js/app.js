@@ -245,6 +245,7 @@
 
       deviceLinkingView.on('linkingFailure', function() {
         console.log('linking.failure');
+        alert("Please reload the app!");
       }, this);
 
       deviceLinkingView.render(this.$appContainer);
