@@ -11,6 +11,7 @@
     player_endpoint: appConfig.player_endpoint,
     device_id: "00000000-0000-0000-0000-000000000000",
     linking_url: "http://www.example.com",
+    linked: false
   };
 
   var initApp = function(settings) {

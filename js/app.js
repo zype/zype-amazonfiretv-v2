@@ -107,6 +107,7 @@
             this.initializeDeviceLinkingView();
             this.selectView(this.deviceLinkingView);
           } else {
+            this.settingsParams.linked = res;
             this.build();
           }
         }.bind(this));
