@@ -507,6 +507,7 @@
     /**
      * Handle key events
      * @param {event} the keydown event
+     * @TODO should be refactored
      */
     this.handleControls = function(e) {
       var dirty = false;
@@ -531,6 +532,8 @@
                 this.transitionToShovelerView();
                 break;
               case this.descView:
+                this.descView.remove();
+                this.descView = null;
                 this.transitionToButtonView();
                 break;
             }
@@ -540,15 +543,19 @@
               this.shiftOneDContainer();
             }
 
-
             break;
           case buttons.DOWN:
-            //  console.log(this.currentView);
+            // console.log(this.currentView);
             switch (this.currentView) {
               case this.sliderView:
                 this.transitionToShovelerView();
                 break;
               case this.shovelerView:
+                this.transitionToButtonView();
+                break;
+              case this.descView:
+                this.descView.remove();
+                this.descView = null;
                 this.transitionToButtonView();
                 break;
             }
