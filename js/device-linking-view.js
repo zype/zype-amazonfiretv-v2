@@ -50,6 +50,7 @@
       deviceLinkingHandler.acquirePin(app.settingsParams.device_id, function(pin) {
         // Build the main content template and add it
         var html = utils.buildTemplate($("#device-linking-view-template"), {
+          link: app.settingsParams.linking_url,
           pin: pin
         });
 
