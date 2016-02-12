@@ -246,11 +246,11 @@
 
       descView.on('exit', function() {
         this.transitionToButtonView();
-      });
+      }, this);
 
       descView.on('bounce', function() {
         this.transitionToButtonView();
-      }.bind(this));
+      }, this);
 
       descView.update = function() {
         var video = this.currentVideo();
