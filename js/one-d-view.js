@@ -71,8 +71,8 @@
 
     this.onPurchaseSuccess = function() {
       this.transitionToShovelerView();
-      this.buttonView.hide();
-    };
+      this.buttonView.update();
+    }.bind(this);
 
     /**
      * Hide this view - use visibility instead of display
@@ -357,9 +357,20 @@
         this.trigger('select', this.currSliderSelection);
       }, this);
 
-      var subscribeButtons = iapHandler.getAvailableSubscriptionButtons();
-      var purchaseButtons = iapHandler.getAvailablePurchaseButtons();
-      buttonView.render(this.$buttonsContainer, subscribeButtons, purchaseButtons);
+      buttonView.update = function() {
+        var subscribeButtons = [];
+        var purchaseButtons = [];
+
+        var currentVid = this.currentVideo();
+        if (!iapHandler.canPlayVideo(currentVid)) {
+          subscribeButtons = iapHandler.getAvailableSubscriptionButtons();
+          purchaseButtons = iapHandler.getAvailablePurchaseButtons();
+        }
+
+        buttonView.render(this.$buttonsContainer, subscribeButtons, purchaseButtons);
+      }.bind(this);
+
+      this.buttonView.update();
     };
 
     /**
@@ -406,21 +417,10 @@
       if (this.buttonView) this.buttonView.setStaticButton();
     };
 
-    this.shouldShowButtons = function(video) {
-      return true;
-      // return (app.settingsParams.IAP === true && !iapHandler.canPlayVideo(video));
-    };
-
     /**
      * Make the buttons the active view
      */
     this.transitionToButtonView = function() {
-
-      var currentVid = this.currentVideo();
-
-      if (!this.shouldShowButtons(currentVid)) {
-        return false;
-      }
 
       //change to button view
       this.setCurrentView(this.buttonView);
@@ -605,10 +605,8 @@
         $("#" + ID_ONED_SUMMARY_TITLE).html(this.rowElements[index].title);
         $("#" + ID_ONED_SUMMARY_DATE).html((this.rowElements[index].seconds) ? (this.parseTime(this.rowElements[index].seconds)) : ("<br/>"));
         $("#" + ID_ONED_SUMMARY_DESC).html(this.rowElements[index].description);
-        if (this.shouldShowButtons(this.rowElements[index])) {
-          // show entire button container
-          this.showAvailableButtons();
-        }
+        this.buttonView.update();
+        $("#" + BUTTON_CONTAINER).show();
       }.bind(this), TIME_TIMEOUT_DISPLAY_INFO);
     };
 
@@ -647,6 +645,10 @@
       $("#" + ID_SLIDER_SUMMARY_DESC).text("");
     };
 
+    /*
+     * @NOTE we will need this for futher modifications
+     */
+    /*
     this.showAvailableButtons = function() {
       var video = this.currentVideo();
 
@@ -670,6 +672,7 @@
         $('.detail-row-container-buttons .btnSubscribe').show();
       }
     };
+    */
 
     // Convert seconds to HH:MM:SS
 
