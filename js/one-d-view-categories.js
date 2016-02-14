@@ -69,11 +69,6 @@
     this.$el = null;
     this.el = null;
 
-    this.onPurchaseSuccess = function() {
-      this.transitionToShovelerView();
-      this.buttonView.hide();
-    };
-
     /**
      * Hide this view - use visibility instead of display
      * so that we don't loose any of our dynamic items
