@@ -45,7 +45,9 @@
      * Remove the button view
      */
     this.remove = function() {
-      this.$el.remove();
+      if (this.$el) {
+        this.$el.remove();
+      }
     };
 
     /**
@@ -87,7 +89,7 @@
      * Event handler for remote "select" button press
      */
     this.handleButtonEvent = function() {
-        var visibleBtns = this.visibleButtons();
+      var visibleBtns = this.visibleButtons();
 
       if (this.$buttons[this.selectedButton].classList.contains('btnIAP')) {
         this.trigger('makeIAP', visibleBtns[this.selectedButton].id);
@@ -126,6 +128,9 @@
      * @param {Element} $el the application container
      */
     this.render = function($el, subscribeButtons, purchaseButtons) {
+      // remove the previous buttons
+      this.remove();
+
       // Build the left nav template and add its
       var html = utils.buildTemplate($("#button-view-template"), {
         subscribeButtons: subscribeButtons,
