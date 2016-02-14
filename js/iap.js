@@ -15,7 +15,7 @@
     }
 
     // mixin inheritance, initialize this as an event handler for these events:
-    Events.call(this, ['purchaseSuccess', 'purchaseFail']);
+    Events.call(this, ['purchaseSuccess', 'purchaseFail', 'purchased']);
 
     this.settingsParams = null;
     this.oneDView = null;
@@ -28,16 +28,14 @@
       currentConsumer: null
     };
 
-    this.on('purchaseSuccess', function(receipt) {
+    this.on("purchaseSuccess", function(receipt) {
       iapHandler.addSku(receipt.sku);
-      // console.log('purchaseSuccess');
-      // console.log(iapHandler.state.validSkus);
-      app.trigger('purchaseSuccess');
-    });
+      app.trigger("purchased");
+    }.bind(this));
 
     this.on('purchaseFail', function(receipt) {
       iapHandler.removeSku(receipt.sku);
-    });
+    }, this);
 
     this.purchaseItem = function(id) {
       var sku = this.parseSku(id);
@@ -98,11 +96,9 @@
      * We need to add the SKUs to the validSkus. So hasValid* will work properly.
      * Add the following code to the AJAX request
      * @NOTE for testing only
-    .complete(function() {
-      var sku = receipt.sku;
-      console.log(sku);
-      this.addSku(sku);
-    });
+     complete(function() {
+       that.trigger('purchaseSuccess', receipt);
+     });
     */
     this.handleReceipt = function(receipt) {
 

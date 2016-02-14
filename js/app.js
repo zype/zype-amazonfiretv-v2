@@ -82,8 +82,16 @@
     this.$appContainer = $("#app-container");
 
     // mixin inheritance, initialize this as an event handler for these events:
-    Events.call(this, ['purchaseSuccess']);
+    Events.call(this, ['purchased', 'videoError']);
 
+    this.on("purchased", function() {
+      this.oneDView.onPurchaseSuccess();
+    }, this);
+
+    this.on("videoError", function() {
+      alert("There was error playting the video.");
+      this.exit();
+    }, this);
     /**
      * Callback from XHR to load the data model, this really starts the app UX
      */
@@ -561,10 +569,6 @@
       oneDView.on('makeIAP', function(sku) {
         iapHandler.purchaseItem(sku);
       }, this);
-
-      this.on('purchaseSuccess', function() {
-        oneDView.onPurchaseSuccess();
-      });
 
       /**
        * Success Callback handler for category data request
