@@ -116,7 +116,8 @@
         console.log("IAP");
         this.build();
       } else if (this.settingsParams.device_linking === true && this.settingsParams.IAP === true) {
-        alert("There was an error configuring your Fire TV App. Please exit.");
+        alert("There was an error configuring your Fire TV App.");
+        app.exit();
         return;
       } else {
         this.build();
@@ -188,6 +189,13 @@
         window.open('', '_self').close();
       }
       buttons.resync();
+    };
+
+    /**
+     * Forced Exit
+     */
+    this.exit = function() {
+      window.open('', '_self').close();
     };
 
     /**
@@ -862,7 +870,8 @@
         },
         error: function() {
           console.log(arguments);
-          alert("There was an error configuring your Fire TV App. Please exit.");
+          alert("There was an error configuring your Fire TV App.");
+          app.exit();
         }
       });
     };

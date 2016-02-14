@@ -94,6 +94,7 @@
     error: function() {
       alert("There was an error configuring your Fire TV App. Please exit.");
       console.log(arguments);
+      app.exit();
     }
   });
 }(window));

@@ -109,6 +109,7 @@
         error: function() {
           console.log('loadVideoDetails.error');
           alert("There was an error configuring your Fire TV App. Please exit.");
+          app.exit();
         }
       });
     };
@@ -216,6 +217,7 @@
         error: function() {
           console.log(arguments);
           alert("There was an error configuring your Fire TV App. Please exit.");
+          app.exit();
         },
         complete: function() {
           console.log('loadData.complete');
@@ -378,6 +380,7 @@
         error: function() {
           console.log(arguments);
           alert("There was an error configuring your Fire TV App. Please exit.");
+          app.exit();
         },
         complete: function() {
           categoryCallback(this.currData);
@@ -445,6 +448,7 @@
         error: function() {
           console.log(arguments);
           alert("There was an error configuring your Fire TV App. Please exit.");
+          app.exit();
         },
         complete: function() {
           searchCallback(this.currData);
