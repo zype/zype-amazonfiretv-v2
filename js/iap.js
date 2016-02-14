@@ -129,7 +129,6 @@
       }).done(function(msg) {
         var consumer = msg.response;
         that.state.currentConsumer = new Consumer(consumer);
-        this.addSku(sku);
         that.trigger('purchaseSuccess', receipt);
       });
     };
