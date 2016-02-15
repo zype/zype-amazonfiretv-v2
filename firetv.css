@@ -15,14 +15,7 @@
 }
 body {
   /* Permalink - use to edit and share this gradient: http://colorzilla.com/gradient-editor/#1a2230+0,53cbf1+50,00000f+100 */
-  background: #1a2230;
-  /* Old browsers */
-  background: -moz-linear-gradient(top, #100f0e 15%, #24241d 50%, #100f0e 75%);
-  /* FF3.6-15 */
-  background: -webkit-linear-gradient(top, #100f0e 15%, #24241d 50%, #100f0e 75%);
-  /* Chrome10-25,Safari5.1-6 */
-  background: linear-gradient(to bottom, #100f0e 15%, #24241d 50%, #100f0e 75%) !important;
-  /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
+  background: #000000;
 }
 * {
   box-sizing: Border-box;
@@ -38,7 +31,6 @@ body {
   margin: 0;
   font-size: 20pt;
   font-family: "Roboto";
-  background: #000000 none no-repeat left top;
   background-size: 100% 100%;
 }
 div {
@@ -55,14 +47,12 @@ div {
 .app-top-bar {
   position: absolute;
   width: 100%;
-  height: 240px;
+  height: 200px;
   background-color: transparent;
 }
 .app-logo {
   position: absolute;
-  top: 50px;
   z-index: 10;
-  right: 55px;
 }
 
 /* Description View Style */
@@ -141,7 +131,7 @@ div {
   z-index: 100;
 }
 .leftnav-menulist-collapsed {
-  top: 148px;
+  top: 108px;
   height: 86px;
   z-index: 10;
 }
@@ -154,14 +144,14 @@ div {
   border-color: #dadada;
 }
 .leftnav-menulist-collapsed .leftnav-menu-scrolling-list {
-  margin-top: -148px;
+  margin-top: -108px;
 }
 .leftnav-menu-scrolling-list {
   color: white;
 }
 .leftnav-list-item-static.leftnav-list-item-chosen.subcat-header {
   position: absolute;
-  top: 148px;
+  top: 108px;
   width: 40%;
   background: none;
   border: none;
@@ -198,7 +188,7 @@ div {
   line-clamp: 1;
 }
 .leftnav-list-item-container:first-child {
-  margin-top: 148px;
+  margin-top: 108px;
 }
 .leftnav-list-item-highlighted {
   color: #fff;
@@ -220,7 +210,7 @@ div {
   background: transparent none no-repeat right 40px center;
 }
 .leftnav-menulist-expanded {
-  background: linear-gradient(to right, #000000 0%, #000000 60%, transparent 100%) !important;
+  background: linear-gradient(to right, #000000 0%, #000000 60%, transparent 100%);
 }
 .leftnav-menu-scrolling-list {
   -webkit-transition-property: -webkit-transform, top;
@@ -353,7 +343,6 @@ div {
   font-family: "Roboto";
   font-weight: bold;
   left: 150px;
-  color: #878b98;
   font-size: 1.2em;
   letter-spacing: 1px;
   margin-bottom: 30px;
@@ -696,7 +685,7 @@ div {
 .one-D-buttons-container {
   position: relative;
   top: 340px;
-  width: 80%;
+  width: 100%;
   left: 150px;
 }
 .detail-row-container-buttons {
@@ -707,14 +696,13 @@ div {
 }
 .detail-item-button, .detail-item-button-selected, .detail-item-button-static {
   position: relative;
-  width: 315px;
+  min-width: 420px;
   padding: 18px;
   float: left;
   font-size: 1em;
   margin-right: 20px;
   text-align: center;
   letter-spacing: 1px;
-  border: 1px solid #fff;
   border-radius: 40px;
   text-transform: uppercase;
 }
@@ -727,7 +715,7 @@ div {
   box-shadow: 0px 10px 18px 3px rgba(0, 0, 0, 0.44);
 }
 .detail-item-button-static {
-  color: #eaeff3;
+  border: 1px solid #ffffff;
 }
 
 /* Player View Style */
@@ -839,7 +827,7 @@ div {
   position: absolute;
   top: 80px;
   height: 59px;
-  color: #B3DAF2;
+  color: #FFFFFF;
   font-size: 1.8em;
   font-family: "Roboto";
   margin-top: 20px;
@@ -979,18 +967,6 @@ div {
   height: 100%;
   z-index: 500;
   /* Permalink - use to edit and share this gradient: http://colorzilla.com/gradient-editor/#1a2230+0,53cbf1+50,00000f+100 */
-
-  background: #1a2230;
-  /* Old browsers */
-
-  background: -moz-linear-gradient(top, #100f0e 15%, #24241d 50%, #100f0e 75%);
-  /* FF3.6-15 */
-
-  background: -webkit-linear-gradient(top, #100f0e 15%, #24241d 50%, #100f0e 75%);
-  /* Chrome10-25,Safari5.1-6 */
-
-  background: linear-gradient(to bottom, #100f0e 15%, #24241d 50%, #100f0e 75%) !important;
-  /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
 }
 .app-overlay-message {
   color: #FFFFFF;
@@ -1006,9 +982,9 @@ div {
   z-index: 600;
   text-indent: -9999em;
   border-top: 1.2em solid rgba(255, 255, 255, 0.2);
-  border-right: 1.2em solid #ffffff;
-  border-bottom: 1.2em solid #ffffff;
-  border-left: 1.2em solid #ffffff;
+  border-right: 1.2em solid transparent;
+  border-bottom: 1.2em solid transparent;
+  border-left: 1.2em solid transparent;
   -webkit-animation: spin 1.3s infinite linear;
   -moz-animation: spin 1.3s infinite linear;
   animation: spin 1.3s infinite linear;
