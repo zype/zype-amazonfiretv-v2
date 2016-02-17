@@ -18,7 +18,7 @@
   var ButtonView = function() {
 
     // mixin inheritance, initialize this as an event handler for these events:
-    Events.call(this, ['exit', 'revoke', 'select', 'makeIAP', 'showDesc', 'play']);
+    Events.call(this, ['exit', 'revoke', 'select', 'makeIAP', 'showDesc', 'play', 'browse', 'link']);
 
     //global variables
     this.selectedButton = -1;
@@ -90,6 +90,11 @@
      */
     this.handleButtonEvent = function() {
       var visibleBtns = this.visibleButtons();
+
+      if (this.$buttons[this.selectedButton].classList.contains('btnBrowse')) {
+        console.log("btn.click");
+        this.trigger('browse');
+      }
 
       if (this.$buttons[this.selectedButton].classList.contains('btnIAP')) {
         this.trigger('makeIAP', visibleBtns[this.selectedButton].id);

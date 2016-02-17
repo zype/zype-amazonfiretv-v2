@@ -134,21 +134,35 @@
 
     this.build = function() {
 
-      if (this.deviceLinkingView) {
+      if (this.deviceLinkingView && this.currentView === this.deviceLinkingView) {
         this.deviceLinkingView.remove();
-      }
-
-      /**
-       * Handles nested categories
-       */
-      if (this.settingsParams.nested_categories) {
-        this.initializeNestedCategories();
-        this.selectView(this.nestedCategoriesOneDView);
+        this.data.loadData(function() {
+          /**
+           * Handles nested categories
+           */
+          if (app.settingsParams.nested_categories === true) {
+            this.initializeNestedCategories();
+            this.selectView(this.nestedCategoriesOneDView);
+          } else {
+            this.initializeLeftNavView();
+            this.initializeOneDView();
+            this.selectView(this.oneDView);
+            this.leftNavView.collapse();
+          }
+        }.bind(this));
       } else {
-        this.initializeLeftNavView();
-        this.initializeOneDView();
-        this.selectView(this.oneDView);
-        this.leftNavView.collapse();
+        /**
+         * Handles nested categories
+         */
+        if (this.settingsParams.nested_categories === true) {
+          this.initializeNestedCategories();
+          this.selectView(this.nestedCategoriesOneDView);
+        } else {
+          this.initializeLeftNavView();
+          this.initializeOneDView();
+          this.selectView(this.oneDView);
+          this.leftNavView.collapse();
+        }
       }
     };
 
@@ -277,6 +291,10 @@
       deviceLinkingView.on('linkingFailure', function() {
         console.log('linking.failure');
         alert("Please reload the app!");
+      }, this);
+
+      deviceLinkingView.on('startBrowse', function() {
+        this.build();
       }, this);
 
       deviceLinkingView.render(this.$appContainer);
@@ -506,6 +524,7 @@
       this.showContentLoadingSpinner(true);
       console.log('transition.to.categories');
 
+      if (this.oneDView.sliderView) this.oneDView.sliderView.remove();
       this.oneDView.shovelerView.remove();
       this.oneDView.remove();
       this.oneDView = null;
