@@ -137,6 +137,8 @@
 
       this.setTransforms(0);
 
+      $('#' + SLIDER_PAGINATION).empty();
+
       // @CHANGED let's add a pagination here
       for (i = 0; i < this.$rowElements.length; i++) {
         $("#" + SLIDER_PAGINATION).append('<div id="circle-' + i + '" class="circle"></div>');
