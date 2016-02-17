@@ -320,6 +320,7 @@
       leftNavView.on('select', function(index) {
         if (!this.showSearch || index !== 0) {
           //remove the contents of the oneDView
+          if (this.oneDView.sliderView) this.oneDView.sliderView.remove();
           this.oneDView.remove();
 
           //show the spinner
