@@ -32,6 +32,17 @@
       // Important to load any plans as the IAP handler will need to have those available.
       var that = this;
 
+      that.categoryData = [];
+      that.categoryTitle = "";
+      that.currData = [];
+      that.currentCategory = 0;
+      that.currentItem = 0;
+      that.plans = [];
+      that.channelsData = [];
+      that.currentNestedCategory = 0;
+      that.zobjectData = [];
+      that.sliderData = [];
+
       this.getPlans(function(plans) {
         that.plans = plans;
         that.loadCategoryData(dataLoadedCallback);

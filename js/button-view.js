@@ -18,7 +18,7 @@
   var ButtonView = function() {
 
     // mixin inheritance, initialize this as an event handler for these events:
-    Events.call(this, ['exit', 'revoke', 'select', 'makeIAP', 'showDesc', 'play']);
+    Events.call(this, ['exit', 'revoke', 'select', 'makeIAP', 'showDesc', 'play', 'browse', 'link']);
 
     //global variables
     this.selectedButton = -1;
@@ -91,6 +91,16 @@
     this.handleButtonEvent = function() {
       var visibleBtns = this.visibleButtons();
 
+      if (this.$buttons[this.selectedButton].classList.contains('btnLink')) {
+        console.log('link.device.btn');
+        this.trigger('link');
+      }
+
+      if (this.$buttons[this.selectedButton].classList.contains('btnBrowse')) {
+        console.log("btn.click");
+        this.trigger('browse');
+      }
+
       if (this.$buttons[this.selectedButton].classList.contains('btnIAP')) {
         this.trigger('makeIAP', visibleBtns[this.selectedButton].id);
       }
@@ -127,14 +137,13 @@
      * Creates the button view from the template and appends it to the given element
      * @param {Element} $el the application container
      */
-    this.render = function($el, subscribeButtons, purchaseButtons) {
+    this.render = function($el, allButtons) {
       // remove the previous buttons
       this.remove();
 
       // Build the left nav template and add its
       var html = utils.buildTemplate($("#button-view-template"), {
-        subscribeButtons: subscribeButtons,
-        purchaseButtons: purchaseButtons
+        "allButtons": allButtons
       });
 
       $el.append(html);

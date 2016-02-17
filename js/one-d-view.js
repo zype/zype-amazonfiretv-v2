@@ -42,7 +42,7 @@
    */
   var OneDView = function() {
     // mixin inheritance, initialize this as an event handler for these events:
-    Events.call(this, ['noContent', 'exit', 'startScroll', 'indexChange', 'stopScroll', 'select', 'bounce', 'loadComplete', 'makeIAP']);
+    Events.call(this, ['noContent', 'exit', 'startScroll', 'indexChange', 'stopScroll', 'select', 'bounce', 'loadComplete', 'makeIAP', 'link']);
 
     //global variables
     this.currSelection = 0;
@@ -357,17 +357,71 @@
         this.trigger('select', this.currSliderSelection);
       }, this);
 
+      buttonView.on('link', function() {
+        this.trigger('link');
+      }, this);
+
       buttonView.update = function() {
         var subscribeButtons = [];
         var purchaseButtons = [];
 
-        var currentVid = this.currentVideo();
-        if (!iapHandler.canPlayVideo(currentVid)) {
-          subscribeButtons = iapHandler.getAvailableSubscriptionButtons();
-          purchaseButtons = iapHandler.getAvailablePurchaseButtons();
+        var buttons = [];
+
+
+        if (app.settingsParams.device_linking) {
+          if (app.settingsParams.linked === false) {
+            buttons.push({
+              "name": "Link Device",
+              "id": "linkBtn",
+              "class": "btnLink"
+            });
+          } else {
+            buttons.push({
+              "name": "Watch Now",
+              "id": "playBtn",
+              "class": "btnPlay"
+            });
+          }
         }
 
-        buttonView.render(this.$buttonsContainer, subscribeButtons, purchaseButtons);
+        if (app.settingsParams.IAP) {
+          var currentVid = this.currentVideo();
+          if (!iapHandler.canPlayVideo(currentVid)) {
+            subscribeButtons = iapHandler.getAvailableSubscriptionButtons();
+            purchaseButtons = iapHandler.getAvailablePurchaseButtons();
+
+            _.each(subscribeButtons, function(btn) {
+              buttons.push(btn);
+            });
+
+            _.each(purchaseButtons, function(btn) {
+              buttons.push(btn);
+            });
+          } else {
+            buttons.push({
+              "name": "Watch Now",
+              "id": "playBtn",
+              "class": "btnPlay"
+            });
+          }
+        }
+
+        if (app.settingsParams.device_linking === false && app.settingsParams.IAP === false) {
+          console.log("true");
+          buttons.push({
+            "name": "Watch Now",
+            "id": "playBtn",
+            "class": "btnPlay"
+          });
+        }
+
+        buttons.push({
+          "name": "Full Description",
+          "id": "descBtn",
+          "class": "btnDesc"
+        });
+
+        this.buttonView.render(this.$buttonsContainer, buttons);
       }.bind(this);
 
       this.buttonView.update();

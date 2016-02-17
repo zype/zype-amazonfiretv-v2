@@ -182,7 +182,8 @@
         return _.map(this.allSubscriptions(), function(p) {
           return {
             "name": p.name,
-            "id": p.amazon_id
+            "id": p.amazon_id,
+            "class": "btnIAP btnSubscribe"
           };
         });
       } else {
@@ -197,8 +198,9 @@
         _.each(this.state.availableSkus, function(i) {
           // purchase button
           buttons.push({
-            id: i,
-            name: 'Purchase'
+            "id": i,
+            "name": 'Purchase',
+            "class": "btnIAP btnPurchase"
           });
         });
       }

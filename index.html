@@ -147,18 +147,15 @@
         <li>Enter Pin: {{pin}}</li>
         <li>This screen will automatically update as soon as your activation is complete!</li>
       </ol>
+      <div id="device-linking-buttons" class="device-linking-view-buttons-container"></div>
     </div>
   </script>
 
   <!-- Buttons View Template -->
   <script id="button-view-template" type="text/x-handlebars-template">
     <div class="detail-row-container-buttons">
-      <div id="playBtn" class="detail-item-button-static btnPlay">Watch Now</div>
-      <div id="descButton" class="detail-item-button-static btnDesc">View Full Description</div>
-      {{#each subscribeButtons}}
-      <div id="{{id}}" class="detail-item-button-static btnIAP btnSubscribe">{{name}}</div>
-      {{/each}} {{#each purchaseButtons}}
-      <div id="{{id}}-purchase" class="detail-item-button-static btnIAP btnPurchase">{{name}}</div>
+      {{#each allButtons}}
+      <div id="{{id}}" class="detail-item-button-static {{class}}">{{name}}</div>
       {{/each}}
     </div>
   </script>
