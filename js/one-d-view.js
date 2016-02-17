@@ -384,7 +384,35 @@
           }
         }
 
-        buttonView.render(this.$buttonsContainer, subscribeButtons, purchaseButtons);
+        if (app.settingsParams.IAP) {
+          var currentVid = this.currentVideo();
+          if (!iapHandler.canPlayVideo(currentVid)) {
+            subscribeButtons = iapHandler.getAvailableSubscriptionButtons();
+            purchaseButtons = iapHandler.getAvailablePurchaseButtons();
+
+            _.each(subscribeButtons, function(btn) {
+              buttons.push(btn);
+            });
+
+            _.each(purchaseButtons, function(btn) {
+              buttons.push(btn);
+            });
+          } else {
+            buttons.push({
+              "name": "Watch Now",
+              "id": "playBtn",
+              "class": "btnPlay"
+            });
+          }
+        }
+
+        buttons.push({
+          "name": "Full Description",
+          "id": "descBtn",
+          "class": "btnDesc"
+        });
+
+        this.buttonView.render(this.$buttonsContainer, buttons);
       }.bind(this);
 
       this.buttonView.update();
