@@ -82,7 +82,7 @@
     this.$appContainer = $("#app-container");
 
     // mixin inheritance, initialize this as an event handler for these events:
-    Events.call(this, ['purchased', 'videoError']);
+    Events.call(this, ['purchased', 'videoError', 'link']);
 
     this.on("purchased", function() {
       this.oneDView.onPurchaseSuccess();
@@ -603,6 +603,26 @@
       oneDView.on('makeIAP', function(sku) {
         iapHandler.purchaseItem(sku);
       }, this);
+
+      oneDView.on('link', function() {
+        this.transitionToDeviceLinking();
+      }, this);
+
+      this.transitionToDeviceLinking = function() {
+        this.showContentLoadingSpinner(true);
+        console.log('transition.to.device.linking.view');
+
+        if (this.oneDView.sliderView) this.oneDView.sliderView.remove();
+        this.oneDView.shovelerView.remove();
+        this.oneDView.remove();
+        this.oneDView = null;
+
+        this.leftNavView.remove();
+        this.leftNavView = null;
+
+        this.initializeDeviceLinkingView();
+        this.selectView(this.deviceLinkingView);
+      }.bind(this);
 
       /**
        * Success Callback handler for category data request

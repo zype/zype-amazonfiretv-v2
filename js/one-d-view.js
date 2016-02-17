@@ -42,7 +42,7 @@
    */
   var OneDView = function() {
     // mixin inheritance, initialize this as an event handler for these events:
-    Events.call(this, ['noContent', 'exit', 'startScroll', 'indexChange', 'stopScroll', 'select', 'bounce', 'loadComplete', 'makeIAP']);
+    Events.call(this, ['noContent', 'exit', 'startScroll', 'indexChange', 'stopScroll', 'select', 'bounce', 'loadComplete', 'makeIAP', 'link']);
 
     //global variables
     this.currSelection = 0;
@@ -357,14 +357,31 @@
         this.trigger('select', this.currSliderSelection);
       }, this);
 
+      buttonView.on('link', function() {
+        this.trigger('link');
+      }, this);
+
       buttonView.update = function() {
         var subscribeButtons = [];
         var purchaseButtons = [];
 
-        var currentVid = this.currentVideo();
-        if (!iapHandler.canPlayVideo(currentVid)) {
-          subscribeButtons = iapHandler.getAvailableSubscriptionButtons();
-          purchaseButtons = iapHandler.getAvailablePurchaseButtons();
+        var buttons = [];
+
+
+        if (app.settingsParams.device_linking) {
+          if (app.settingsParams.linked === false) {
+            buttons.push({
+              "name": "Link Device",
+              "id": "linkBtn",
+              "class": "btnLink"
+            });
+          } else {
+            buttons.push({
+              "name": "Watch Now",
+              "id": "playBtn",
+              "class": "btnPlay"
+            });
+          }
         }
 
         buttonView.render(this.$buttonsContainer, subscribeButtons, purchaseButtons);

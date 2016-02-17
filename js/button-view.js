@@ -91,6 +91,11 @@
     this.handleButtonEvent = function() {
       var visibleBtns = this.visibleButtons();
 
+      if (this.$buttons[this.selectedButton].classList.contains('btnLink')) {
+        console.log('link.device.btn');
+        this.trigger('link');
+      }
+
       if (this.$buttons[this.selectedButton].classList.contains('btnBrowse')) {
         console.log("btn.click");
         this.trigger('browse');
