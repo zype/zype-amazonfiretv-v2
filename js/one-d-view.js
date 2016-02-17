@@ -406,6 +406,15 @@
           }
         }
 
+        if (app.settingsParams.device_linking === false && app.settingsParams.IAP === false) {
+          console.log("true");
+          buttons.push({
+            "name": "Watch Now",
+            "id": "playBtn",
+            "class": "btnPlay"
+          });
+        }
+
         buttons.push({
           "name": "Full Description",
           "id": "descBtn",
