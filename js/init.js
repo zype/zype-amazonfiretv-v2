@@ -54,6 +54,10 @@
       // this should be true
       settings.displayButtons = true;
 
+      // for testing only
+      // settings.IAP = false;
+      // settings.device_linking = true;
+
 
       // main colors
       settings.backgroundColor = app_json.response.background_color;
