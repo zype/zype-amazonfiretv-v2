@@ -6,6 +6,8 @@
 (function(exports) {
   "use strict";
 
+  var ID_DEVICE_LINKING_CONTAINER = "device-linking-buttons";
+
   /**
    * @class DeviceLinkingView
    * @description The view that shows the Device Linking PIN
@@ -13,10 +15,12 @@
    */
   var DeviceLinkingView = function() {
     // mixin inheritance
-    Events.call(this, ['exit', 'loadComplete', 'linkingSuccess', 'linkingFailure']);
+    Events.call(this, ['exit', 'loadComplete', 'linkingSuccess', 'linkingFailure', 'browse', 'startBrowse']);
 
     // global vars
     this.timer = null;
+    this.$buttonsContainer = null;
+    this.currentView = null;
 
     // jquery global vars
     this.$el = null;
@@ -38,6 +42,17 @@
       }
     };
 
+    this.on("startBrowse", function() {
+      clearInterval(this.timer);
+    }, this);
+
+    /**
+     * Maintain the current view for event handling
+     */
+    this.setCurrentView = function(view) {
+      this.currentView = view;
+    };
+
     /**
      * Creates the device linking view and attaches it to the application container
      * @param {Element} $el application container
@@ -57,10 +72,37 @@
         $el.append(html);
         this.$el = $el.children().last();
 
+        var displayButtons = true; // we can change this if we need to do so
+        this.createButtonView(displayButtons, this.$el);
+
         this.statusWatch();
         this.trigger('loadComplete');
       }.bind(this));
     }.bind(this);
+
+    this.createButtonView = function(displayButtonsParam, $el) {
+      this.$buttonsContainer = $el.children("#" + ID_DEVICE_LINKING_CONTAINER);
+      var buttonView = this.buttonView = new ButtonView();
+
+      buttonView.on('exit', function() {
+        this.trigger("exit");
+      }, this);
+
+      buttonView.on("browse", function() {
+        this.trigger("startBrowse");
+      }, this);
+
+      buttonView.update = function() {
+        var buttons = [{
+          "name": "Browse Content",
+          "id": "browseBtn",
+          "class": "btnBrowse"
+        }];
+        this.buttonView.render(this.$buttonsContainer, buttons);
+      }.bind(this);
+
+      this.buttonView.update();
+    };
 
     this.statusWatch = function() {
       var counter = 0;
@@ -81,17 +123,38 @@
       }.bind(this), 5000);
     };
 
+    this.transitionToButtonView = function() {
+      this.setCurrentView(this.buttonView);
+
+      //set default selected button and apply selected style
+      this.buttonView.setCurrentSelectedIndex(0);
+      this.buttonView.setSelectedButton();
+    };
+
     // key event handler
     this.handleControls = function(e) {
+      var dirty = false;
+
       if (e.type === "buttonpress") {
         switch (e.keyCode) {
+          case buttons.UP:
+            break;
           case buttons.BACK:
             clearInterval(this.timer);
             this.trigger('exit');
+            dirty = true;
             break;
-          default:
+          case buttons.DOWN:
+            this.transitionToButtonView();
+            dirty = true;
             break;
         }
+      }
+
+      //use the dirty flag to make sure we are not handling the
+      //event twice - once for this view and once in the child view
+      if (!dirty && this.currentView) {
+        this.currentView.handleControls(e);
       }
     }.bind(this);
   };
