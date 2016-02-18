@@ -89,7 +89,7 @@
     }, this);
 
     this.on("videoError", function() {
-      alert("There was error playting the video.");
+      alert("There was an error playing the video.");
       this.exit();
     }, this);
     /**
