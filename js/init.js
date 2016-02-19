@@ -28,6 +28,12 @@
       if (settings.device_id === null) {
         settings.device_id = deviceLinkingHandler.setDeviceId();
       }
+
+      // we need to guarantee that the device id is available
+      if (!(typeof settings.device_id === "string" && settings.device_id.length > 0)) {
+        alert("There was an error configuring your Fire TV App. Please exit.");
+        app.exit();
+      }
     }
 
     var app = new App(settings);
