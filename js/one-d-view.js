@@ -530,6 +530,8 @@
     this.shrink = function() {
       console.log("shrink");
       switch (this.currentView) {
+        case null:
+          break;
         case this.sliderView:
           this.sliderView.shrinkSelected();
           break;
@@ -547,6 +549,8 @@
     this.expand = function() {
       console.log("expand");
       switch (this.currentView) {
+        case null:
+          break;
         case this.sliderView:
           this.sliderView.setTransforms();
           break;
@@ -572,6 +576,8 @@
           case buttons.UP:
             //  console.log(this.currentView);
             switch (this.currentView) {
+              case null:
+                break;
               case this.sliderView:
                 this.trigger('bounce');
                 break;
@@ -601,6 +607,8 @@
           case buttons.DOWN:
             // console.log(this.currentView);
             switch (this.currentView) {
+              case null:
+                break;
               case this.sliderView:
                 this.transitionToShovelerView();
                 break;
@@ -634,13 +642,13 @@
      * Move the One D container as new components are selected
      */
     this.shiftOneDContainer = function() {
-      if (this.currentView == this.shovelerView) {
+      if (this.currentView !== null && this.currentView == this.shovelerView) {
         this.scrollingContainerEle.style.webkitTransform = "translateY(" + (-this.$shovelerContainerOffset + 240) + "px)";
         $('#slider-summary-container').css("opacity", 0);
         this.$sliderContainer.css("opacity", 0);
       }
 
-      if (this.currentView == this.sliderView) {
+      if (this.currentView !== null && this.currentView == this.sliderView) {
         this.scrollingContainerEle.style.webkitTransform = "translateY(" + 0 + "px)";
         $('#slider-summary-container').css("opacity", 100);
         this.$sliderContainer.css("opacity", 100);

@@ -9,8 +9,7 @@
     app_key: appConfig.app_key,
     endpoint: appConfig.endpoint,
     player_endpoint: appConfig.player_endpoint,
-    device_id: "00000000-0000-0000-0000-000000000000",
-    device_link_url: "http://www.example.com",
+    device_id: null,
     linked: false
   };
 
@@ -27,6 +26,12 @@
       settings.device_id = deviceLinkingHandler.getDeviceId();
       if (settings.device_id === null) {
         settings.device_id = deviceLinkingHandler.setDeviceId();
+      }
+
+      // we need to guarantee that the device id is available
+      if (!(typeof settings.device_id === "string" && settings.device_id.length > 0)) {
+        alert("There was an error configuring your Fire TV App. Please exit.");
+        app.exit();
       }
     }
 
@@ -50,6 +55,9 @@
       settings.IAP = app_json.response.in_app_purchase;
       settings.autoplay = app_json.response.autoplay;
       settings.nested_categories = app_json.response.nested;
+
+      settings.device_linking = app_json.response.device_linking;
+      settings.device_link_url = app_json.response.device_link_url;
 
       // this should be true
       settings.displayButtons = true;

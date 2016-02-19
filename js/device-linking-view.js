@@ -62,7 +62,7 @@
       // Make sure we do not already have a full container
       this.remove();
 
-      deviceLinkingHandler.acquirePin(app.settingsParams.device_id, function(pin) {
+      deviceLinkingHandler.getPin(app.settingsParams.device_id, function(pin) {
         // Build the main content template and add it
         var html = utils.buildTemplate($("#device-linking-view-template"), {
           link: app.settingsParams.device_link_url,
@@ -108,8 +108,8 @@
       var counter = 0;
       this.timer = setInterval(function() {
         console.log('pin.status.check');
-        deviceLinkingHandler.isLinked(app.settingsParams.device_id, function(res) {
-          if (res === true) {
+        deviceLinkingHandler.getPinStatus(app.settingsParams.device_id, function(result) {
+          if (result === true) {
             clearInterval(this.timer);
             this.trigger("linkingSuccess");
           }

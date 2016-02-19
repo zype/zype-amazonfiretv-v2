@@ -19,31 +19,39 @@
     // acquire PIN for a device
     // POST - https://api.zype.com/pin/acquire/?linked_device_id=linked_device_id&type=type
     this.acquirePin = function(device_id, callback) {
-      device_id = typeof device_id !== 'undefined' ? device_id : "";
-      var pin = null;
+      var resp = null;
       $.ajax({
         url: this.settingsParams.endpoint + "pin/acquire/?linked_device_id=" + device_id + "&type=aftv&app_key=" + this.settingsParams.app_key,
         type: 'POST',
         crossDomain: true,
         context: this,
         success: function(result) {
-          var resp = result.response;
-          pin = resp.pin;
+          resp = result.response;
         },
         error: function(xhr, ajaxOptions, thrownError) {
           console.log('pin.acquire.error');
+          resp = false;
         },
         complete: function() {
-          callback(pin);
+          callback(resp);
         }
       });
     };
 
-    // is a device linked?
+    this.getPin = function(device_id, callback) {
+      this.acquirePin(device_id, function(result) {
+        if (result !== false) {
+          callback(result.pin);
+        } else {
+          alert("There was an error configuring your Fire TV App. Please exit.");
+          app.exit();
+        }
+      });
+    };
+
     // GET - https://api.zype.com/pin/status/?linked_device_id=linked_device_id
-    this.isLinked = function(device_id, callback) {
-      device_id = typeof device_id !== 'undefined' ? device_id : "";
-      var linked = false;
+    this.pinStatus = function(device_id, callback) {
+      var resp = null;
       $.ajax({
         url: this.settingsParams.endpoint + "pin/status/?linked_device_id=" + device_id + "&app_key=" + this.settingsParams.app_key,
         type: 'GET',
@@ -51,14 +59,24 @@
         dataType: 'json',
         context: this,
         success: function(result) {
-          var resp = result.response;
-          linked = resp.linked;
+          resp = result.response;
         },
         error: function(xhr, ajaxOptions, thrownError) {
           console.log('pin.status.error');
+          resp = false;
         },
         complete: function() {
-          callback(linked);
+          callback(resp);
+        }
+      });
+    };
+
+    this.getPinStatus = function(device_id, callback) {
+      this.acquirePin(device_id, function(result) {
+        if (result !== false && result.linked !== false) {
+          callback(true);
+        } else {
+          callback(false);
         }
       });
     };

@@ -89,7 +89,7 @@
     }, this);
 
     this.on("videoError", function() {
-      alert("There was error playting the video.");
+      alert("There was an error playing the video.");
       this.exit();
     }, this);
     /**
@@ -109,13 +109,13 @@
 
       // Device Linking Checking Process
       if (this.settingsParams.device_linking === true && this.settingsParams.IAP === false) {
-        deviceLinkingHandler.isLinked(this.settingsParams.device_id, function(res) {
-          if (res === false) {
+        deviceLinkingHandler.getPinStatus(this.settingsParams.device_id, function(result) {
+          if (result === false) {
             // Device Linking Acquiring PIN
             this.initializeDeviceLinkingView();
             this.selectView(this.deviceLinkingView);
           } else {
-            this.settingsParams.linked = res;
+            this.settingsParams.linked = result;
             this.build();
           }
         }.bind(this));
@@ -285,6 +285,7 @@
 
       deviceLinkingView.on('linkingSuccess', function() {
         console.log('linking.success');
+        this.settingsParams.linked = true;
         this.build();
       }, this);
 
