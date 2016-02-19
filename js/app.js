@@ -285,6 +285,7 @@
 
       deviceLinkingView.on('linkingSuccess', function() {
         console.log('linking.success');
+        this.settingsParams.linked = true;
         this.build();
       }, this);
 
