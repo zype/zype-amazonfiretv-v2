@@ -338,12 +338,13 @@
      */
     this.getCategoryData = function(categoryCallback) {
       this.currData = [];
+      var categoryTitle = encodeURIComponent(this.categoryTitle);
       var categoryValue = encodeURIComponent(this.categoryData[this.currentCategory]);
       //  we want to push all the videos with this category value into this.currData()
 
       var category_url = null;
       if (this.settingsParams.category_id) {
-        category_url = this.settingsParams.endpoint + "videos/?app_key=" + this.settingsParams.app_key + "&category[" + this.categoryTitle + "]=" + categoryValue + "&per_page=" + this.settingsParams.per_page + "&dpt=true&sort=episode&order=asc";
+        category_url = this.settingsParams.endpoint + "videos/?app_key=" + this.settingsParams.app_key + "&category[" + categoryTitle + "]=" + categoryValue + "&per_page=" + this.settingsParams.per_page + "&dpt=true&sort=episode&order=asc";
       } else {
         category_url = this.settingsParams.endpoint + "videos/?app_key=" + this.settingsParams.app_key + "&per_page=25&dpt=true&sort=created_at&order=asc";
       }
