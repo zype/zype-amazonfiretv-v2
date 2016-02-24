@@ -25,6 +25,7 @@
         type: 'POST',
         crossDomain: true,
         context: this,
+        cache: false,
         success: function(result) {
           resp = result.response;
         },
@@ -58,6 +59,7 @@
         crossDomain: true,
         dataType: 'json',
         context: this,
+        cache: false,
         success: function(result) {
           resp = result.response;
         },
