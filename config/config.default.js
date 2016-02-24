@@ -1,3 +1,5 @@
+// GIT DESCRIPTION: <GIT_DESCRIPTION>
+
 // individual client apps should create a config.js file with the following set:
 
 var appConfig = {
