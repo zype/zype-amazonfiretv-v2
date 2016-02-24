@@ -527,7 +527,7 @@
       console.log('transition.to.categories');
 
       if (this.oneDView.sliderView) this.oneDView.sliderView.remove();
-      this.oneDView.shovelerView.remove();
+      if (this.oneDView.shovelerView) this.oneDView.shovelerView.remove();
       this.oneDView.remove();
       this.oneDView = null;
 
