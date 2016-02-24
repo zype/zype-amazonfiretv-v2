@@ -74,7 +74,9 @@
 
           if (this.zobjectData.length > 0) {
             for (i = 0; i < this.zobjectData.length; i++) {
-              this.loadSliderVideoDetails(this.zobjectData[i].id, this.zobjectData[i].title, this.zobjectData[i].desc, this.zobjectData[i].thumbnail);
+              if (this.zobjectData[i].id) {
+                this.loadSliderVideoDetails(this.zobjectData[i].id, this.zobjectData[i].title, this.zobjectData[i].desc, this.zobjectData[i].thumbnail);
+              }
             }
           }
         },
