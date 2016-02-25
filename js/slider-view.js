@@ -1,42 +1,45 @@
-/* Shoveler View
+/**
  *
- * Handles the "shoveler" which is a right-to-left carousel view with endpoints on both sides
+ * Slider View
  *
  */
 
 (function(exports) {
   "use strict";
 
-  var SHOVELER_ROW_ITEM_SELECTED = "shoveler-rowitem-selected";
+  var SLIDER_ROW_ITEM_SELECTED = "slider-rowitem-selected",
+
+    // @CHANGED for the pagination
+    SLIDER_PAGINATION = "slider-pagination-container";
 
   /**
-   * @class ShovelerView
-   * @description The shoveler view object, this handles everything about the shoveler.
+   * @class SliderView
+   * @description The slider view object, this handles everything about the slider
    */
-  var ShovelerView = function() {
-    // mixin inheritance, initialize this as an event handler for these events:
+  var SliderView = function() {
+    // mixins
     Events.call(this, ['loadComplete', 'exit', 'bounce', 'startScroll', 'indexChange', 'stopScroll', 'select']);
 
-    //global variables
+    // gloval variables
     this.currSelection = 0;
     this.elementWidths = [];
     this.isScrolling = false;
     this.currScrollDirection = null;
     this.loadingImages = 0;
 
-    //global jquery variables
+    // global jquery variables
     this.$parentEle = null;
     this.$el = null;
     this.$rowElements = null;
     this.rowsData = null;
 
     //constants
-    this.MARGIN_WIDTH = 40;
-    this.STARTING_SIZE = 216;
+    this.MARGIN_WIDTH = 1;
+    this.STARTING_SIZE = 500;
     this.transformStyle = utils.vendorPrefix('Transform');
 
     /**
-     * Removes the main content view dom
+     * Removes the main view dom
      */
     this.remove = function() {
       // remove this element from the dom
@@ -44,47 +47,27 @@
     };
 
     /**
-     * Hides the shoveler view
+     * Hides the slider view
      */
     this.hide = function() {
       this.$el.hide();
     };
 
     /**
-     * Shows the shoveler view
+     * Shows the slider view
      */
     this.show = function() {
       this.$el.show();
     };
 
     /**
-     * Touch handler for content items
-     * @param {Event} e
-     */
-    this.handleContentItemSelection = function(e) {
-      var targetIndex = $(e.target).parent().index();
-
-      if (targetIndex === this.currSelection) {
-        this.trigger('select', this.currSelection);
-      } else {
-        //set current selected item
-        this.setSelectedElement(targetIndex);
-
-        this.transitionRow();
-
-        this.trigger("stopScroll", this.currSelection);
-      }
-    }.bind(this);
-
-    /**
-     * Creates the shoveler view and appends it to the one-d-view shoveler container
-     * @param {Element} el one-d-view container
-     * @param {Object} row the the data for the row
+     * Creates the slider view
      */
     this.render = function(el, row) {
       this.parentContainer = el;
+
       // Build the main content template and add it
-      var html = utils.buildTemplate($("#shoveler-template"), {
+      var html = utils.buildTemplate($("#slider-template"), {
         items: row
       });
 
@@ -92,17 +75,14 @@
       el.append(html);
       this.$el = el.children().last();
 
-      //hide the element until we are done with layout
+      // hide the element until we are done with layout
       this.$el.css('opacity', 0);
 
       // select the first element
       this.$rowElements = this.$el.children();
 
-      //gather widths of all the row elements
+      // gather widths of all the row elemets
       this.initialLayout();
-
-      //register touch handlers for items
-      touches.registerTouchHandler("shoveler-full-img", this.handleContentItemSelection);
     };
 
     /**
@@ -110,34 +90,33 @@
      */
     this.initialLayout = function() {
       // compute all widths
-      this.transformLimit = this.$el.width() + 300;
+      this.transformLimit = this.$el.width();
       this.limitTransforms = false;
-
 
       //set a callback to make sure all images are loaded
       var imagesLoaded = function(elt, currImage) {
         currImage.on("load", function() {
-          elt.children("img.shoveler-full-img")[0].style.visibility = "visible";
+          elt.children("img.slider-full-img")[0].style.visibility = "visible";
           this.relayoutOnLoadedImages();
         }.bind(this));
         // handle error case for loading screen
         currImage.on("error", function() {
-          elt.children("img.shoveler-full-img")[0].style.visibility = "visible";
+          elt.children("img.slider-full-img")[0].style.visibility = "visible";
           this.relayoutOnLoadedImages();
         }.bind(this));
       }.bind(this);
 
       for (var i = 0; i < this.$rowElements.length; i++) {
         var $currElt = $(this.$rowElements[i]);
-        var $currImage = $currElt.children("img.shoveler-full-img");
+        var $currImage = $currElt.children("img.slider-full-img");
         if ($currImage.length === 0) {
-          var url = this.rowsData[i].imgURL;
-          // console.log(url.substring(url.lastIndexOf('?') + 1) );
-          $currElt.prepend('<img id="' + url.substring(url.lastIndexOf('?') + 1) + '" class="shoveler-full-img" src="' + url + '" style="visibility:hidden"/>');
-          $currImage = $currElt.children("img.shoveler-full-img");
+          $currElt.prepend('<img class = "slider-full-img" src="' + this.rowsData[i].imgURL + '" style="visibility:hidden"/>');
+          $currImage = $currElt.children("img.slider-full-img");
         }
 
+        //set a callback to make sure all images are loaded
         imagesLoaded($currElt, $currImage);
+
         this.loadingImages++;
       }
     };
@@ -151,13 +130,23 @@
         var $currElt = $(this.$rowElements[i]);
         this.elementWidths[i] = $currElt.width();
 
-        if ($currElt.children("img.shoveler-full-img").length > 0) {
-          $currElt.children("img.shoveler-full-img")[0].style.visibility = "visible";
+        if ($currElt.children("img.slider-full-img").length > 0) {
+          $currElt.children("img.slider-full-img")[0].style.visibility = "visible";
         }
       }
 
       this.setTransforms(0);
-      this.shrinkSelected();
+
+      $('#' + SLIDER_PAGINATION).empty();
+
+      // @CHANGED let's add a pagination here
+      for (i = 0; i < this.$rowElements.length; i++) {
+        $("#" + SLIDER_PAGINATION).append('<div id="circle-' + i + '" class="circle"></div>');
+        if (i === 0) {
+          $("#circle-" + i).addClass("circle-current");
+        }
+      }
+      $("#" + SLIDER_PAGINATION).append('<div class="circle-clear"></div>');
 
       window.setTimeout(function() {
         this.$rowElements.css("transition", "");
@@ -167,7 +156,7 @@
     };
 
     /**
-     * Images are loaded and positioned so display the shoveler
+     * Images are loaded and positioned so display the slider
      * and send our 'loadComplete' event to stop the spinner
      */
     this.finalizeRender = function() {
@@ -185,11 +174,11 @@
     };
 
     /**
-     * Move the shoveler in either left or right direction
+     * Move the slider in either left or right direction
      * @param {Number} dir the direction of the move
      */
     this.shovelMove = function(dir) {
-      $(this.$rowElements[this.currSelection]).removeClass(SHOVELER_ROW_ITEM_SELECTED);
+      $(this.$rowElements[this.currSelection]).removeClass(SLIDER_ROW_ITEM_SELECTED);
       this.trigger("startScroll", dir);
       this.selectRowElement(dir);
     }.bind(this);
@@ -203,27 +192,7 @@
      * @param {event} the keydown event
      */
     this.handleControls = function(e) {
-      if (e.type === 'touch') {
-        //do nothing for now
-      } else if (e.type === 'swipe') {
-        if (e.keyCode === buttons.RIGHT) {
-          if (this.currSelection !== 0) {
-            this.shovelMove(-1);
-            //stop scroll immediately - swipe only increments 1 right now
-            this.trigger("stopScroll", this.currSelection);
-          } else {
-            this.trigger('bounce', e.keyCode);
-          }
-        } else if (e.keyCode === buttons.LEFT) {
-          if (this.currSelection < this.rowsData.length) {
-            this.shovelMove(1);
-            //stop scroll immediately - swipe only increments 1 right now
-            this.trigger("stopScroll", this.currSelection);
-          } else {
-            this.trigger('bounce', e.keyCode);
-          }
-        }
-      } else if (e.type === 'buttonpress') {
+      if (e.type === 'buttonpress') {
         switch (e.keyCode) {
           case buttons.SELECT:
           case buttons.PLAY_PAUSE:
@@ -272,7 +241,7 @@
           case buttons.RIGHT:
             this.trigger("stopScroll", this.currSelection);
             // add the shiner to the new element
-            $(this.$rowElements[this.currSelection]).addClass(SHOVELER_ROW_ITEM_SELECTED);
+            $(this.$rowElements[this.currSelection]).addClass(SLIDER_ROW_ITEM_SELECTED);
 
             break;
         }
@@ -304,6 +273,11 @@
     this.transitionRow = function() {
       window.requestAnimationFrame(function() {
         this.setTransforms(this.currSelection);
+
+        // @CHANGED for the pagination
+        $('#' + SLIDER_PAGINATION + " div").removeClass("circle-current");
+        $("#circle-" + this.currSelection).addClass("circle-current");
+
       }.bind(this));
 
       this.trigger('indexChange', this.currSelection);
@@ -359,7 +333,7 @@
       //this for loop handles elements to the right of the selected element
       for (i = start; i < this.$rowElements.length; i++) {
         if (this.elementWidths[i] > 0) {
-          this.$rowElements[i].style[this.transformStyle] = "translate3d(" + currX + "px,0,0px) scale(0.75)";
+          this.$rowElements[i].style[this.transformStyle] = "translate3d(" + currX + "px,0,0px)";
           this.$rowElements[i].style.opacity = "0.5";
         } else {
           //keep element offscreen if we have no width yet
@@ -371,7 +345,7 @@
             break;
           }
         } else {
-          currX += Math.round(this.elementWidths[i] * 0.75 + this.MARGIN_WIDTH);
+          currX += Math.round(this.elementWidths[i] + this.MARGIN_WIDTH);
         }
       }
     };
@@ -385,8 +359,8 @@
       var i;
 
       for (i = start; i >= 0; i--) {
-        var currPosition = (currX - this.elementWidths[i] * 0.75);
-        var itemTrans = "translate3d(" + currPosition + "px,0, 0px) scale(0.75)";
+        var currPosition = (currX - this.elementWidths[i]);
+        var itemTrans = "translate3d(" + currPosition + "px,0, 0px)";
 
         if (this.elementWidths[i] > 0) {
           this.$rowElements[i].style[this.transformStyle] = itemTrans;
@@ -402,7 +376,7 @@
             break;
           }
         } else {
-          currX -= Math.round(this.elementWidths[i] * 0.75 + this.MARGIN_WIDTH);
+          currX -= Math.round(this.elementWidths[i] + this.MARGIN_WIDTH);
         }
       }
     };
@@ -426,5 +400,5 @@
     }.bind(this);
   };
 
-  exports.ShovelerView = ShovelerView;
+  exports.SliderView = SliderView;
 }(window));

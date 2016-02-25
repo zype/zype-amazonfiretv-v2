@@ -4,7 +4,7 @@
  */
 
 var Plan = function(args) {
-  this.id = args.id;
+  this.id = args.id || args._id;
   this.name = args.name;
   this.description = args.description;
   this.amount = args.amount;
@@ -28,10 +28,10 @@ Plan.getPlans = function(settings, successCallback) {
     data: {
       'app_key': settings.app_key
     }
-  }).fail(function( msg ) {
+  }).fail(function(msg) {
     console.log('fail');
     console.log(msg);
-  }).done(function( msg ) {
+  }).done(function(msg) {
     this.currData = _.map(msg.response, function(p) {
       return new Plan(p);
     });

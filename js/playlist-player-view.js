@@ -3,273 +3,279 @@
  * Handles playing videos continulously from a playlist
  */
 
-(function (exports) {
-    "use strict";
+(function(exports) {
+  "use strict";
+
+  /**
+   * @class PlaylistPlayerView
+   * @description Handles playing videos continulously from a playlist
+   */
+  var PlaylistPlayerView = function(settings) {
+    // mixin inheritance, initialize this as an event handler for these events:
+    Events.call(this, ['exit', 'videoStatus', 'indexChange']);
+
+    this.currentPlayerView = null;
+    this.preloadedPlayerView = null;
+    this.currentIndex = null;
+    this.items = null;
+    this.$el = null;
+    this.settings = settings;
+    this.currentView = null;
+    this.PlayerView = settings.PlayerView;
+    this.previewShowing = false;
+    this.previewDismissed = false;
+    this.$previewEl = null;
+    this.$countdown_text = null;
+    this.previewTime = settings.previewTime;
+    this.timeTillPlay = null;
+
+    this.PREVIEW_TIME_DEFAULT = 10;
+
+    this.remove = function() {
+      if (this.currentPlayerView) {
+        this.currentPlayerView.remove();
+      }
+      if (this.preloadedPlayerView) {
+        this.preloadedPlayerView.remove();
+      }
+    };
 
     /**
-     * @class PlaylistPlayerView
-     * @description Handles playing videos continulously from a playlist
+     * Initial function to setup and start the playlist of media
      */
-    var PlaylistPlayerView = function (settings) {
-        // mixin inheritance, initialize this as an event handler for these events:
-        Events.call(this, ['exit', 'videoStatus', 'indexChange']);
+    this.render = function($el, items, startIndex) {
+      if (!this.previewTime) {
+        this.previewTime = this.PREVIEW_TIME_DEFAULT;
+      }
+      this.$el = $el;
+      this.currentPlayerView = new this.PlayerView(this.settings);
+      this.currentPlayerView.render($el, items, startIndex);
 
-        this.currentPlayerView = null;
-        this.preloadedPlayerView = null;
-        this.currentIndex = null;
-        this.items = null;
-        this.$el = null;
-        this.settings = settings;
-        this.currentView = null;
-        this.PlayerView = settings.PlayerView;
-        this.previewShowing = false;
-        this.previewDismissed = false;
-        this.$previewEl = null;
-        this.$countdown_text = null;
-        this.previewTime = settings.previewTime;
-        this.timeTillPlay = null;
+      this.currentPlayerView.on('exit', this.exit, this);
 
-        this.PREVIEW_TIME_DEFAULT = 10;
+      this.currentIndex = startIndex;
+      this.items = items;
 
-        this.remove = function () {
-            if (this.currentPlayerView) {
-                this.currentPlayerView.remove();
-            }
-            if (this.preloadedPlayerView) {
-                this.preloadedPlayerView.remove();
-            }
-        };
+      this.currentPlayerView.on('videoStatus', this.handleVideoStatus, this);
 
-        /**
-         * Initial function to setup and start the playlist of media
-         */
-        this.render = function($el, items, startIndex) {
-            if (!this.previewTime) {
-                this.previewTime = this.PREVIEW_TIME_DEFAULT;
-            }
-            this.$el = $el;
-            this.currentPlayerView = new this.PlayerView(this.settings);
-            this.currentPlayerView.render($el, items, startIndex);
+      this.currentView = this.currentPlayerView;
 
-            this.currentPlayerView.on('exit', this.exit, this);
+      //touch events
+      touches.registerTouchHandler("player-content-video", this.handleTouchPlayer);
+      touches.registerTouchHandler("player-controls-container", this.handleTouchPlayer);
+      touches.registerTouchHandler("player-back-button", this.handleTouchPlayer);
+      touches.registerTouchHandler("player-pause-indicator", this.handleTouchPlayer);
+    };
 
-            this.currentIndex = startIndex;
-            this.items = items;
+    /**
+     * Handle Touch events for the player
+     * @param {Event} e
+     */
+    this.handleTouchPlayer = function(e) {
+      if (e.target.className === "player-back-button") { //back button
+        this.currentView.handleControls({
+          type: "touch",
+          keyCode: buttons.BACK
+        });
+      } else {
+        this.currentView.handleControls({
+          type: "touch",
+          keyCode: buttons.PLAY_PAUSE
+        });
+      }
+    }.bind(this);
 
-            this.currentPlayerView.on('videoStatus', this.handleVideoStatus, this)
+    /**
+     * Handles showing the view to transition from playing one video to the next
+     */
+    this.transitionToNextVideo = function() {
 
-            this.currentView = this.currentPlayerView;
+      if (this.$previewEl) {
+        this.$previewEl.remove();
+      }
 
-            //touch events
-            touches.registerTouchHandler("player-content-video", this.handleTouchPlayer);
-            touches.registerTouchHandler("player-controls-container", this.handleTouchPlayer);
-            touches.registerTouchHandler("player-back-button", this.handleTouchPlayer);
-            touches.registerTouchHandler("player-pause-indicator", this.handleTouchPlayer);
-        };
+      this.previewDismissed = true;
 
-       /**
-        * Handle Touch events for the player
-        * @param {Event} e
-        */
-        this.handleTouchPlayer = function(e) {
-            if(e.target.className === "player-back-button") { //back button
-                this.currentView.handleControls({type : "touch", keyCode : buttons.BACK});
-            } else {
-                this.currentView.handleControls({type : "touch", keyCode : buttons.PLAY_PAUSE});
-            }
-        }.bind(this);
+      var video = this.items[this.currentIndex + 1];
 
-        /**
-         * Handles showing the view to transition from playing one video to the next
-         */
-        this.transitionToNextVideo = function() {
+      if ((this.items.length > this.currentIndex + 1) && iapHandler.canPlayVideo(video) && deviceLinkingHandler.canPlayVideo()) {
+        console.log("transition to next video");
 
-            if (this.$previewEl) {
-                this.$previewEl.remove();
-            }
+        var url_base = this.settings.player_endpoint + 'embed/' + video.id + '.json';
+        var uri = new URI(url_base);
+        uri.addSearch({
+          autoplay: this.settings.autoplay,
+          app_key: this.settings.app_key
+        });
 
-            this.previewDismissed = true;
+        var consumer = iapHandler.state.currentConsumer;
 
-            var video = this.items[this.currentIndex + 1];
+        if (typeof consumer !== 'undefined' && consumer && consumer.access_token) {
+          uri.addSearch({
+            access_token: consumer.access_token
+          });
+        }
 
-            if ( (this.items.length > this.currentIndex + 1) && iapHandler.canPlayVideo(video) ) {
-                console.log("transition to next video");
+        $.ajax({
+          context: this,
+          url: uri.href(),
+          type: 'GET',
+          dataType: 'json',
+          success: function(player_json) {
+            // set the url and format for the upcoming video
+            var outputs = player_json.response.body.outputs;
+            for (var i = 0; i < outputs.length; i++) {
+              var output = outputs[i];
+              video.url = output.url;
+              if (output.name === 'hls' || output.name === 'm3u8') {
+                video.format = 'application/x-mpegURL';
+              } else if (output.name === 'mp4') {
+                video.format = 'video/mp4';
+              }
 
-                var url_base = this.settings.player_endpoint + 'embed/' + video.id + '.json';
-                var uri = new URI(url_base);
-                uri.addSearch({
-                  autoplay: this.settings.autoplay,
-                  app_key: this.settings.app_key
-                });
-
-                var consumer = iapHandler.state.currentConsumer;
-
-                if (typeof consumer !== 'undefined' && consumer && consumer.access_token) {
-                  uri.addSearch({
-                    access_token: consumer.access_token
+              // add ad schedule to video json
+              if (player_json.response.body.advertising) {
+                video.ad_schedule = [];
+                var schedule = player_json.response.body.advertising.schedule;
+                for (i = 0; i < schedule.length; i++) {
+                  // add each ad tag in, make played be false
+                  var seconds = schedule[i].offset / 1000;
+                  video.ad_schedule.push({
+                    offset: seconds,
+                    tag: schedule[i].tag,
+                    played: false
                   });
                 }
-
-                $.ajax({
-                    context: this,
-                    url: uri.href(),
-                    type: 'GET',
-                    dataType: 'json',
-                    success: function(player_json) {
-                      // set the url and format for the upcoming video
-                      var outputs = player_json.response.body.outputs;
-                      for(var i=0; i < outputs.length; i++) {
-                        var output = outputs[i];
-                        video.url = output.url;
-                        if (output.name === 'hls' || output.name === 'm3u8') {
-                          video.format = 'application/x-mpegURL'
-                        } else if (output.name === 'mp4') {
-                          video.format = 'video/mp4';
-                        }
-
-                        // add ad schedule to video json
-                        if (player_json.response.body.advertising) {
-                          video.ad_schedule = []
-                          var schedule = player_json.response.body.advertising.schedule;
-                          for(i = 0; i < schedule.length; i++) {
-                            // add each ad tag in, make played be false
-                            var seconds = schedule[i].offset / 1000;
-                            video.ad_schedule.push({offset: seconds, tag: schedule[i].tag, played: false});
-                          }
-                        }
-                      }
-                      // issue is that this is the ajax response, not what I think it is outside the ajax block
-                      this.startNextVideo();
-                    },
-                    error:function() {
-                        console.log(arguments);
-                    }
-                });
-            } else {
-                this.exit();
+              }
             }
-        };
+            // issue is that this is the ajax response, not what I think it is outside the ajax block
+            this.startNextVideo();
+          },
+          error: function() {
+            console.log(arguments);
+          }
+        });
+      } else {
+        this.exit();
+      }
+    };
 
-        this.showTransitionView = function () {
-          console.log("show transition view");
-            if (this.items.length > this.currentIndex + 1) {
-                this.previewShowing = true;
-                var html = utils.buildTemplate($("#next-video-view-template"), this.items[this.currentIndex + 1]);
-                this.$el.append(html);
-                this.$previewEl = this.$el.children().last();
-                this.$countdown_text = this.$previewEl.find(".next-video-starttext");
-                this.$countdown_text.text("" + this.previewTime);
-            }
+    this.showTransitionView = function() {
+      console.log("show transition view");
+      if (this.items.length > this.currentIndex + 1) {
+        this.previewShowing = true;
+        var html = utils.buildTemplate($("#next-video-view-template"), this.items[this.currentIndex + 1]);
+        this.$el.append(html);
+        this.$previewEl = this.$el.children().last();
+        this.$countdown_text = this.$previewEl.find(".next-video-starttext");
+        this.$countdown_text.text("" + this.previewTime);
+      }
+    };
+
+    /**
+     * Helper function to set up the next player
+     */
+    this.setUpNextPlayer = function() {
+      this.currentIndex += 1;
+      this.previewShowing = false;
+      this.previewDismissed = false;
+
+      this.trigger("indexChange", this.currentIndex);
+      this.preloadedPlayerView = new this.PlayerView(settings);
+      this.preloadedPlayerView.render(this.$el, this.items, this.currentIndex);
+      this.preloadedPlayerView.hide();
+
+    };
+
+    /**
+     * @function handleVideoStatus
+     * @description status handler for video status events to convert them into showing correct controls
+     */
+    this.handleVideoStatus = function(currentTime, duration, type) {
+      if (type === "playing") {
+        if (this.previewShowing) {
+          this.timeTillPlay = Math.round((duration - currentTime));
+          this.$countdown_text.text("" + this.timeTillPlay);
+        } else if (duration - currentTime <= this.previewTime) {
+          // fix bug if the currentTime is 0 at start of the video
+          if (currentTime > 0) {
+            this.showTransitionView();
+          }
         }
+      }
 
-        /**
-         * Helper function to set up the next player
-         */
-        this.setUpNextPlayer = function () {
-            this.currentIndex += 1;
-            this.previewShowing = false;
-            this.previewDismissed = false;
+      if (type === "ended") {
+        this.transitionToNextVideo();
+      } else {
+        this.trigger('videoStatus', currentTime, duration, type);
+      }
+    }.bind(this);
 
-            this.trigger("indexChange", this.currentIndex);
-            this.preloadedPlayerView = new this.PlayerView(settings);
-            this.preloadedPlayerView.render(this.$el, this.items, this.currentIndex);
-            this.preloadedPlayerView.hide();
+    /**
+     * Cleanup and exit the playlist/player/next video view
+     */
+    this.exit = function() {
+      this.trigger("exit");
+    };
 
+    this.playVideo = function() {
+      this.currentPlayerView.playVideo();
+    };
+    /**
+     * start the next video after the transition view is complete
+     */
+    this.startNextVideo = function() {
+      this.setUpNextPlayer();
+      this.currentPlayerView.remove();
+      this.currentPlayerView = this.preloadedPlayerView;
+      this.preloadedPlayerView = null;
+
+      this.currentPlayerView.on('videoStatus', this.handleVideoStatus, this);
+      this.currentView = this.currentPlayerView;
+      this.currentPlayerView.show();
+      if (this.currentPlayerView.canplay) {
+        this.currentPlayerView.playVideo();
+      }
+
+      this.currentPlayerView.on('exit', this.exit, this);
+    };
+
+    /**
+     * Check to see if we have a seek action
+     * @param {Number} key the keyCode of the event
+     * @return {Boolean}
+     */
+    this.seekAction = function(key) {
+      if (key === buttons.UP || key === buttons.DOWN || key === buttons.LEFT ||
+        key === buttons.RIGHT || key === buttons.FAST_FORWARD || key === buttons.REWIND) {
+
+        return true;
+      }
+      return false;
+    };
+
+    // handle button events, send them to the current playlist view that is selected.
+    this.handleControls = function(e) {
+      if (this.currentView) {
+        if (this.previewShowing && !this.previewDismissed && !this.seekAction(e.keyCode)) {
+          switch (e.keyCode) {
+            case buttons.BACK:
+              this.$previewEl.remove();
+              this.previewDismissed = true;
+              break;
+            case buttons.SELECT:
+              this.transitionToNextVideo();
+              break;
+            case buttons.PLAY_PAUSE:
+              this.currentView.handleControls(e);
+              break;
+          }
+        } else {
+          this.currentView.handleControls(e);
         }
+      }
+    }.bind(this);
+  };
 
-        /**
-         * @function handleVideoStatus
-         * @description status handler for video status events to convert them into showing correct controls
-         */
-        this.handleVideoStatus = function(currentTime, duration, type) {
-            if (type === "playing") {
-                if (this.previewShowing) {
-                    this.timeTillPlay = Math.round((duration - currentTime));
-                    this.$countdown_text.text("" + this.timeTillPlay);
-                }
-
-                else if (duration - currentTime <= this.previewTime) {
-                  // fix bug if the currentTime is 0 at start of the video
-                  if (currentTime > 0) {
-                      this.showTransitionView();
-                  }
-                }
-            }
-
-            if (type === "ended") {
-                this.transitionToNextVideo();
-            }
-            else {
-                this.trigger('videoStatus', currentTime, duration, type);
-            }
-        }.bind(this);
-
-        /**
-         * Cleanup and exit the playlist/player/next video view
-         */
-        this.exit = function() {
-            this.trigger("exit");
-        }
-
-        this.playVideo = function() {
-            this.currentPlayerView.playVideo();
-        }
-        /**
-         * start the next video after the transition view is complete
-         */
-        this.startNextVideo = function () {
-            this.setUpNextPlayer();
-            this.currentPlayerView.remove();
-            this.currentPlayerView = this.preloadedPlayerView;
-            this.preloadedPlayerView = null;
-
-            this.currentPlayerView.on('videoStatus', this.handleVideoStatus, this)
-            this.currentView = this.currentPlayerView;
-            this.currentPlayerView.show();
-            if (this.currentPlayerView.canplay) {
-                this.currentPlayerView.playVideo();
-            }
-
-            this.currentPlayerView.on('exit', this.exit, this);
-        }
-
-       /**
-        * Check to see if we have a seek action
-        * @param {Number} key the keyCode of the event
-        * @return {Boolean}
-        */
-        this.seekAction = function(key) {
-             if(key === buttons.UP || key === buttons.DOWN || key === buttons.LEFT ||
-                key === buttons.RIGHT || key === buttons.FAST_FORWARD || key === buttons.REWIND) {
-
-                 return true;
-             }
-             return false;
-        }
-
-        // handle button events, send them to the current playlist view that is selected.
-        this.handleControls = function (e) {
-            if (this.currentView) {
-                if (this.previewShowing && !this.previewDismissed && !this.seekAction(e.keyCode)) {
-                    switch (e.keyCode) {
-                        case buttons.BACK:
-                            this.$previewEl.remove();
-                            this.previewDismissed = true;
-                            break;
-                        case buttons.SELECT:
-                            this.transitionToNextVideo();
-                            break;
-                        case buttons.PLAY_PAUSE:
-                            this.currentView.handleControls(e);
-                            break;
-                    }
-                }
-                else {
-                    this.currentView.handleControls(e);
-                }
-            }
-        }.bind(this);
-    }
-
-    exports.PlaylistPlayerView = PlaylistPlayerView;
+  exports.PlaylistPlayerView = PlaylistPlayerView;
 }(window));

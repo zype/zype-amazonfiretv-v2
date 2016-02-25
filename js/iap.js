@@ -15,7 +15,7 @@
     }
 
     // mixin inheritance, initialize this as an event handler for these events:
-    Events.call(this, ['purchaseSuccess', 'purchaseFail']);
+    Events.call(this, ['purchaseSuccess', 'purchaseFail', 'purchased']);
 
     this.settingsParams = null;
     this.oneDView = null;
@@ -28,20 +28,18 @@
       currentConsumer: null
     };
 
-    this.on('purchaseSuccess', function(receipt) {
+    this.on("purchaseSuccess", function(receipt) {
       iapHandler.addSku(receipt.sku);
-      console.log('purchaseSuccess')
-      console.log(iapHandler.state.validSkus)
-      app.trigger('purchaseSuccess');
-    });
+      app.trigger("purchased");
+    }.bind(this));
 
     this.on('purchaseFail', function(receipt) {
       iapHandler.removeSku(receipt.sku);
-    });
+    }, this);
 
     this.purchaseItem = function(id) {
       var sku = this.parseSku(id);
-      if (amzn_wa.IAP == null) {
+      if (amzn_wa.IAP === null) {
         alert("You cannot buy this video, Amazon In-App-Purchasing works only with Apps from the Appstore.");
       } else {
         amzn_wa.IAP.purchaseItem(sku);
@@ -49,7 +47,7 @@
     };
 
     this.parseSku = function(id) {
-      if(id.indexOf('-purchase') != -1) {
+      if (id.indexOf('-purchase') != -1) {
         return id.replace('-purchase', '');
       } else {
         return id;
@@ -61,7 +59,7 @@
       if (e.purchaseRequestStatus == amzn_wa.IAP.PurchaseStatus.SUCCESSFUL) {
         this.handleReceipt(e.receipt);
       } else if (e.purchaseRequestStatus == amzn_wa.IAP.PurchaseStatus.ALREADY_ENTITLED) {
-        amzn_wa.IAP.getPurchaseUpdates(amzn_wa.IAP.Offset.BEGINNING)
+        amzn_wa.IAP.getPurchaseUpdates(amzn_wa.IAP.Offset.BEGINNING);
       }
     };
 
@@ -82,18 +80,28 @@
 
     this.removeSku = function(sku) {
       var index = this.state.validSkus.indexOf(sku);
-      if(index != -1) {
+      if (index != -1) {
         this.state.validSkus.splice(index, 1);
       }
     };
 
     this.addSku = function(sku) {
-      if(this.state.validSkus.indexOf(sku) == -1) {
+      if (this.state.validSkus.indexOf(sku) == -1) {
         this.state.validSkus.push(sku);
       }
     };
 
+    /**
+     * This is for testing only.
+     * We need to add the SKUs to the validSkus. So hasValid* will work properly.
+     * Add the following code to the AJAX request
+     * @NOTE for testing only
+     complete(function() {
+       that.trigger('purchaseSuccess', receipt);
+     });
+    */
     this.handleReceipt = function(receipt) {
+
       // send receipt purchase token to zype verification service
       var amazon_verify_receipt_url = this.settingsParams.endpoint + 'amazon_fire_receipts/process_receipt';
 
@@ -104,6 +112,7 @@
         url: amazon_verify_receipt_url,
         crossDomain: true,
         dataType: 'json',
+        context: this,
         data: {
           'app_key': this.settingsParams.app_key,
           'item_type': receipt.itemType,
@@ -111,11 +120,10 @@
           'sku': receipt.sku,
           'user_id': this.state.userId
         }
-      }).fail(function( msg ) {
+      }).fail(function(msg) {
         that.trigger('purchaseFail', receipt);
-      }).done(function( msg ) {
+      }).done(function(msg) {
         var consumer = msg.response;
-        consumer.id = consumer['_id'];
         that.state.currentConsumer = new Consumer(consumer);
         that.trigger('purchaseSuccess', receipt);
       });
@@ -136,18 +144,17 @@
             'sku': receipt.sku
           }
         }
-      }).fail(function( msg ) {
+      }).fail(function(msg) {
         console.log(msg);
-      }).done(function( msg ) {
+      }).done(function(msg) {
         console.log(msg);
       });
     };
 
     this.checkAvailableItems = function(onItemDataResponseCallback) {
-      if (amzn_wa.IAP == null) {
+      if (amzn_wa.IAP === null) {
         onItemDataResponseCallback();
-      }
-      else {
+      } else {
         this.onItemDataResponseCallback = onItemDataResponseCallback;
         amzn_wa.IAP.getItemData(this.state.allVideoIds);
       }
@@ -159,32 +166,58 @@
     };
 
     this.allSubscriptions = function() {
-      return _.select(app.data.plans, function(p){ return p.amazon_id; });
+      return _.select(app.data.plans, function(p) {
+        return p.amazon_id;
+      });
     };
 
     this.allSubscriptionIds = function() {
-      return _.map(this.allSubscriptions(), function(s){ return s.id; });
+      return _.map(this.allSubscriptions(), function(s) {
+        return s.amazon_id;
+      });
     };
 
     this.getAvailableSubscriptionButtons = function() {
-      return _.map(this.allSubscriptions(), function(p){ return { "name": p.name, "id": p.amazon_id } })
+      if (this.settingsParams.IAP) {
+        return _.map(this.allSubscriptions(), function(p) {
+          return {
+            "name": p.name,
+            "id": p.amazon_id,
+            "class": "btnIAP btnSubscribe"
+          };
+        });
+      } else {
+        return [];
+      }
     };
 
     this.getAvailablePurchaseButtons = function() {
       var buttons = [];
-      _.each(this.state.availableSkus, function(i){
-        // purchase button
-        buttons.push({
-          id: i,
-          name: 'Purchase'
+
+      if (this.settingsParams.IAP) {
+        _.each(this.state.availableSkus, function(i) {
+          // purchase button
+          buttons.push({
+            "id": i,
+            "name": 'Purchase',
+            "class": "btnIAP btnPurchase"
+          });
         });
-      })
+      }
+
       return buttons;
     };
 
     this.hasValidSubscription = function() {
       var sub_ids = this.allSubscriptionIds();
-      return _.find(this.state.validSkus, function(sku){ return sub_ids.indexOf(sku) != -1 });
+      var res = _.find(this.state.validSkus, function(sku) {
+        return sub_ids.indexOf(sku) != -1;
+      });
+      if (res !== undefined) {
+        return true;
+      } else {
+        return false;
+      }
     };
 
     this.hasValidPurchase = function(video_id) {
@@ -213,71 +246,76 @@
     };
 
     this.canPlayVideo = function(video) {
-      if(!this.settingsParams.IAP) {
+
+      if (!this.settingsParams.IAP) {
         return true;
-      } else if (video.hasPaywall() == false) {
-        return true;
-      }
-      if (video.subscription_required == true && this.hasValidSubscription()) {
-        return true;
-      } else if (video.purchase_required == true && this.hasValidPurchase(video.id)) {
-        return true;
-      } else if (video.rental_required == true && this.hasValidRental(video.id)) {
+      } else if (video.hasPaywall() === false) {
         return true;
       }
+
+      if (video.subscription_required === true && this.hasValidSubscription()) {
+        return true;
+      } else if (video.purchase_required === true && this.hasValidPurchase(video.id)) {
+        return true;
+      } else if (video.rental_required === true && this.hasValidRental(video.id)) {
+        return true;
+      }
+
+      return false;
     };
 
-    this.iapInit = function () {
+    this.iapInit = function() {
       var that = this;
       // Ensure we can call the IAP API
-      if (amzn_wa.IAP == null) {
+      if (amzn_wa.IAP === null) {
         console.log("Amazon In-App-Purchasing only works with Apps from the Appstore");
       } else {
         // Registers the appropriate callback functions
         amzn_wa.IAP.registerObserver({
-           // Called the the IAP API is available
-          'onSdkAvailable': function(resp) {
+          // Called the the IAP API is available
+          onSdkAvailable: function(resp) {
             if (resp.isSandboxMode) {
-                // In a production application this should trigger either
-                // shutting down IAP functionality or redirecting to some
-                // page explaining that you should purchase this application
-                // from the Amazon Appstore.
-                //
-                // Not checking can leave your application in a state that
-                // is vulnerable to attacks. See the supplied documention
-                // for additional information.
-                console.log("Running in test mode");
+              // In a production application this should trigger either
+              // shutting down IAP functionality or redirecting to some
+              // page explaining that you should purchase this application
+              // from the Amazon Appstore.
+              //
+              // Not checking can leave your application in a state that
+              // is vulnerable to attacks. See the supplied documention
+              // for additional information.
+              console.log("Running in test mode");
             }
 
             // get current user
             amzn_wa.IAP.getUserId();
+            console.log(amzn_wa.IAP);
           },
           // Called as response to getUserId
-          'onGetUserIdResponse': function(resp) {
-            console.log('onGetUserIdResponse');
-            console.log(resp);
+          onGetUserIdResponse: function(resp) {
+            // console.log('onGetUserIdResponse');
+            // console.log(resp);
             // it could be either of these depending on the varying whims of amazon
-            if(resp.userIdRequestStatus == 'SUCCESSFUL' || resp.getUserIdRequestStatus == 'SUCCESSFUL') {
+            if (resp.userIdRequestStatus == 'SUCCESSFUL' || resp.getUserIdRequestStatus == 'SUCCESSFUL') {
 
               // set current user id
               that.state.userId = resp.userId;
 
               // You should call getPurchaseUpdates to get any purchases
               // that could have been made in a previous run.
-              amzn_wa.IAP.getPurchaseUpdates(that.state.lastPurchaseCheckTime != null ?
-                    that.state.lastPurchaseCheckTime : amzn_wa.IAP.Offset.BEGINNING);
+              amzn_wa.IAP.getPurchaseUpdates(that.state.lastPurchaseCheckTime !== null ?
+                that.state.lastPurchaseCheckTime : amzn_wa.IAP.Offset.BEGINNING);
             }
           },
           // Called as response to getItemData
-          'onItemDataResponse': function(data) {
+          onItemDataResponse: function(data) {
             that.onItemDataResponse(data);
           },
           // Called as response to puchaseItem
-          'onPurchaseResponse': function(data) {
+          onPurchaseResponse: function(data) {
             that.onPurchaseResponse(data);
           },
           // Called as response to getPurchaseUpdates
-          'onPurchaseUpdatesResponse': function(resp) {
+          onPurchaseUpdatesResponse: function(resp) {
             that.onPurchaseUpdatesResponse(resp);
           }
         });
