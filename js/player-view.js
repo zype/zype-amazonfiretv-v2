@@ -184,17 +184,37 @@
          * we do not have an empty XML response.
          */
         console.log('getting ad');
-        playedAd = false;
         var ad_tag = null;
         if (video.ad_schedule.length > 0 && video.ad_schedule[0].hasOwnProperty("tag")) {
           ad_tag = new URI(video.ad_schedule[0].tag).href();
         } else {
           ad_tag = "";
         }
-        var vid = videojs('zype_' + video.id.toString() + '-' + seconds);
-        vid.ads();
-        vid.vast({
-          url: ad_tag
+
+        var player_id = 'zype_' + video.id.toString() + '-' + seconds;
+        var player = videojs(player_id);
+
+        var options = {
+          id: player_id,
+          adTagUrl: ad_tag,
+          debug: true
+        };
+
+        player.ima(options);
+        player.ima.setShowCountdown(false);
+        player.ima.hideAdControls_();
+        player.ima.requestAds();
+
+        player.on("adstart", function() {
+          playedAd = false;
+        });
+
+        player.on("adend", function() {
+          playedAd = true;
+        });
+
+        player.on("adserror", function() {
+          playedAd = true;
         });
       } else {
         playedAd = true;
