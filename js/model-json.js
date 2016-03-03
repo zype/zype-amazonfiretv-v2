@@ -375,7 +375,7 @@
 
       var playlist_url = null;
       if (this.settingsParams.playlist_id) {
-        playlist_url = this.settingsParams.endpoint + "playlists/" + this.settingsParams.playlist_id + "/videos/?app_key=" + this.settingsParams.app_key;
+        playlist_url = this.settingsParams.endpoint + "playlists/" + this.settingsParams.playlist_id + "/videos/?app_key=" + this.settingsParams.app_key + "&per_page=" + this.settingsParams.per_page;
       } else {
         playlist_url = this.settingsParams.endpoint + "videos/?app_key=" + this.settingsParams.app_key + "&per_page=10&dpt=true&sort=created_at&order=desc";
       }
