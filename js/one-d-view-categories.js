@@ -323,7 +323,7 @@
             //  console.log(this.currentView);
             switch (this.currentView) {
               case this.shovelerView:
-                this.trigger('bounce');
+                this.trigger('exit');
                 break;
               default:
                 break;
