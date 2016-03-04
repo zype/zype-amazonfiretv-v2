@@ -37,6 +37,7 @@
     this.leftNavItems = [];
     this.searchUpdated = false;
     this.transformStyle = utils.vendorPrefix('Transform');
+    this.isSearchActive = false;
 
     //jquery global variables
     this.$el = null;
@@ -276,7 +277,11 @@
             this.trigger('deselect');
             break;
           case buttons.BACK:
-            this.trigger('exit');
+            if (this.isSearchActive === true) {
+              this.isSearchActive = false;
+            } else {
+              this.trigger('exit');
+            }
             break;
           case buttons.SELECT:
             if (!this.isDisplayed) {
