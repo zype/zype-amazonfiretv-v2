@@ -450,7 +450,7 @@
        */
       nestedCategoriesOneDView.on('select', function(index) {
         console.log('on.select.event');
-        app.data.setCurrentNestedCategory(index);
+        app.data.setcurrentChannel(index);
 
         var data = this.channelsData[index];
         app.data.setCategoryId(data.category_id);
@@ -511,7 +511,7 @@
       this.nestedCategoriesOneDView.remove();
       this.nestedCategoriesOneDView = null;
 
-      app.data.loadCategoryData(function() {
+      app.data.loadData(function() {
         this.initializeLeftNavView();
         this.initializeOneDView();
         this.selectView(this.oneDView);

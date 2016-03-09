@@ -169,7 +169,7 @@
       this.$shovelerContainer = this.$el.children("#" + ID_ONED_SHOVELER_CONTAINER);
       var shovelerView = this.shovelerView = new ShovelerView();
 
-      this.shovelerView.setSelectedElement(app.data.currentNestedCategory);
+      this.shovelerView.setSelectedElement(app.data.currentChannel);
 
       this.shovelerView.render(this.$shovelerContainer, rowData);
       this.$shovelerContainerOffset = $(this.$shovelerContainer)[0].getBoundingClientRect().top;
