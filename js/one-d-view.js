@@ -354,7 +354,7 @@
       }, this);
 
       buttonView.on('play', function() {
-        this.trigger('select', this.currSliderSelection);
+        this.trigger('select', this.currSelection);
       }, this);
 
       buttonView.on('link', function() {
