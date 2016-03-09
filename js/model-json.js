@@ -18,7 +18,7 @@
     this.plans = [];
 
     this.channelsData = [];
-    this.currentNestedCategory = 0;
+    this.currentChannel = 0;
 
     this.zobjectData = [];
     this.sliderData = [];
@@ -39,7 +39,6 @@
       that.currentItem = 0;
       that.plans = [];
       that.channelsData = [];
-      that.currentNestedCategory = 0;
       that.zobjectData = [];
       that.sliderData = [];
 
@@ -262,8 +261,8 @@
       this.channelsData = formattedChannel;
     };
 
-    this.setCurrentNestedCategory = function(index) {
-      this.currentNestedCategory = index;
+    this.setcurrentChannel = function(index) {
+      this.currentChannel = index;
     };
 
     this.setCategoryId = function(id) {
