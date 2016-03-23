@@ -1,3 +1,16 @@
+/* 
+ * Body Classes (to be set dynamically via CMS)
+ * .theme--light (default)
+ * .theme--dark
+ * .theme--slider
+ * .logo--center
+ * .logo--right
+*/
+
+
+/* Fonts
+   ========================================================================== */
+
 @font-face {
   font-family: "Roboto";
   src: url("assets/Roboto-Regular.ttf");
@@ -18,11 +31,14 @@
   src: url("assets/Roboto-Light.ttf");
   font-weight: 300;
 }
-body {
-  /* Permalink - use to edit and share this gradient: http://colorzilla.com/gradient-editor/#1a2230+0,53cbf1+50,00000f+100 */
-  background: #000000;
-}
-* {
+
+
+/* Base
+   ========================================================================== */
+
+*,
+*:before,
+*:after {
   -webkit-box-sizing: border-box;
   -moz-box-sizing: border-box;
   box-sizing: border-box;
@@ -33,6 +49,8 @@ html, body {
   overflow: hidden;
 }
 body {
+  /* Permalink - use to edit and share this gradient: http://colorzilla.com/gradient-editor/#1a2230+0,53cbf1+50,00000f+100 */
+  background: #f7f7f7;
   position: absolute;
   padding: 0;
   margin: 0;
@@ -46,6 +64,11 @@ body {
   height: inherit;
   overflow: hidden;
 }
+
+
+/* Header
+   ========================================================================== */
+
 .app-top-bar {
   position: absolute;
   width: 100%;
@@ -57,7 +80,9 @@ body {
   z-index: 10;
 }
 
-/* Description View Style */
+
+/* Description View
+   ========================================================================== */
 
 .description-view-container {
   position: fixed;
@@ -95,7 +120,9 @@ body {
   font-weight: normal;
 }
 
-/* Left Nav View Style */
+
+/* Left Nav View
+   ========================================================================== */
 
 #left-nav-menu-icon {
   position: absolute;
@@ -149,7 +176,7 @@ body {
   margin-top: -108px;
 }
 .leftnav-menu-scrolling-list {
-  color: white;
+  color: #fff;
 }
 .leftnav-list-item-static.leftnav-list-item-chosen.subcat-header {
   position: absolute;
@@ -159,15 +186,20 @@ body {
   border: none;
 }
 .leftnav-list-item-static {
-  word-wrap: break-word;
-  line-height: 2;
-  font-weight: 400;
-  font-size: 1.7em;
-  min-height: 92px;
-  padding: 0 50px 0 150px;
-  overflow: hidden;
-  margin-bottom: 2px;
   background-color: transparent;
+  border: none !important;
+  color: #878b98;
+  font-size: 1.6em !important;
+  font-weight: 400;
+  letter-spacing: 1px;
+  line-height: 2;
+  margin-bottom: 2px;
+  min-height: 92px;
+  opacity: 1;
+  overflow: hidden;
+  padding: 0 50px 0 150px;
+  text-transform: uppercase;
+  word-wrap: break-word;
   -webkit-transition: all 0.25s;
   -moz-transition: all 0.25s;
   -ms-transition: all 0.25s;
@@ -218,18 +250,8 @@ body {
   -webkit-transition-duration: 0.25s;
   -webkit-transition-timing-function: linear;
 }
-.leftnav-list-item-static {
-  font-weight: bold;
-  letter-spacing: 1px;
-  text-transform: uppercase;
-  color: #878b98;
-  font-size: 1.6em !important;
-  -webkit-transition-property: opacity;
-  -webkit-transition-duration: 0.25s;
-  opacity: 0.40;
-  border: none !important;
-}
-.leftnav-list-item-highlighted, .leftnav-list-item-selected {
+.leftnav-list-item-highlighted, 
+.leftnav-list-item-selected {
   opacity: 1;
 }
 .leftnav-list-item-chosen {
@@ -254,47 +276,62 @@ body {
   background-attachment: initial;
   outline-width: 0;
 }
+.leftnav-search-box::-webkit-input-placeholder {
+  /* WebKit, Blink, Edge */
+  color: #fff;
+  -webkit-transition-property: opacity;
+  -webkit-transition-duration: 0.25s;
+  opacity: 1;
+}
+.leftnav-search-box:-moz-placeholder {
+  /* Mozilla Firefox 4 to 18 */
+  color: #fff;
+  -webkit-transition-property: opacity;
+  -webkit-transition-duration: 0.25s;
+  opacity: 1;
+}
+.leftnav-search-box::-moz-placeholder {
+  /* Mozilla Firefox 19+ */
+  color: #fff;
+  -webkit-transition-property: opacity;
+  -webkit-transition-duration: 0.25s;
+  opacity: 1;
+}
+.leftnav-search-box:-ms-input-placeholder {
+  /* Internet Explorer 10-11 */
+  color: #fff;
+  -webkit-transition-property: opacity;
+  -webkit-transition-duration: 0.25s;
+  opacity: 1;
+}
+.leftnav-search-box:placeholder-shown {
+  /* Standard (https://drafts.csswg.org/selectors-4/#placeholder) */
+  color: #fff;
+  -webkit-transition-property: opacity;
+  -webkit-transition-duration: 0.25s;
+  opacity: 1;
+}
 .leftnav-search-box:focus::-webkit-input-placeholder {
   color: #fff;
   -webkit-transition-property: opacity;
   -webkit-transition-duration: 0.25s;
   opacity: 1;
 }
-.leftnav-search-box::-webkit-input-placeholder {
-  /* WebKit, Blink, Edge */
-  color: #878b98;
-  -webkit-transition-property: opacity;
-  -webkit-transition-duration: 0.25s;
-  opacity: 0.40;
+.leftnav-search-box:focus:-moz-placeholder {
+   color: #fff;
+   opacity: 1;  
 }
-.leftnav-search-box:-moz-placeholder {
-  /* Mozilla Firefox 4 to 18 */
-  color: #878b98;
-  -webkit-transition-property: opacity;
-  -webkit-transition-duration: 0.25s;
-  opacity: 0.40;
+
+.leftnav-search-box:focus::-moz-placeholder {
+   color: #fff;
+   opacity: 1;  
 }
-.leftnav-search-box::-moz-placeholder {
-  /* Mozilla Firefox 19+ */
-  color: #878b98;
-  -webkit-transition-property: opacity;
-  -webkit-transition-duration: 0.25s;
-  opacity: 0.40;
+
+.leftnav-search-box:focus:-ms-input-placeholder {  
+   color: #fff;
+   opacity: 1;  
 }
-.leftnav-search-box:-ms-input-placeholder {
-  /* Internet Explorer 10-11 */
-  color: #878b98;
-  -webkit-transition-property: opacity;
-  -webkit-transition-duration: 0.25s;
-  opacity: 0.40;
-}
-.leftnav-search-box:placeholder-shown {
-  /* Standard (https://drafts.csswg.org/selectors-4/#placeholder) */
-  color: #878b98;
-  -webkit-transition-property: opacity;
-  -webkit-transition-duration: 0.25s;
-  opacity: 0.40;
-}
+
 .leftnav-search-box.leftnav-list-item-highlighted {
   color: #fff;
   border-color: #fff;
@@ -307,7 +344,9 @@ body {
   width: 50px;
 }
 
-/* One D View Style */
+
+/* One D View
+   ========================================================================== */
 
 .one-D-details-container {
   position: absolute;
@@ -348,7 +387,9 @@ body {
   top: 0;
 }
 
-/* Slider View Style */
+
+/* Slider View
+   ========================================================================== */
 
 #one-D-slider-container {
   position: relative;
@@ -455,7 +496,9 @@ body {
   background-color: #b2bbc5;
 }
 
-/* One D Shoveler View Style */
+
+/* One D Shoveler View
+   ========================================================================== */
 
 #one-D-shoveler-container {
   position: relative;
@@ -537,7 +580,9 @@ body {
   display: inline-block;
 }
 
-/* One D View Summary View Style */
+
+/* One D Summary View
+   ========================================================================== */
 
 #slider-summary-container {
   position: absolute;
@@ -697,7 +742,10 @@ body {
   background-repeat: no-repeat;
 }
 
-/* One D View Buttons */
+
+/* One D View Buttons
+   ========================================================================== */
+
 .one-D-buttons-container {
   position: relative;
   top: 340px;
@@ -734,7 +782,10 @@ body {
   border: 1px solid #ffffff;
 }
 
-/* Player View Style */
+
+/* Player View
+   ========================================================================== */
+
 .player-main-container {
   position: absolute;
   top: 0;
