@@ -1,24 +1,31 @@
 @font-face {
   font-family: "Roboto";
   src: url("assets/Roboto-Regular.ttf");
-  font-weight: normal;
+  font-weight: 400;
 }
 @font-face {
   font-family: "Roboto";
   src: url("assets/Roboto-Bold.ttf");
-  font-weight: bold;
+  font-weight: 700;
 }
 @font-face {
   font-family: "Roboto";
   src: url("assets/Roboto-Medium.ttf");
-  font-weight: medium;
+  font-weight: 500;
+}
+@font-face {
+  font-family: "Roboto";
+  src: url("assets/Roboto-Light.ttf");
+  font-weight: 300;
 }
 body {
   /* Permalink - use to edit and share this gradient: http://colorzilla.com/gradient-editor/#1a2230+0,53cbf1+50,00000f+100 */
   background: #000000;
 }
 * {
-  box-sizing: Border-box;
+  -webkit-box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  box-sizing: border-box;
 }
 html, body {
   width: 100%;
@@ -32,11 +39,6 @@ body {
   font-size: 20pt;
   font-family: "Roboto";
   background-size: 100% 100%;
-}
-div {
-  -webkit-box-sizing: border-box;
-  -moz-box-sizing: border-box;
-  box-sizing: border-box;
 }
 .app-main-container {
   position: relative;
@@ -159,19 +161,18 @@ div {
 .leftnav-list-item-static {
   word-wrap: break-word;
   line-height: 2;
-  font-weight: normal;
+  font-weight: 400;
   font-size: 1.7em;
   min-height: 92px;
   padding: 0 50px 0 150px;
   overflow: hidden;
   margin-bottom: 2px;
   background-color: transparent;
-  -webkit-transition-property: opacity;
-  -moz-transition-property: opacity;
-  transition-property: opacity;
-  -webkit-transition-duration: 0.25s;
-  -moz-transition-duration: 0.25s;
-  transition-duration: 0.25s;
+  -webkit-transition: all 0.25s;
+  -moz-transition: all 0.25s;
+  -ms-transition: all 0.25s;
+  -o-transition: all 0.25s;
+  transition: all 0.25s;
   display: -webkit-box;
   /* NEW - Chrome */
   display: -moz-box;
@@ -336,15 +337,15 @@ div {
   font-size: 1.7em;
 }
 .one-d-title-container {
+  font-family: "Roboto", Helvetica, Arial, sans-serif;
+  font-size: 1em;
+  font-weight: 400;
+  left: 150px;
+  letter-spacing: 1px;
+  margin-bottom: 30px;
   position: relative;
   text-transform: uppercase;
   top: 0;
-  font-family: "Roboto";
-  font-weight: bold;
-  left: 150px;
-  font-size: 1.2em;
-  letter-spacing: 1px;
-  margin-bottom: 30px;
 }
 
 /* Slider View Style */
@@ -609,10 +610,12 @@ div {
 }
 .one-D-details-summary-text .one-D-summary-title {
   color: #eaeff3;
-  font-size: 1.5em;
-  height: 62px;
+  font-size: 1.8em;
+  font-weight: 400;
+  height: auto;
   overflow: hidden;
-  font-weight: bold;
+  position: relative;
+  white-space: nowrap;
   display: -webkit-box;
   /* NEW - Chrome */
   display: -moz-box;
@@ -628,15 +631,29 @@ div {
   -moz-line-clamp: 1;
   line-clamp: 1;
 }
+.one-D-details-summary-text .one-D-summary-title:after {
+  content: '';
+  height: 100%;
+  position: absolute;
+  right: 0;
+  top: 0;
+  width: 15%;
+}
+.theme--dark .one-D-details-summary-text .one-D-summary-title:after {
+  background: -moz-linear-gradient(left, rgba(0,0,0,0) 0%, rgba(0,0,0,1) 100%);
+  background: -webkit-linear-gradient(left, rgba(0,0,0,0) 0%,rgba(0,0,0,1) 100%);
+  background: linear-gradient(to right, rgba(0,0,0,0) 0%,rgba(0,0,0,1) 100%);
+}
+.theme--light .one-D-details-summary-text .one-D-summary-title:after {
+  background: -moz-linear-gradient(left, rgba(255,255,255,0) 0%, rgba(255,255,255,1) 100%);
+  background: -webkit-linear-gradient(left, rgba(255,255,255,0) 0%,rgba(255,255,255,1) 100%);
+  background: linear-gradient(to right, rgba(255,255,255,0) 0%,rgba(255,255,255,1) 100%);
+}
 .one-D-details-summary-text .one-D-summary-duration {
-  font-weight: normal;
-  height: 50px;
+  font-weight: 400;
   font-size: 0.75em;
   color: #878b98;
-  margin-bottom: -10px;
-  margin-top: -5px;
-}
-
+  margin: 0.6em 0;
 }
 .one-D-details-summary-text .one-D-summary-duration .time-now-live {
   color: #FF704D;
