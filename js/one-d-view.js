@@ -481,7 +481,7 @@
 
       //change opacity of the shoveler
       this.shovelerView.fadeSelected();
-      this.shovelerView.shrinkSelected();
+      // this.shovelerView.shrinkSelected();
 
       //set default selected button and apply selected style
       this.buttonView.setCurrentSelectedIndex(0);

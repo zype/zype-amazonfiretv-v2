@@ -133,7 +133,7 @@
         if ($currImage.length === 0) {
           var url = this.rowsData[i].imgURL;
           // console.log(url.substring(url.lastIndexOf('?') + 1) );
-          $currElt.prepend('<img id="' + url.substring(url.lastIndexOf('?') + 1) + '" class="shoveler-full-img" src="' + url + '" style="visibility:hidden"/>');
+          $currElt.prepend('<img id="' + url.substring(url.lastIndexOf('/') + 1, url.length - 4) + '-' + i + '" class="shoveler-full-img" src="' + url + '" style="visibility:hidden"/>');
           $currImage = $currElt.children("img.shoveler-full-img");
         }
 
@@ -322,7 +322,7 @@
      * @param {Element} selectedEle they currently selected element
      */
     this.manageSelectedElement = function(selectedEle) {
-      selectedEle.style[this.transformStyle] = "translate3d(0, 0, 0)";
+      selectedEle.style[this.transformStyle] = "translate3d(0, 0, 0) scale(1.05)";
       selectedEle.style.opacity = "0.99";
     };
 
@@ -344,8 +344,8 @@
      * Shrink all the elements to the same size while the shoveler is not in focus
      */
     this.shrinkSelected = function() {
-      this.setRightItemPositions(this.currSelection, 0);
-      this.setLeftItemPositions(this.currSelection - 1, 0 - this.MARGIN_WIDTH);
+      this.setRightItemPositions(this.currSelection, 0 - this.MARGIN_WIDTH);
+      this.setLeftItemPositions(this.currSelection - 1, 0);
     };
 
     /**
@@ -359,7 +359,7 @@
       //this for loop handles elements to the right of the selected element
       for (i = start; i < this.$rowElements.length; i++) {
         if (this.elementWidths[i] > 0) {
-          this.$rowElements[i].style[this.transformStyle] = "translate3d(" + currX + "px,0,0px) scale(0.75)";
+          this.$rowElements[i].style[this.transformStyle] = "translate3d(" + ( currX + this.MARGIN_WIDTH ) + "px,0,0px)";
           this.$rowElements[i].style.opacity = "0.5";
         } else {
           //keep element offscreen if we have no width yet
@@ -371,7 +371,7 @@
             break;
           }
         } else {
-          currX += Math.round(this.elementWidths[i] * 0.75 + this.MARGIN_WIDTH);
+          currX += Math.round(this.elementWidths[i] + this.MARGIN_WIDTH);
         }
       }
     };
@@ -385,8 +385,8 @@
       var i;
 
       for (i = start; i >= 0; i--) {
-        var currPosition = (currX - this.elementWidths[i] * 0.75);
-        var itemTrans = "translate3d(" + currPosition + "px,0, 0px) scale(0.75)";
+        var currPosition = (currX - this.elementWidths[i] - this.MARGIN_WIDTH );
+        var itemTrans = "translate3d(" + currPosition + "px,0, 0px)";
 
         if (this.elementWidths[i] > 0) {
           this.$rowElements[i].style[this.transformStyle] = itemTrans;
@@ -402,7 +402,7 @@
             break;
           }
         } else {
-          currX -= Math.round(this.elementWidths[i] * 0.75 + this.MARGIN_WIDTH);
+          currX -= Math.round(this.elementWidths[i] + this.MARGIN_WIDTH);
         }
       }
     };
