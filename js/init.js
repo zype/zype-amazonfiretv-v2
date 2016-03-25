@@ -65,7 +65,19 @@
       // for testing only
       // settings.IAP = false;
       // settings.device_linking = true;
+      // settings.theme = 'theme--dark';
+      settings.theme = 'theme--light';
+      // settings.logoPosition = 'logo--center';
+      settings.logoPosition = 'logo--right';
 
+      // theme
+      // settings.theme = 'theme--' + app_json.response.theme;
+
+      // logo position
+      // settings.logoPosition = 'logo--' + app_json.response.logo_position;
+      
+      // slider
+      settings.slider = false;
 
       // main colors
       settings.backgroundColor = app_json.response.background_color;
@@ -94,7 +106,7 @@
       });
 
       // uncomment to test on the browser
-      // initApp(settings);
+      initApp(settings);
     },
     error: function() {
       alert("There was an error configuring your Fire TV App. Please exit.");
