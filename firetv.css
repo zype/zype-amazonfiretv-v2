@@ -3,6 +3,7 @@
  * .theme--light (default)
  * .theme--dark
  * .theme--slider
+ * .theme--no-slider
  * .logo--center
  * .logo--right (default)
 */
@@ -50,6 +51,7 @@ html, body {
 }
 body {
   background: #f7f7f7 !important;
+  color: #333;
   position: absolute;
   padding: 0;
   margin: 0;
@@ -219,7 +221,7 @@ body {
   -ms-transition: all 0.25s;
   -o-transition: all 0.25s;
   transition: all 0.25s;
-  z-index: 100;
+  z-index: 10;
 }
 .leftnav-menu-list.leftnav-menulist-expanded {
   opacity: 1;
@@ -231,16 +233,7 @@ body {
   -ms-transition: all 0.25s;
   -o-transition: all 0.25s;
   transition: all 0.25s;
-}
-.leftnav-menulist-expanded {
-  height: 100%;
-  top: 0;
   z-index: 100;
-}
-.leftnav-menulist-collapsed {
-  top: 108px;
-  height: 86px;
-  z-index: 10;
 }
 .leftnav-collapsed-highlight {
   -webkit-box-shadow: 0px 10px 18px 3px rgba(0, 0, 0, 0.44);
@@ -249,9 +242,6 @@ body {
   border: solid;
   border-width: 1px;
   border-color: #dadada;
-}
-.leftnav-menulist-collapsed .leftnav-menu-scrolling-list {
-  margin-top: -108px;
 }
 .leftnav-menu-scrolling-list {
   color: #fff;
@@ -266,7 +256,7 @@ body {
 .leftnav-list-item-static {
   background-color: transparent;
   border: none !important;
-  color: #878b98;
+  color: #333;
   font-size: 1.6em !important;
   font-weight: 400;
   letter-spacing: 1px;
@@ -309,8 +299,8 @@ body {
   -moz-filter: brightness(200%);
   filter: brightness(200%);
 }
-.leftnav-list-item-container .leftnav-list-item-selected {
-  color: #fff;
+.leftnav-list-item-selected {
+  color: #28abe2;
   background: transparent none no-repeat right 40px center;
 }
 .leftnav-list-item-chosen {
@@ -438,7 +428,6 @@ body {
   height: 50px;
   width: 50px;
 }
-
 
 /* One D View
    ========================================================================== */
@@ -824,7 +813,6 @@ body {
   font-family: "Roboto";
 }
 .one-D-details-summary-text .one-D-summary-title {
-  color: #eaeff3;
   font-size: 1.8em;
   font-weight: 400;
   height: auto;
@@ -847,6 +835,9 @@ body {
   line-clamp: 1;
 }
 .one-D-details-summary-text .one-D-summary-title:after {
+  background: -moz-linear-gradient(left, rgba(247,247,247,0) 0%, rgba(247,247,247,1) 100%);
+  background: -webkit-linear-gradient(left, rgba(247,247,247,0) 0%,rgba(247,247,247,1) 100%);
+  background: linear-gradient(to right, rgba(247,247,247,0) 0%,rgba(247,247,247,1) 100%);
   content: '';
   height: 100%;
   position: absolute;
@@ -859,43 +850,31 @@ body {
   background: -webkit-linear-gradient(left, rgba(0,0,0,0) 0%,rgba(0,0,0,1) 100%);
   background: linear-gradient(to right, rgba(0,0,0,0) 0%,rgba(0,0,0,1) 100%);
 }
-.theme--light .one-D-details-summary-text .one-D-summary-title:after {
-  background: -moz-linear-gradient(left, rgba(255,255,255,0) 0%, rgba(255,255,255,1) 100%);
-  background: -webkit-linear-gradient(left, rgba(255,255,255,0) 0%,rgba(255,255,255,1) 100%);
-  background: linear-gradient(to right, rgba(255,255,255,0) 0%,rgba(255,255,255,1) 100%);
-}
 .one-D-details-summary-text .one-D-summary-duration {
   font-weight: 400;
   font-size: 0.75em;
-  color: #878b98;
+  color: #999;
   margin: 0.6em 0;
 }
 .one-D-details-summary-text .one-D-summary-duration .time-now-live {
-  color: #FF704D;
+  color: #999;
 }
 .one-D-details-summary-text .one-D-summary-duration .time-upcoming {
-  color: #66E066;
+  color: #999;
 }
 .one-D-details-summary-text .one-D-summary-description {
-  color: #eaeff3;
-  /*font-style: italic;*/
-
   font-weight: normal;
   font-size: 1em;
   overflow: hidden;
   align-items: center;
   display: -webkit-box;
   /* NEW - Chrome */
-
   display: -moz-box;
   /* OLD - Firefox 19- (buggy but mostly works) */
-
   display: -ms-flexbox;
   /* TWEENER - IE 10 */
-
   display: box;
   /* NEW, Spec - Opera 12.1, Firefox 20+ */
-
   -webkit-box-orient: vertical;
   -moz-box-orient: vertical;
   box-orient: vertical;
