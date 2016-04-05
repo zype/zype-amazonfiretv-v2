@@ -1,9 +1,9 @@
 /* 
  * Body Classes (to be set dynamically via CMS)
- * .theme--light (default)
+ * .theme--light (default) - since default, not specified in rules
  * .theme--dark
  * .theme--slider
- * .theme--no-slider
+ * .theme--no-slider (default) - since default, not specified in rules
  * .logo--center
  * .logo--right (default)
 */
@@ -44,13 +44,15 @@
   -moz-box-sizing: border-box;
   box-sizing: border-box;
 }
+
 html, body {
   width: 100%;
   height: 100%;
   overflow: hidden;
 }
+
 body {
-  background: #f7f7f7 !important;
+  background: #f7f7f7;
   color: #333;
   position: absolute;
   padding: 0;
@@ -59,11 +61,69 @@ body {
   font-family: "Roboto";
   background-size: 100% 100%;
 }
+
+body.theme--dark {
+  background: rgb(50,47,47);
+  background: -moz-linear-gradient(top, rgba(50,47,47,1) 0%, rgba(61,55,55,1) 50%, rgba(50,47,47,1) 100%);
+  background: -webkit-linear-gradient(top, rgba(50,47,47,1) 0%, rgba(61,55,55,1) 50%,rgba(50,47,47,1) 100%);
+  background: linear-gradient(to bottom, rgba(50,47,47,1) 0%, rgba(61,55,55,1) 50%,rgba(50,47,47,1) 100%);
+}
+
 .app-main-container {
   position: relative;
   width: inherit;
   height: inherit;
   overflow: hidden;
+}
+
+
+/* App Overlay Container
+   ========================================================================== */
+
+.app-overlay-container {
+  background: #f7f7f7;
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 500;
+}
+
+.theme--dark .app-overlay-container {
+  background: rgb(50,47,47);
+  background: -moz-linear-gradient(top, rgba(50,47,47,1) 0%, rgba(61,55,55,1) 50%, rgba(50,47,47,1) 100%);
+  background: -webkit-linear-gradient(top, rgba(50,47,47,1) 0%, rgba(61,55,55,1) 50%,rgba(50,47,47,1) 100%);
+  background: linear-gradient(to bottom, rgba(50,47,47,1) 0%, rgba(61,55,55,1) 50%,rgba(50,47,47,1) 100%);
+}
+
+.app-overlay-message {
+  color: #333;
+  text-align: center;
+  margin-top: 25%;
+}
+
+.content-load-spinner {
+  margin: 6em auto;
+  font-size: 10px;
+  position: absolute;
+  top: 400px;
+  left: 900px;
+  z-index: 600;
+  text-indent: -9999em;
+  border-top: 1.2em solid rgba(255, 255, 255, 0.2);
+  border-right: 1.2em solid transparent;
+  border-bottom: 1.2em solid transparent;
+  border-left: 1.2em solid transparent;
+  -webkit-animation: spin 1.3s infinite linear;
+  -moz-animation: spin 1.3s infinite linear;
+  animation: spin 1.3s infinite linear;
+}
+
+.content-load-spinner, .content-load-spinner:after {
+  border-radius: 50%;
+  width: 15em;
+  height: 15em;
 }
 
 
@@ -1151,10 +1211,12 @@ body {
   background-repeat: no-repeat;
   background-image: url("assets/btn_previewPlay.png");
 }
+
 .next-video-playingtext {
   margin-left: 50px;
   margin-top: 15px;
 }
+
 .next-video-title {
   margin-left: 50px;
   margin-top: 30px;
@@ -1163,6 +1225,7 @@ body {
   font-size: 2.5em;
   line-height: 1;
 }
+
 .next-video-description {
   margin-top: 30px;
   margin-left: 50px;
@@ -1177,41 +1240,6 @@ body {
   -webkit-box-orient: vertical;
   -moz-box-orient: vertical;
   box-orient: vertical;
-}
-.app-overlay-container {
-  background: #f7f7f7 !important;
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  z-index: 500;
-}
-.app-overlay-message {
-  color: #333;
-  text-align: center;
-  margin-top: 25%;
-}
-.content-load-spinner {
-  margin: 6em auto;
-  font-size: 10px;
-  position: absolute;
-  top: 400px;
-  left: 900px;
-  z-index: 600;
-  text-indent: -9999em;
-  border-top: 1.2em solid rgba(255, 255, 255, 0.2);
-  border-right: 1.2em solid transparent;
-  border-bottom: 1.2em solid transparent;
-  border-left: 1.2em solid transparent;
-  -webkit-animation: spin 1.3s infinite linear;
-  -moz-animation: spin 1.3s infinite linear;
-  animation: spin 1.3s infinite linear;
-}
-.content-load-spinner, .content-load-spinner:after {
-  border-radius: 50%;
-  width: 15em;
-  height: 15em;
 }
 .modal-dialog {
   z-index: 650;
