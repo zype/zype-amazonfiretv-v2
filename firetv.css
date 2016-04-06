@@ -131,6 +131,7 @@ body.theme--dark {
   position: absolute;
   width: 100%;
 }
+
 .app-logo {
   position: absolute;
   -webkit-transform: translateY(-50%);
@@ -138,14 +139,22 @@ body.theme--dark {
   -ms-transform: translateY(-50%);
   -o-transform: translateY(-50%);
   transform: translateY(-50%);
-  top: 50% !important;
+  top: 50% !important; /* temporary api override */
   z-index: 10;
 }
+
 .logo--center .app-logo {
-  margin: 0 auto;
+  -webkit-transform: translate(-50%, -50%);
+  -moz-transform: translate(-50%, -50%);
+  -ms-transform: translate(-50%, -50%);
+  -o-transform: translate(-50%, -50%);
+  transform: translate(-50%, -50%);
+  left: 50%;
+  right: auto !important; /* temporary api override */
 }
+
 .logo--right .app-logo {
-  right: 150px;
+  right: 150px !important; /* temporary api override */
 }
 
 
