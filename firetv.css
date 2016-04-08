@@ -58,7 +58,7 @@ body {
   padding: 0;
   margin: 0;
   font-size: 20pt;
-  font-family: "Roboto";
+  font-family: "Roboto", "Helvetica Neue", Helvetica, Arial, sans-serif;
   background-size: 100% 100%;
 }
 
