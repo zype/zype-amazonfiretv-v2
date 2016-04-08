@@ -179,7 +179,7 @@
         '#left-nav-menu-icon.leftnav-menu-icon-highlight .menu-line { background: ' + this.settingsParams.brandColor + '; }',
         '.leftnav-menu-list { border-color: '+ this.settingsParams.brandColor +'; }',
         '.leftnav-list-item-highlighted { color: ' + this.settingsParams.brandColor + ';}',
-        '.leftnav-list-item-selected { color: '+ this.settingsParams.brandColor +';}',
+        '.leftnav-list-item-static.leftnav-list-item-selected { color: '+ this.settingsParams.brandColor +';}',
         // Search
         '.leftnav-search-box.leftnav-list-item-selected { color: '+ this.settingsParams.brandColor +'; }',
         '.leftnav-search-box:focus::-webkit-input-placeholder { color: '+ this.settingsParams.brandColor +'; }',
