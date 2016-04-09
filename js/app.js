@@ -205,13 +205,10 @@
      */
     this.setBodyClasses = function() {
       var body = document.getElementsByTagName('body')[0];
-      var bodyClasses = [
-        this.settingsParams.theme,
-        this.settingsParams.logoPosition
-      ];
-      var slider = (this.settingsParams.slider) ? 'theme--slider' : 'theme--no-slider';
+      var bodyClasses = [];
 
-      bodyClasses.push(slider);
+      bodyClasses.push(this.settingsParams.theme);
+      bodyClasses.push(this.settingsParams.logoPosition);
 
       for (var i = 0; i < bodyClasses.length; i++) {
         body.classList.add(bodyClasses[i]);

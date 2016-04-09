@@ -75,9 +75,6 @@
 
       // logo position
       // settings.logoPosition = 'logo--' + app_json.response.logo_position;
-      
-      // slider
-      settings.slider = false;
 
       // main colors
       settings.backgroundColor = app_json.response.background_color;
