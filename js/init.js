@@ -66,33 +66,21 @@
       // settings.IAP = false;
       // settings.device_linking = true;
       // settings.theme = 'theme--dark';
-      settings.theme = 'theme--light';
+      // settings.theme = 'theme--light';
       // settings.logoPosition = 'logo--center';
-      settings.logoPosition = 'logo--right';
+      // settings.logoPosition = 'logo--right';
 
       // theme
-      // settings.theme = 'theme--' + app_json.response.theme;
+      settings.theme = 'theme--' + app_json.response.theme; // 'light' or 'dark'
 
       // logo position
-      // settings.logoPosition = 'logo--' + app_json.response.logo_position;
+      settings.logoPosition = 'logo--' + app_json.response.logo_position; // 'center' or 'right'
 
       // main colors
-      settings.backgroundColor = app_json.response.background_color;
-      settings.textColor = app_json.response.text_color;
-      settings.mutedTextColor = app_json.response.muted_text_color;
       settings.brandColor = app_json.response.brand_color;
-
-      // navigation colors
-      settings.topBarColor = app_json.response.top_bar_color;
-      settings.leftNavBackgroundColor = app_json.response.left_nav_background_color;
-      settings.leftNavTextColor = app_json.response.left_nav_text_color;
-      settings.leftNavHoverTextColor = app_json.response.left_nav_hover_text_color;
-      settings.leftNavHoverBackgroundColor = app_json.response.left_nav_hover_background_color;
 
       // icon
       settings.icon = utils.makeSSL(app_json.response.logo_original_url);
-      settings.iconXPosition = app_json.response.icon_x_position + 'px';
-      settings.iconYPosition = app_json.response.icon_y_position + 'px';
 
       console.log('waiting for amazonPlatformReady...');
 
@@ -103,7 +91,7 @@
       });
 
       // uncomment to test on the browser
-      initApp(settings);
+      // initApp(settings);
     },
     error: function() {
       alert("There was an error configuring your Fire TV App. Please exit.");
