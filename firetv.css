@@ -1,9 +1,9 @@
 /* 
- * Body Classes (to be set dynamically via CMS)
+ * Body Classes ( set dynamically via CMS)
  * .theme--light (default) - since default, not specified in rules
  * .theme--dark
  * .logo--center
- * .logo--right (default)
+ * .logo--right
 */
 
 
@@ -137,7 +137,7 @@ body.theme--dark {
   -ms-transform: translateY(-50%);
   -o-transform: translateY(-50%);
   transform: translateY(-50%);
-  top: 50% !important; /* temporary api override */
+  top: 50%;
   z-index: 10;
 }
 
@@ -148,11 +148,10 @@ body.theme--dark {
   -o-transform: translate(-50%, -50%);
   transform: translate(-50%, -50%);
   left: 50%;
-  right: auto !important; /* temporary api override */
 }
 
 .logo--right .app-logo {
-  right: 150px !important; /* temporary api override */
+  right: 150px;
 }
 
 
