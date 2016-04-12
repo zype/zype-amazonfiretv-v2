@@ -470,6 +470,43 @@ body.theme--dark {
   -webkit-transition-duration: 0.25s;
   opacity: 1;
 }
+
+.theme--dark .leftnav-search-box::-webkit-input-placeholder {
+  /* WebKit, Blink, Edge */
+  color: #f0f0f0;
+  -webkit-transition-property: opacity;
+  -webkit-transition-duration: 0.25s;
+  opacity: 1;
+}
+.theme--dark .leftnav-search-box:-moz-placeholder {
+  /* Mozilla Firefox 4 to 18 */
+  color: #f0f0f0;
+  -webkit-transition-property: opacity;
+  -webkit-transition-duration: 0.25s;
+  opacity: 1;
+}
+.theme--dark .leftnav-search-box::-moz-placeholder {
+  /* Mozilla Firefox 19+ */
+  color: #f0f0f0;
+  -webkit-transition-property: opacity;
+  -webkit-transition-duration: 0.25s;
+  opacity: 1;
+}
+.theme--dark .leftnav-search-box:-ms-input-placeholder {
+  /* Internet Explorer 10-11 */
+  color: #f0f0f0;
+  -webkit-transition-property: opacity;
+  -webkit-transition-duration: 0.25s;
+  opacity: 1;
+}
+.theme--dark .leftnav-search-box:placeholder-shown {
+  /* Standard (https://drafts.csswg.org/selectors-4/#placeholder) */
+  color: #f0f0f0;
+  -webkit-transition-property: opacity;
+  -webkit-transition-duration: 0.25s;
+  opacity: 1;
+}
+
 .leftnav-search-box:focus::-webkit-input-placeholder {
   color: #28abe2;
   -webkit-transition-property: opacity;
@@ -490,7 +527,7 @@ body.theme--dark {
 }
 
 .leftnav-search-box.leftnav-list-item-highlighted {
-  color: #fff;
+  color: #f0f0f0;
   border-color: #fff;
   border-style: solid;
   border-width: 1px 1px 1px 0px;
