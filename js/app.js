@@ -903,7 +903,7 @@
           var outputs = player_json.response.body.outputs;
           for (var i = 0; i < outputs.length; i++) {
             var output = outputs[i];
-            video.url = output.url;
+            video.url = utils.makeSSL(output.url);
             if (output.name === 'hls' || output.name === 'm3u8') {
               video.format = 'application/x-mpegURL';
             } else if (output.name === 'mp4') {

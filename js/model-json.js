@@ -67,7 +67,7 @@
               id: data[i].video_ids[0],
               title: data[i].title,
               desc: data[i].description,
-              thumbnail: data[i].pictures[0].url
+              thumbnail: utils.makeSSL(data[i].pictures[0].url)
             });
           }
 
@@ -250,7 +250,7 @@
           description: data[i].description
         };
         if (data[i].pictures && data[i].pictures.length > 0) {
-          args.imgUrl = data[i].pictures[0].url;
+          args.imgUrl = utils.makeSSL(data[i].pictures[0].url);
         }
         // Channel (Channels) is a ZObject based item
         var formatted_channel = new Channel(args);
@@ -434,7 +434,7 @@
     this.parse_thumbnails = function(thumbnails) {
       for (var i = 0; i < thumbnails.length; i++) {
         if (thumbnails[i].width > 400) {
-          return thumbnails[i].url;
+          return utils.makeSSL(thumbnails[i].url);
         }
       }
     };
