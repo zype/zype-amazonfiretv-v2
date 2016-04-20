@@ -847,7 +847,7 @@
       var playerView;
       this.playerSpinnerHidden = false;
 
-      if (this.settingsParams.PlaylistView && !fromSlider) {
+      if (this.settingsParams.PlaylistView && this.settingsParams.autoplay && !fromSlider) {
         playerView = this.playerView = new this.settingsParams.PlaylistView(this.settingsParams);
       } else {
         playerView = this.playerView = new this.settingsParams.PlayerView(this.settingsParams);
