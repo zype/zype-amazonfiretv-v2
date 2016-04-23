@@ -1,5 +1,5 @@
 /* 
- * Body Classes ( set dynamically via CMS)
+ * Body Classes (set dynamically via API)
  * .theme--light (default) - since default, not specified in rules
  * .theme--dark
  * .logo--center
@@ -72,6 +72,12 @@ body.theme--dark {
   overflow: hidden;
 }
 
+/* Typography
+   ========================================================================== */
+
+h1 {
+  font-weight: 500;
+}
 
 /* App Overlay Container
    ========================================================================== */
@@ -1304,10 +1310,6 @@ body.theme--dark {
   top: 240px;
   left: 0;
   padding: 7%;
-  font-family: "Roboto";
-  font-weight: normal;
-  font-size: 1.2em;
-  color: #eaeff3;
 }
 .modal-dialog .dialog-title {
   margin-bottom: 30px;
