@@ -1358,3 +1358,27 @@ body.theme--dark {
     bottom: 10px;
   }
 }
+
+.slider-summary-title,
+.slider-summary-description,
+.one-D-details-summary-text,
+.one-D-buttons-container {
+  opacity: 1;
+  -webkit-transition: all 0.2s;
+  -moz-transition: all 0.2s;
+  -ms-transition: all 0.2s;
+  -o-transition: all 0.2s;
+  transition: all 0.2s;
+}
+
+.transition-slider .slider-summary-title,
+.transition-slider .slider-summary-description,
+.transition-shoveler .one-D-details-summary-text,
+.transition-shoveler .one-D-buttons-container {
+  opacity: 0;
+  -webkit-transition: all 0.2s;
+  -moz-transition: all 0.2s;
+  -ms-transition: all 0.2s;
+  -o-transition: all 0.2s;
+  transition: all 0.2s;
+}
