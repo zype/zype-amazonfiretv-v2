@@ -352,7 +352,7 @@
       window.setTimeout(function() {
         // add the extra data
         $("#" + ID_ONED_SUMMARY_TITLE).html(this.rowElements[index].title);
-        $("#" + ID_ONED_SUMMARY_DATE).html((this.rowElements[index].seconds) ? (this.parseTime(this.rowElements[index].seconds)) : ("<br/>"));
+        $("#" + ID_ONED_SUMMARY_DATE).html((this.rowElements[index].seconds) ? (utils.parseTime(this.rowElements[index].seconds)) : ("<br/>"));
         $("#" + ID_ONED_SUMMARY_DESC).html(this.rowElements[index].description);
 
         // show the extra data
@@ -374,15 +374,6 @@
         $("#" + ID_ONED_SUMMARY_DATE).text("");
         $("#" + ID_ONED_SUMMARY_DESC).text("");
       }.bind(this), TIME_TIMEOUT_DISPLAY_INFO);
-    };
-
-    // Convert seconds to HH:MM:SS
-    this.parseTime = function(totalSec) {
-      var hours = parseInt(totalSec / 3600) % 24;
-      var minutes = parseInt(totalSec / 60) % 60;
-      var seconds = totalSec % 60;
-
-      return (hours < 10 ? "0" + hours : hours) + ":" + (minutes < 10 ? "0" + minutes : minutes) + ":" + (seconds < 10 ? "0" + seconds : seconds);
     };
 
   };
