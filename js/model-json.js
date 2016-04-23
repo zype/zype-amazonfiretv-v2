@@ -77,7 +77,6 @@
                 this.loadSliderVideoDetails(this.zobjectData[i].id, this.zobjectData[i].title, this.zobjectData[i].desc, this.zobjectData[i].thumbnail);
               }
             }
-            this.settingsParams.slider = true;
           }
         },
         error: function() {
