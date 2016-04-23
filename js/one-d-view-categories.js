@@ -68,6 +68,7 @@
     //jquery global variables
     this.$el = null;
     this.el = null;
+    this.$body = $('body');
 
     /**
      * Hide this view - use visibility instead of display
@@ -346,13 +347,17 @@
      * @param {Number} index number of current element to show data for
      */
     this.showExtraData = function(index) {
-      index = index || 0;
+      var index = index || 0;
 
       window.setTimeout(function() {
-        //add description
+        // add the extra data
         $("#" + ID_ONED_SUMMARY_TITLE).html(this.rowElements[index].title);
         $("#" + ID_ONED_SUMMARY_DATE).html((this.rowElements[index].seconds) ? (this.parseTime(this.rowElements[index].seconds)) : ("<br/>"));
         $("#" + ID_ONED_SUMMARY_DESC).html(this.rowElements[index].description);
+
+        // show the extra data
+        this.$body.removeClass('transition-shoveler');
+
       }.bind(this), TIME_TIMEOUT_DISPLAY_INFO);
     };
 
@@ -360,9 +365,15 @@
      * Hide the text in the 1D view when scrolling starts
      */
     this.hideExtraData = function() {
-      $("#" + ID_ONED_SUMMARY_TITLE).text("");
-      $("#" + ID_ONED_SUMMARY_DATE).text("");
-      $("#" + ID_ONED_SUMMARY_DESC).text("");
+      // hide the extra data
+      this.$body.addClass('transition-shoveler');
+
+      // remove the extra data
+      window.setTimeout(function() {
+        $("#" + ID_ONED_SUMMARY_TITLE).text("");
+        $("#" + ID_ONED_SUMMARY_DATE).text("");
+        $("#" + ID_ONED_SUMMARY_DESC).text("");
+      }.bind(this), TIME_TIMEOUT_DISPLAY_INFO);
     };
 
     // Convert seconds to HH:MM:SS
