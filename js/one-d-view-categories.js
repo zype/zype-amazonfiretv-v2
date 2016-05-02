@@ -214,6 +214,7 @@
         } else {
           this.trigger("loadComplete");
         }
+        this.showExtraData(app.data.currentChannel);
       }, this);
     };
 
