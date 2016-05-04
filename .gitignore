@@ -1,3 +1,5 @@
 *.DS_Store
 /config/config.js
 .idea
+*.zip
+jsconfig.json
