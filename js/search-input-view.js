@@ -30,7 +30,6 @@
     }.bind(this);
 
     this.select = function() {
-      app.leftNavView.isSearchActive = true;
       this.$el.focus();
     }.bind(this);
 
@@ -40,7 +39,7 @@
     }.bind(this);
 
     this.deselect = function() {
-      app.leftNavView.isSearchActive = false;
+      this.reset();
       this.$el.blur();
     }.bind(this);
 
