@@ -385,11 +385,7 @@
        * Event Handler - exit the application
        */
       leftNavView.on('exit', function() {
-        if (this.settingsParams.nested_categories) {
-          this.transitionToCategories();
-        } else {
-          this.exitApp();
-        }
+        this.transitionFromLefNavToOneD();
       }, this);
 
       if (this.showSearch) {
@@ -589,8 +585,11 @@
        * Go back to the left-nav menu list if the user presses back
        */
       oneDView.on('exit', function() {
-        this.transitionToLeftNavView();
-        this.leftNavView.expand();
+        if (this.settingsParams.nested_categories === true) {
+          this.transitionToCategories();
+        } else {
+          this.exitApp();
+        }
       }, this);
 
       /**
