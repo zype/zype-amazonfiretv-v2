@@ -82,6 +82,9 @@
       // icon
       settings.icon = utils.makeSSL(app_json.response.logo_original_url);
 
+      // use related images for video thumbnails
+      settings.related_images = app_json.response.related_images; // boolean
+
       console.log('waiting for amazonPlatformReady...');
 
       // when amazon platform is ready, start the app
