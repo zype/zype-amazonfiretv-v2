@@ -295,6 +295,16 @@
             }
             break;
         }
+      } else {
+        if (e.type !== 'buttonpress' && e.type !== 'touch') {
+          return;
+        }
+
+        switch (e.keyCode) {
+          case buttons.BACK:
+            this.trigger('exit');
+            break;
+        }
       }
     }.bind(this);
 
