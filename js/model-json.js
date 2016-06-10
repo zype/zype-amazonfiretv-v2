@@ -7,7 +7,7 @@
   "use strict";
 
   // the model for the Media Sample Data
-  // {Object} appSettings are the user-defined settings from the index page
+  // @param {Object} appSettings are the user-defined settings from the index page
   var JSONMediaModel = function(appSettings) {
     this.settingsParams = appSettings;
     this.categoryData = [];
@@ -126,6 +126,10 @@
       });
     };
 
+    /**
+     * Loads the Featured Category data specified in the API. 
+     * If none specified, createds a dummy category called "All Videos".
+     */
     this.loadCategoryData = function(categoryDataLoadedCallback) {
       console.log('load.category.data');
       $.ajax({
@@ -164,12 +168,12 @@
      */
     this.getCategoryRowValues = function(jsonData) {
       this.categoryData = jsonData.response.values;
-      console.log(this.categoryData);
       this.categoryTitle = jsonData.response.title;
     }.bind(this);
 
     /**
      * Return the category items for the left-nav view
+     * @NOTE uses async: false
      */
     this.loadPlaylistData = function() {
       console.log("load.playlist.data");
@@ -202,6 +206,37 @@
       var playlistTitle = jsonData.response.title;
       this.categoryData.unshift(playlistTitle);
     }.bind(this);
+
+    /**
+     * Load Entitlement data
+     * @param {string} accessToken the current, valid Access Token
+     * @param {function} callback the callback function
+     */
+    this.loadEntitlementData = function(accessToken, callback) {
+      this.currData = [];
+
+      $.ajax({
+        url: this.settingsParams.endpoint + "consumer/videos/",
+        type: "GET",
+        crossDomain: true,
+        dataType: 'json',
+        context: this,
+        cache: false,
+        data: {
+          "per_page" : this.settingsParams.per_page,
+          "access_token" : accessToken
+        },
+        success: function(result) {
+          console.log(result);
+          // this.categoryData.push('My Library');
+
+          callback(this.currData);
+        },
+        error: function(xhr, textStatus, errorThrown) {
+          callback(false);
+        }
+      });
+    };
 
     /**
      * Load plans from api
@@ -397,6 +432,34 @@
         },
         complete: function() {
           categoryCallback(this.currData);
+        }
+      });
+    };
+
+    /*
+     * Get video data for entitlements
+     * @param {object} jsonData the entitlement data
+     * @param {function} callback the callback function
+     */
+    this.getEntitlementData = function(jsonData, callback) {
+      this.currData = [];
+
+      $.ajax({
+        url: this.settingsParams.endpoint + "videos/",
+        type: 'GET',
+        crossDomain: true,
+        dataType: 'json',
+        context: this,
+        cache: false,
+        data: {
+          "app_key" : this.settingsParams.app_key,
+          "id" : jsonData.response._id
+        },
+        success: function(result) {
+          console.log(result);
+        },
+        error: function() {
+
         }
       });
     };

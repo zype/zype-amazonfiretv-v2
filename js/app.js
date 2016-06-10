@@ -74,11 +74,11 @@
    *                 settingsParams.displayButtons {Boolean} flag that tells the app to display the buttons or not
    */
   var App = function(settingsParams) {
-    //hold onto the app settings
+    // hold onto the app settings
     this.settingsParams = settingsParams;
     this.showSearch = settingsParams.showSearch;
 
-    //main application container div
+    // main application container div
     this.$appContainer = $("#app-container");
 
     // mixin inheritance, initialize this as an event handler for these events:
@@ -106,34 +106,65 @@
 
       this.$appContainer.append(html);
 
-
-      // Device Linking Checking Process
+      // DEVICE LINKING CHECKING PROCESS
       if (this.settingsParams.device_linking === true && this.settingsParams.IAP === false) {
+        // Check PIN Status
         deviceLinkingHandler.getPinStatus(this.settingsParams.device_id, function(result) {
           if (result === false) {
+            // Device not linked
+            this.settingsParams.linked = false;
+
             // Device Linking Acquiring PIN
             this.initializeDeviceLinkingView();
             this.selectView(this.deviceLinkingView);
-          } else {
-            this.settingsParams.linked = result;
-            this.build();
+          }
+          // Build App
+          else {
+            // Device Linking Success
+            this.settingsParams.linked = true;
+
+            // Retrieve new Access Token on launch
+            deviceLinkingHandler.retrieveAccessToken(this.settingsParams.device_id, result.pin, function(result) {
+              // On successful access token request
+              if (result) {
+                // store OAuth data in local storage
+                console.log('dataLoaded.retrieveAccessToken callback fired');
+                deviceLinkingHandler.setOauthData(result);
+
+                // // Get Entitlements
+                // app.data.loadEntitlementData(deviceLinkingHandler.getAccessToken(), function() {
+                //   this.build();
+                // }.bind(this));
+
+                // build app
+                this.build();
+              }
+              else {
+                console.log("Error - retrieveAccessToken failed");
+                alert("There was an error configuring your Fire TV App. Please relaunch and try again");
+                app.exit();
+              }
+            }.bind(this));
           }
         }.bind(this));
-        // IAP Checking Process
-      } else if (this.settingsParams.device_linking === false && this.settingsParams.IAP === true) {
+      }
+      // IAP Checking Process
+      else if (this.settingsParams.device_linking === false && this.settingsParams.IAP === true) {
         console.log("IAP");
         this.build();
-      } else if (this.settingsParams.device_linking === true && this.settingsParams.IAP === true) {
+      }
+      else if (this.settingsParams.device_linking === true && this.settingsParams.IAP === true) {
+        console.log("Device Linking and IAP both enabled. Only one may be enabled at a time.");
         alert("There was an error configuring your Fire TV App.");
         app.exit();
         return;
-      } else {
+      }
+      else {
         this.build();
       }
     }.bind(this);
 
     this.build = function() {
-
       if (this.deviceLinkingView && this.currentView === this.deviceLinkingView) {
         this.deviceLinkingView.remove();
         this.data.loadData(function() {
@@ -271,7 +302,7 @@
      * Device Linking View Object
      *
      */
-    this.initializeDeviceLinkingView = function(pin) {
+    this.initializeDeviceLinkingView = function() {
       var deviceLinkingView = this.deviceLinkingView = new DeviceLinkingView();
 
       deviceLinkingView.on('exit', function() {
@@ -283,10 +314,29 @@
         this.hideContentLoadingSpinner();
       }, this);
 
-      deviceLinkingView.on('linkingSuccess', function() {
+      deviceLinkingView.on('linkingSuccess', function(pin) {
         console.log('linking.success');
+
         this.settingsParams.linked = true;
-        this.build();
+
+        // Store successfully linked PIN
+        deviceLinkingHandler.setDevicePin(pin);
+
+        // Retrieve Access Token
+        deviceLinkingHandler.retrieveAccessToken(this.settingsParams.device_id, pin, function(result) {
+          // On successful access token request
+          if (result) {
+            // store OAuth data in local storage
+            console.log('retrieveAccessToken callback fired');
+            deviceLinkingHandler.setOauthData(result);
+            // build app
+            this.build();
+          } else {
+            console.log("Error - retrieveAccessToken failed");
+            alert("There was an error configuring your Fire TV App. Please relaunch and try again");
+            app.exit();
+          }
+        }.bind(this));
       }, this);
 
       deviceLinkingView.on('linkingFailure', function() {
@@ -333,7 +383,7 @@
           // }
 
           app.data.setCurrentCategory(index);
-          console.log(app.data.currentCategory);
+          console.log('app.data.currentCategory', app.data.currentCategory);
 
           //update the content
           this.oneDView.updateCategory();
@@ -551,10 +601,10 @@
        */
       oneDView.on('select', function(index, fromSlider) {
         if (fromSlider) {
-          this.transitionToPlayer(index, fromSlider);
+          this.verifyVideo(index, fromSlider);
         } else {
           app.data.setCurrentItem(index);
-          this.transitionToPlayer(index, fromSlider);
+          this.verifyVideo(index, fromSlider);
         }
       }, this);
 
@@ -816,32 +866,103 @@
       this.showHeaderBar();
     };
 
-    /**
-     * Opens a player view and starts video playing in it.
-     * @param {Object} itemData data for currently selected item
-     */
-    this.transitionToPlayer = function(index, fromSlider) {
+    this.transitionFromAlertToOneD = function() {
+      this.selectView(this.oneDView);
+      buttons.resync();
+    };
 
-      var video = null;
+    /**
+     * Verifies video playability and calls appropriate method.
+     */
+    this.verifyVideo = function(index, fromSlider) {
+      var video;
+
       if (fromSlider) {
         video = app.data.sliderData[index];
       } else {
         video = this.categoryData[index];
       }
 
-      // let's check if we can play this video
-      // console.log(video);
-      // console.log(iapHandler.canPlayVideo(video));
-      // console.log(deviceLinkingHandler.canPlayVideo());
-
-      if (!(iapHandler.canPlayVideo(video) && deviceLinkingHandler.canPlayVideo())) {
+      // IAP and Free
+      if (iapHandler.canPlayVideo(video) === false) {
         return false;
       }
+      // Device Linking
+      else if (this.settingsParams.device_linking === true) {
 
+        if (this.settingsParams.linked === true) {
+
+          // Access Token check
+          if (deviceLinkingHandler.hasValidAccessToken() === true) {
+
+            var accessToken = deviceLinkingHandler.getAccessToken();
+            
+            // Entitlement check
+            deviceLinkingHandler.isEntitled(video.id, accessToken, function(result) {
+              if (result === true) {
+                return this.transitionToPlayer(index, fromSlider, accessToken);
+              }
+              else {
+                alert('You are not authorized to access this content.');
+                return this.transitionFromAlertToOneD();
+              }
+            }.bind(this));
+
+          }
+          else {
+            console.log('No valid access token, refreshing');
+
+            // Refresh Access Token
+            var oauth = deviceLinkingHandler.getOauthData();
+
+            deviceLinkingHandler.refreshAccessToken(this.settingsParams.client_id, this.settingsParams.client_secret, oauth.refresh_token, function(result) {
+              if (result !== false) {
+                deviceLinkingHandler.setOauthData(result);
+
+                var accessToken = deviceLinkingHandler.getAccessToken();
+
+                // Entitlement check
+                deviceLinkingHandler.isEntitled(video.id, accessToken, function(result) {
+                  if (result === true) {
+                    return this.transitionToPlayer(index, fromSlider, accessToken);
+                  }
+                  else {
+                    alert('You are not authorized to access this content.');
+                    return this.transitionFromAlertToOneD();
+                  }
+                }.bind(this));
+              }
+              else {
+                console.log('Error - refreshAccessToken');
+                alert('Authentication Error: Please try again.');
+                return this.transitionFromAlertToOneD();
+              }
+            }.bind(this));  
+          }
+        }
+        else {
+          // Device Linking is enabled, but device is not linked
+          deviceLinkingHandler.clearLocalStorage();
+          alert('Authentication Error: You are not authorized to access this content. Device is not linked.');
+          return false;
+        }
+      }
+      else {
+        // canPlayVideo === true && device_linking === false - transitionToPlayer
+        this.transitionToPlayer(index, fromSlider, accessToken);
+      }
+    };
+
+    /**
+     * Opens a player view and starts video playing in it.
+     * @param {Object} itemData data for currently selected item
+     */
+    this.transitionToPlayer = function(index, fromSlider, accessToken) {
+      // Create the PlayerView
       var playerView;
       this.playerSpinnerHidden = false;
 
-      if (this.settingsParams.PlaylistView && !fromSlider) {
+      if (this.settingsParams.PlaylistView && this.settingsParams.autoplay && !fromSlider) {
         playerView = this.playerView = new this.settingsParams.PlaylistView(this.settingsParams);
       } else {
         playerView = this.playerView = new this.settingsParams.PlayerView(this.settingsParams);
@@ -870,20 +991,25 @@
 
       // stream video first gets the stream and then renders the player
       if (fromSlider) {
-        this.start_stream(playerView, this.$appContainer, app.data.sliderData, index);
+        this.start_stream(playerView, this.$appContainer, app.data.sliderData, index, accessToken);
       } else {
-        this.start_stream(playerView, this.$appContainer, this.categoryData, index);
+        this.start_stream(playerView, this.$appContainer, this.categoryData, index, accessToken);
       }
     };
 
-    this.start_stream = function(playerView, container, items, index) {
+    this.start_stream = function(playerView, container, items, index, accessToken) {
       var video = items[index];
       var url_base = this.settingsParams.player_endpoint + 'embed/' + video.id + '.json';
       var uri = new URI(url_base);
       uri.addSearch({
-        autoplay: this.settingsParams.autoplay,
-        app_key: this.settingsParams.app_key
+        autoplay: this.settingsParams.autoplay
       });
+      if (typeof accessToken !== 'undefined' && accessToken) {
+        uri.addSearch({ access_token: accessToken });
+      } 
+      else {
+        uri.addSearch({ app_key: this.settingsParams.app_key });
+      }
 
       var consumer = iapHandler.state.currentConsumer;
 
@@ -898,7 +1024,6 @@
         type: 'GET',
         dataType: 'json',
         success: function(player_json) {
-
           var outputs = player_json.response.body.outputs;
           for (var i = 0; i < outputs.length; i++) {
             var output = outputs[i];

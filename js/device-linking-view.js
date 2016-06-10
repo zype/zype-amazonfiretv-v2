@@ -109,9 +109,9 @@
       this.timer = setInterval(function() {
         console.log('pin.status.check');
         deviceLinkingHandler.getPinStatus(app.settingsParams.device_id, function(result) {
-          if (result === true) {
+          if (result !== false) {
             clearInterval(this.timer);
-            this.trigger("linkingSuccess");
+            this.trigger("linkingSuccess", result.pin);
           }
         }.bind(this));
 

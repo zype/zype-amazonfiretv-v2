@@ -196,7 +196,7 @@
     /**
      * Creates the left nav view from the template and appends it to the given element
      * @param {Element} $el the application container
-     * @parma {Object} catData category data
+     * @param {Object} catData category data
      */
     this.render = function($el, catData, startIndex) {
       this.leftNavItems = catData;

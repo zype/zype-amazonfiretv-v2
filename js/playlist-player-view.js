@@ -86,9 +86,10 @@
     }.bind(this);
 
     /**
-     * Handles showing the view to transition from playing one video to the next
+     * Verifies the playability of the next video.
      */
-    this.transitionToNextVideo = function() {
+    this.verifyNextVideo = function() {
+      var video = this.items[this.currentIndex + 1];
 
       if (this.$previewEl) {
         this.$previewEl.remove();
@@ -96,68 +97,96 @@
 
       this.previewDismissed = true;
 
-      var video = this.items[this.currentIndex + 1];
-
       if ((this.items.length > this.currentIndex + 1) && iapHandler.canPlayVideo(video) && deviceLinkingHandler.canPlayVideo()) {
-        console.log("transition to next video");
 
-        var url_base = this.settings.player_endpoint + 'embed/' + video.id + '.json';
-        var uri = new URI(url_base);
-        uri.addSearch({
-          autoplay: this.settings.autoplay,
-          app_key: this.settings.app_key
-        });
+        if (this.settings.device_linking) {
+          // if device linking, check entitlement
+          var accessToken = deviceLinkingHandler.getAccessToken();
 
-        var consumer = iapHandler.state.currentConsumer;
-
-        if (typeof consumer !== 'undefined' && consumer && consumer.access_token) {
-          uri.addSearch({
-            access_token: consumer.access_token
-          });
-        }
-
-        $.ajax({
-          context: this,
-          url: uri.href(),
-          type: 'GET',
-          dataType: 'json',
-          success: function(player_json) {
-            // set the url and format for the upcoming video
-            var outputs = player_json.response.body.outputs;
-            for (var i = 0; i < outputs.length; i++) {
-              var output = outputs[i];
-              video.url = utils.makeSSL(output.url);
-              if (output.name === 'hls' || output.name === 'm3u8') {
-                video.format = 'application/x-mpegURL';
-              } else if (output.name === 'mp4') {
-                video.format = 'video/mp4';
-              }
-
-              // add ad schedule to video json
-              if (player_json.response.body.advertising) {
-                video.ad_schedule = [];
-                var schedule = player_json.response.body.advertising.schedule;
-                for (i = 0; i < schedule.length; i++) {
-                  // add each ad tag in, make played be false
-                  var seconds = schedule[i].offset / 1000;
-                  video.ad_schedule.push({
-                    offset: seconds,
-                    tag: schedule[i].tag,
-                    played: false
-                  });
-                }
-              }
+          deviceLinkingHandler.isEntitled(video.id, accessToken, function(result){
+            if (result === true) {
+              this.transitionToNextVideo(video, accessToken);
             }
-            // issue is that this is the ajax response, not what I think it is outside the ajax block
-            this.startNextVideo();
-          },
-          error: function() {
-            console.log(arguments);
-          }
-        });
-      } else {
+            else {
+              this.exit();
+              alert('You are not authorized to access this content.');
+              app.transitionFromAlertToOneD();
+            }
+          }.bind(this));
+        }
+        else {
+          this.transitionToNextVideo(video, accessToken);
+        }
+      }
+      else {
         this.exit();
       }
+    };
+
+    /**
+     * Handles showing the view to transition from playing one video to the next
+     */
+    this.transitionToNextVideo = function(video, accessToken) {
+      var url_base = this.settings.player_endpoint + 'embed/' + video.id + '.json';
+      var uri = new URI(url_base);
+      uri.addSearch({
+        autoplay: this.settings.autoplay
+      });
+
+      if (typeof accessToken !== 'undefined' && accessToken) {
+        uri.addSearch({ access_token: accessToken });
+      }
+      else {
+        uri.addSearch({ app_key: this.settings.app_key });
+      }
+
+      var consumer = iapHandler.state.currentConsumer;
+
+      if (typeof consumer !== 'undefined' && consumer && consumer.access_token) {
+        uri.addSearch({
+          access_token: consumer.access_token
+        });
+      }
+
+      $.ajax({
+        context: this,
+        url: uri.href(),
+        type: 'GET',
+        dataType: 'json',
+        success: function(player_json) {
+          // set the url and format for the upcoming video
+          var outputs = player_json.response.body.outputs;
+          for (var i = 0; i < outputs.length; i++) {
+            var output = outputs[i];
+            video.url = utils.makeSSL(output.url);
+            if (output.name === 'hls' || output.name === 'm3u8') {
+              video.format = 'application/x-mpegURL';
+            } else if (output.name === 'mp4') {
+              video.format = 'video/mp4';
+            }
+
+            // add ad schedule to video json
+            if (player_json.response.body.advertising) {
+              video.ad_schedule = [];
+              var schedule = player_json.response.body.advertising.schedule;
+              for (var i = 0; i < schedule.length; i++) {
+                // add each ad tag in, make played be false
+                var seconds = schedule[i].offset / 1000;
+                video.ad_schedule.push({
+                  offset: seconds,
+                  tag: schedule[i].tag,
+                  played: false
+                });
+              }
+            }
+          }
+          this.startNextVideo();
+        },
+        error: function() {
+          alert('Error: Unable to play next video.');
+          this.exit();
+        }
+      });
     };
 
     this.showTransitionView = function() {
@@ -205,7 +234,7 @@
       }
 
       if (type === "ended") {
-        this.transitionToNextVideo();
+        this.verifyNextVideo();
       } else {
         this.trigger('videoStatus', currentTime, duration, type);
       }
@@ -264,7 +293,7 @@
               this.previewDismissed = true;
               break;
             case buttons.SELECT:
-              this.transitionToNextVideo();
+              this.verifyNextVideo();
               break;
             case buttons.PLAY_PAUSE:
               this.currentView.handleControls(e);
