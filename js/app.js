@@ -944,6 +944,7 @@
           // Device Linking is enabled, but device is not linked
           deviceLinkingHandler.clearLocalStorage();
           alert('Authentication Error: You are not authorized to access this content. Device is not linked.');
+          this.transitionFromAlertToOneD();
           return false;
         }
       }
