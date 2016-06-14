@@ -131,9 +131,9 @@
         var $currElt = $(this.$rowElements[i]);
         var $currImage = $currElt.children("img.shoveler-full-img");
         if ($currImage.length === 0) {
-          var url = this.rowsData[i].imgURL;
-          // console.log(url.substring(url.lastIndexOf('?') + 1) );
-          $currElt.prepend('<img id="' + url.substring(url.lastIndexOf('?') + 1) + '" class="shoveler-full-img" src="' + url + '" style="visibility:hidden"/>');
+          var id = this.rowsData[i].id;
+          var url = this.rowsData[i].imgURL || './assets/default-image.png';
+          $currElt.prepend('<img id="image-' + id + '" class="shoveler-full-img" src="' + url + '" style="visibility:hidden"/>');
           $currImage = $currElt.children("img.shoveler-full-img");
         }
 
