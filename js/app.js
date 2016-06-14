@@ -128,16 +128,20 @@
               // On successful access token request
               if (result) {
                 // store OAuth data in local storage
-                console.log('dataLoaded.retrieveAccessToken callback fired');
                 deviceLinkingHandler.setOauthData(result);
 
-                // // Get Entitlements
-                // app.data.loadEntitlementData(deviceLinkingHandler.getAccessToken(), function() {
-                //   this.build();
-                // }.bind(this));
+                // Get Entitlements
+                app.data.loadEntitlementData(deviceLinkingHandler.getAccessToken(), function(result) {
+                  if (result) {
+                    app.data.categoryData.unshift('My Library');
 
-                // build app
-                this.build();
+                    if (result.response.length > 0) {
+                      app.data.entitlementData = result;
+                    }
+                  }
+
+                  this.build();
+                }.bind(this));
               }
               else {
                 console.log("Error - retrieveAccessToken failed");
@@ -157,7 +161,6 @@
         console.log("Device Linking and IAP both enabled. Only one may be enabled at a time.");
         alert("There was an error configuring your Fire TV App.");
         app.exit();
-        return;
       }
       else {
         this.build();
@@ -466,8 +469,23 @@
         var leftNavData = categoryItems;
 
         var startIndex = 0;
+
         if (this.showSearch) {
           leftNavData.unshift(this.searchInputView);
+        }
+        // Search
+        if (this.showSearch && app.data.entitlementData.response.length === 0) {
+          // Start on Featured Playlist
+          startIndex = 1;
+        }
+        // Search + Entitlements
+        else if (this.showSearch && app.data.entitlementData.response.length > 0) {
+          // Start on Featured Playlist
+          startIndex = 2;
+        }
+        // No Search + Entitlements
+        else if (!this.showSearch && app.data.entitlementData.response.length > 0) {
+          // Start on Featured Playlist
           startIndex = 1;
         }
 
@@ -751,20 +769,33 @@
       }.bind(this);
 
       oneDView.updateCategory = function() {
-
-        if (this.showSearch && this.leftNavView.currSelectedIndex > 1) {
-          // this is a category grab of videos
-          app.data.getCategoryData(successCallback);
-        } else if (!this.showSearch && this.leftNavView.currSelectedIndex > 0) {
-          app.data.getCategoryData(successCallback);
-        } else {
-          app.data.getPlaylistData(successCallback);
-          // this is the featured playlist grab of videos
+        if (app.data.entitlementData.response.length > 0) {
+          // Entitlements / My Library
+          if ((this.showSearch && this.leftNavView.currSelectedIndex === 1) || (!this.showSearch && this.leftNavView.currSelectedIndex === 0)) {
+            app.data.getEntitlementData(app.data.entitlementData, successCallback);
+          }
+          // Category
+          if ((this.showSearch && this.leftNavView.currSelectedIndex > 2) || (!this.showSearch && this.leftNavView.currSelectedIndex > 1)) {
+            app.data.getCategoryData(successCallback);
+          }
+          // Playlist
+          if ((this.showSearch && this.leftNavView.currSelectedIndex === 2) || (!this.showSearch && this.leftNavView.currSelectedIndex === 1)) {
+            app.data.getPlaylistData(successCallback);
+          }
         }
-
+        else {
+          // Category
+          if ((this.showSearch && this.leftNavView.currSelectedIndex > 1) || (!this.showSearch && this.leftNavView.currSelectedIndex > 0)) {
+            app.data.getCategoryData(successCallback);
+          }
+          // Playlist
+          if ((this.showSearch && this.leftNavView.currSelectedIndex === 1) || (!this.showSearch && this.leftNavView.currSelectedIndex === 0)) {
+            app.data.getPlaylistData(successCallback);
+          }
+        }
       }.bind(this);
 
-      //get the first video row right now when it loads
+      // Get first video row on load
       this.oneDView.updateCategory();
     };
 
@@ -872,7 +903,9 @@
     };
 
     /**
-     * Verifies video playability and calls appropriate method.
+     * Verifies video playability and calls appropriate method
+     * @param {integer} the video's index
+     * @param {boolean} if selected video was from the slider
      */
     this.verifyVideo = function(index, fromSlider) {
       var video;

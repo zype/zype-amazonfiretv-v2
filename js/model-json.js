@@ -22,6 +22,7 @@
 
     this.zobjectData = [];
     this.sliderData = [];
+    this.entitlementData = [];
 
     /**
      * This function loads the initial data needed to start the app and calls the provided callback with the data when it is fully loaded
@@ -41,6 +42,7 @@
       that.channelsData = [];
       that.zobjectData = [];
       that.sliderData = [];
+      that.entitlementData = [];
 
       this.getPlans(function(plans) {
         that.plans = plans;
@@ -209,11 +211,11 @@
 
     /**
      * Load Entitlement data
-     * @param {string} accessToken the current, valid Access Token
-     * @param {function} callback the callback function
+     * @param {string}   a valid Access Token
+     * @param {function} the callback function
      */
     this.loadEntitlementData = function(accessToken, callback) {
-      this.currData = [];
+      var resp;
 
       $.ajax({
         url: this.settingsParams.endpoint + "consumer/videos/",
@@ -223,17 +225,46 @@
         context: this,
         cache: false,
         data: {
+          "access_token" : accessToken,
+          "order" : "desc",
           "per_page" : this.settingsParams.per_page,
-          "access_token" : accessToken
+          "sort" : "created_at"
         },
         success: function(result) {
-          console.log(result);
-          // this.categoryData.push('My Library');
-
-          callback(this.currData);
+          resp = result;
         },
-        error: function(xhr, textStatus, errorThrown) {
-          callback(false);
+        error: function(xhr) {
+          console.log('Error: loadEntitlementData', xhr);
+        },
+        complete: function() {
+          callback(resp);
+        }
+      });
+    };
+
+    /**
+     * Get video by ID
+     * @param {string}   Video ID
+     * @param {boolean}  Make an async or sync call
+     * @param {function} The callback function
+     */
+    this.getVideoById = function(video_id, async, callback) {
+      $.ajax({
+        url: this.settingsParams.endpoint + "videos/" + video_id,
+        type: 'GET',
+        crossDomain: true,
+        dataType: 'json',
+        context: this,
+        cache: false,
+        async: async,
+        data: {
+          "app_key" : this.settingsParams.app_key
+        },
+        success: function(result) {
+          callback(result);
+        },
+        error: function(xhr) {
+          console.log('error', xhr);
         }
       });
     };
@@ -436,37 +467,53 @@
       });
     };
 
-    /*
-     * Get video data for entitlements
-     * @param {object} jsonData the entitlement data
-     * @param {function} callback the callback function
+    /**
+     * Get Entitlement video data recursively
+     * @param {object}   the entitlement data
+     * @param {function} the callback function
+     * @param {integer}  the starting index 
+     * @param {array}    the retrieved video data
      */
-    this.getEntitlementData = function(jsonData, callback) {
+    this.getEntitlementData = function(jsonData, callback, counter, videoData) {
       this.currData = [];
+      var j = counter || 0;
+      var videoData = videoData || [];
+      var video_id = jsonData.response[j].video_id;
 
+      // For each video, get video details and save them
       $.ajax({
-        url: this.settingsParams.endpoint + "videos/",
+        url: this.settingsParams.endpoint + "videos/" + video_id,
         type: 'GET',
         crossDomain: true,
         dataType: 'json',
         context: this,
         cache: false,
         data: {
-          "app_key" : this.settingsParams.app_key,
-          "id" : jsonData.response._id
+          "app_key" : this.settingsParams.app_key
         },
         success: function(result) {
-          console.log(result);
-        },
-        error: function() {
+          videoData.push(result.response);
 
+          if (j < (jsonData.response.length - 1)) {
+            j++;
+
+            return this.getEntitlementData(jsonData, callback, j, videoData);
+          }
+
+          this.currData = this.formatVideos(videoData);
+
+          return callback(this.currData);
+        },
+        error: function(xhr) {
+          console.log('error', xhr);
         }
       });
     };
 
     //  Format Zype videos
     this.formatVideos = function(jsonData) {
-      var videos = jsonData.response;
+      var videos = jsonData.response || jsonData;
+
       // set up the formatted video array
       // do we want to do it this way, or do we just want to change the variables that are being used down the road (def want to change the variables down the road)
       var formattedVideos = [];
