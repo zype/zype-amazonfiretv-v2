@@ -22,7 +22,7 @@
 
     this.zobjectData = [];
     this.sliderData = [];
-    this.entitlementData = [];
+    this.entitlementData = {};
 
     /**
      * This function loads the initial data needed to start the app and calls the provided callback with the data when it is fully loaded
@@ -42,7 +42,7 @@
       that.channelsData = [];
       that.zobjectData = [];
       that.sliderData = [];
-      that.entitlementData = [];
+      that.entitlementData = {};
 
       this.getPlans(function(plans) {
         that.plans = plans;
@@ -157,7 +157,7 @@
           this.loadPlaylistData();
         },
         complete: function() {
-          console.log('loadData.complete');
+          console.log('loadCategoryData.complete');
           this.loadZObjectData(categoryDataLoadedCallback);
           // categoryDataLoadedCallback();
         }
@@ -226,6 +226,7 @@
         cache: false,
         data: {
           "access_token" : accessToken,
+          "dpt" : true,
           "order" : "desc",
           "per_page" : this.settingsParams.per_page,
           "sort" : "created_at"
@@ -489,7 +490,8 @@
         context: this,
         cache: false,
         data: {
-          "app_key" : this.settingsParams.app_key
+          "app_key" : this.settingsParams.app_key,
+          "dpt" : true
         },
         success: function(result) {
           videoData.push(result.response);

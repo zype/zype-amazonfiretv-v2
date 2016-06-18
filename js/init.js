@@ -26,7 +26,7 @@
     // Device Linking Pre-Setup
     if (settings.device_linking === true) {
       settings.device_id = deviceLinkingHandler.getDeviceId();
-      if (settings.device_id === null) {
+      if (settings.device_id === null || !settings.device_id) {
         settings.device_id = deviceLinkingHandler.setDeviceId();
       }
 

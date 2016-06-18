@@ -110,7 +110,7 @@
       if (this.settingsParams.device_linking === true && this.settingsParams.IAP === false) {
         // Check PIN Status
         deviceLinkingHandler.getPinStatus(this.settingsParams.device_id, function(result) {
-          if (result === false) {
+          if (result === false || result.linked === false) {
             // Device not linked
             this.settingsParams.linked = false;
 
@@ -125,16 +125,16 @@
 
             // Retrieve new Access Token on launch
             deviceLinkingHandler.retrieveAccessToken(this.settingsParams.device_id, result.pin, function(result) {
-              // On successful access token request
+
               if (result) {
-                // store OAuth data in local storage
                 deviceLinkingHandler.setOauthData(result);
 
                 // Get Entitlements
                 app.data.loadEntitlementData(deviceLinkingHandler.getAccessToken(), function(result) {
-                  if (result) {
-                    app.data.categoryData.unshift('My Library');
+                  
+                  app.data.categoryData.unshift('My Library');
 
+                  if (result) {
                     if (result.response.length > 0) {
                       app.data.entitlementData = result;
                     }
@@ -169,20 +169,47 @@
 
     this.build = function() {
       if (this.deviceLinkingView && this.currentView === this.deviceLinkingView) {
+
         this.deviceLinkingView.remove();
+
         this.data.loadData(function() {
-          /**
-           * Handles nested categories
-           */
-          if (app.settingsParams.nested_categories === true) {
-            this.initializeNestedCategories();
-            this.selectView(this.nestedCategoriesOneDView);
-          } else {
-            this.initializeLeftNavView();
-            this.initializeOneDView();
-            this.selectView(this.oneDView);
-            this.leftNavView.collapse();
-          }
+          // Retrieve Access Token
+          deviceLinkingHandler.retrieveAccessToken(this.settingsParams.device_id, deviceLinkingHandler.getDevicePin(), function(result) {
+            if (result) {
+              deviceLinkingHandler.setOauthData(result);
+
+              app.data.loadEntitlementData(deviceLinkingHandler.getAccessToken(), function(result) {
+                
+                app.data.categoryData.unshift('My Library');
+                
+                if (result) {
+                  if (result.response.length > 0) {
+                    app.data.entitlementData = result;
+                  }
+                }
+
+                /**
+                 * Handles nested categories
+                 */
+                if (app.settingsParams.nested_categories === true) {
+                  this.initializeNestedCategories();
+                  this.selectView(this.nestedCategoriesOneDView);
+                } else {
+                  this.initializeLeftNavView();
+                  this.initializeOneDView();
+                  this.selectView(this.oneDView);
+                  this.leftNavView.collapse();
+                }
+
+              }.bind(this));
+            }
+            else {
+              console.log("Error - retrieveAccessToken failed");
+              alert("There was an error configuring your Fire TV App. Please relaunch and try again");
+              app.exit();
+            }
+          }.bind(this));
+
         }.bind(this));
       } else {
         /**
@@ -325,21 +352,7 @@
         // Store successfully linked PIN
         deviceLinkingHandler.setDevicePin(pin);
 
-        // Retrieve Access Token
-        deviceLinkingHandler.retrieveAccessToken(this.settingsParams.device_id, pin, function(result) {
-          // On successful access token request
-          if (result) {
-            // store OAuth data in local storage
-            console.log('retrieveAccessToken callback fired');
-            deviceLinkingHandler.setOauthData(result);
-            // build app
-            this.build();
-          } else {
-            console.log("Error - retrieveAccessToken failed");
-            alert("There was an error configuring your Fire TV App. Please relaunch and try again");
-            app.exit();
-          }
-        }.bind(this));
+        this.build();
       }, this);
 
       deviceLinkingView.on('linkingFailure', function() {
@@ -473,22 +486,21 @@
         if (this.showSearch) {
           leftNavData.unshift(this.searchInputView);
         }
-        // Search
-        if (this.showSearch && app.data.entitlementData.response.length === 0) {
+        if (this.settingsParams.device_linking === true && this.settingsParams.linked === true) {
           // Start on Featured Playlist
-          startIndex = 1;
+          if (this.showSearch) {
+            startIndex = 2;
+          }
+          else if (!this.showSearch) {
+            startIndex = 1;
+          }
         }
-        // Search + Entitlements
-        else if (this.showSearch && app.data.entitlementData.response.length > 0) {
-          // Start on Featured Playlist
-          startIndex = 2;
+        else {
+          if (this.showSearch) {
+            startIndex = 1;
+          }
         }
-        // No Search + Entitlements
-        else if (!this.showSearch && app.data.entitlementData.response.length > 0) {
-          // Start on Featured Playlist
-          startIndex = 1;
-        }
-
+        
         app.data.setCurrentCategory(startIndex);
         leftNavView.render(this.$appContainer, leftNavData, startIndex);
       }.bind(this);
@@ -769,7 +781,7 @@
       }.bind(this);
 
       oneDView.updateCategory = function() {
-        if (app.data.entitlementData.response.length > 0) {
+        if (this.settingsParams.device_linking === true && this.settingsParams.linked === true) {
           // Entitlements / My Library
           if ((this.showSearch && this.leftNavView.currSelectedIndex === 1) || (!this.showSearch && this.leftNavView.currSelectedIndex === 0)) {
             app.data.getEntitlementData(app.data.entitlementData, successCallback);
