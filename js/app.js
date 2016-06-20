@@ -97,7 +97,8 @@
      */
     this.dataLoaded = function() {
       // initialize custom styles
-      this.updateStyleSheet();
+      this.createStyleSheet();
+      this.setBodyClasses();
 
       var logo = this.settingsParams.icon;
       var html = utils.buildTemplate($("#app-header-template"), {
@@ -238,47 +239,51 @@
     };
 
     // overrides css with configs
-    this.updateStyleSheet = function() {
-      var sheet = document.styleSheets[0];
-      // set up background theme colors
-      sheet.insertRule('.content-load-spinner {border-right-color: ' + this.settingsParams.brandColor + ' !important;}', 1);
-      sheet.insertRule('.content-load-spinner {border-bottom-color: ' + this.settingsParams.brandColor + ' !important;}', 1);
-      sheet.insertRule('.content-load-spinner {border-left-color: ' + this.settingsParams.brandColor + ' !important;}', 1);
+    this.createStyleSheet = function() {
+      var style = document.createElement('style');
+      var rules = [
+        // Loading Indicator
+        '.content-load-spinner { border-right-color: ' + this.settingsParams.brandColor + '; }',
+        '.content-load-spinner { border-bottom-color: ' + this.settingsParams.brandColor + '; }',
+        '.content-load-spinner { border-left-color: ' + this.settingsParams.brandColor + '; }',
+        // Navigation
+        '#left-nav-menu-icon.leftnav-menu-icon-highlight .menu-line { background: ' + this.settingsParams.brandColor + '; }',
+        '.leftnav-menu-list { border-color: ' + this.settingsParams.brandColor + '; }',
+        '.leftnav-list-item-highlighted { color: ' + this.settingsParams.brandColor + '; }',
+        '.leftnav-list-item-static.leftnav-list-item-selected { color: ' + this.settingsParams.brandColor + '; }',
+        // Search
+        '.leftnav-search-box.leftnav-list-item-selected { color: ' + this.settingsParams.brandColor + '; }',
+        '.leftnav-search-box:focus::-webkit-input-placeholder { color: ' + this.settingsParams.brandColor + '; }',
+        '.leftnav-search-box:focus:-moz-placeholder { color: ' + this.settingsParams.brandColor + '; }',
+        '.leftnav-search-box:focus::-moz-placeholder { color: ' + this.settingsParams.brandColor + '; }',
+        '.leftnav-search-box:focus:-ms-input-placeholder { color: ' + this.settingsParams.brandColor +'; }',
+        // Buttons
+        '.detail-item-button.detail-item-button-static { border-color: ' + this.settingsParams.brandColor + '; }',
+        '.detail-item-button.detail-item-button-selected { background: ' + this.settingsParams.brandColor + '; border-color: ' + this.settingsParams.brandColor + '; }',
+        // Slider Pagination
+        '.circle-current { background: ' + this.settingsParams.brandColor + '; border-color: ' + this.settingsParams.brandColor + '; }',
+      ];
 
-      // set logo
-      sheet.insertRule('.app-logo {right: ' + this.settingsParams.iconXPosition + ' !important;}', 1);
-      sheet.insertRule('.app-logo {top: ' + this.settingsParams.iconYPosition + ' !important;}', 1);
+      rules = rules.join('');
 
-      sheet.insertRule('body {background: linear-gradient(top, #100f0e 7%, ' + this.settingsParams.backgroundColor + ' 50%, #100f0e 93%) !important;}', 1);
-      sheet.insertRule('body {background: -moz-linear-gradient(top, #100f0e 7%, ' + this.settingsParams.backgroundColor + ' 50%, #100f0e 93%) !important;}', 1);
-      sheet.insertRule('body {background: -webkit-linear-gradient(top, #100f0e 7%, ' + this.settingsParams.backgroundColor + ' 50%, #100f0e 93%) !important;}', 1);
+      style.appendChild(document.createTextNode(rules));
 
-      sheet.insertRule('.app-overlay-container {background: linear-gradient(top, #100f0e 7%, ' + this.settingsParams.backgroundColor + ' 50%, #100f0e 93%) !important;}', 1);
-      sheet.insertRule('.app-overlay-container {background: -moz-linear-gradient(top, #100f0e 7%, ' + this.settingsParams.backgroundColor + ' 50%, #100f0e 93%) !important;}', 1);
-      sheet.insertRule('.app-overlay-container {background: -webkit-linear-gradient(top, #100f0e 7%, ' + this.settingsParams.backgroundColor + ' 50%, #100f0e 93%) !important;}', 1);
+      document.getElementsByTagName('head')[0].appendChild(style);
+    };
 
+    /**
+     * Set the body classes based on API configs
+     */
+    this.setBodyClasses = function() {
+      var body = document.getElementsByTagName('body')[0];
+      var bodyClasses = [];
 
-      sheet.insertRule('.app-top-bar {background-color: ' + this.settingsParams.topBarColor + ' !important;}', 1);
+      bodyClasses.push(this.settingsParams.theme);
+      bodyClasses.push(this.settingsParams.logoPosition);
 
-      // set up left nav colors
-      sheet.insertRule('.leftnav-list-item-highlighted { color: ' + this.settingsParams.leftNavHoverTextColor + ' !important;}', 1);
-      sheet.insertRule('.leftnav-list-item-selected { color: ' + this.settingsParams.leftNavHoverTextColor + ' !important;}', 1);
-      sheet.insertRule('.leftnav-list-item-static { color: ' + this.settingsParams.leftNavTextColor + ' !important;}', 1);
-      sheet.insertRule('.leftnav-menulist-expanded { background: linear-gradient(to right, ' + this.settingsParams.leftNavBackgroundColor + ' 0%, ' + this.settingsParams.leftNavBackgroundColor + ' 60%, transparent 100%) !important;}', 1);
-      sheet.insertRule('.leftnav-menulist-expanded { background: -moz-linear-gradient(to right, ' + this.settingsParams.leftNavBackgroundColor + ' 0%, ' + this.settingsParams.leftNavBackgroundColor + ' 60%, transparent 100%) !important;}', 1);
-      sheet.insertRule('.leftnav-menulist-expanded { background: -webkit-linear-gradient(to right, ' + this.settingsParams.leftNavBackgroundColor + ' 0%, ' + this.settingsParams.leftNavBackgroundColor + ' 60%, transparent 100%) !important;}', 1);
-      // sheet.insertRule('.leftnav-list-item-selected { background-color: ' + this.settingsParams.leftNavHoverBackgroundColor + ' !important;}', 1);
-
-      // sheet.insertRule('#left-nav-list-container { background-color: ' + this.settingsParams.topBarColor + ' !important;}', 1);
-      // sheet.insertRule('.leftnav-list-item-highlighted { border-color: ' + this.settingsParams.leftNavHoverBackgroundColor + ' !important;}', 1);
-      // sheet.insertRule('.leftnav-list-item-highlighted { background-color: ' + this.settingsParams.leftNavHoverBackgroundColor + ' !important;}', 1);
-
-      // set up text color for video thumbnails and buttons
-      sheet.insertRule('.detail-item-button-static {border-color: ' + this.settingsParams.textColor + ' !important; color: ' + this.settingsParams.textColor + ' !important; }', 1);
-      sheet.insertRule('.one-d-title-container {color: ' + this.settingsParams.textColor + ' !important;}', 1);
-      sheet.insertRule('#summaryDate {color: ' + this.settingsParams.mutedTextColor + ' !important;}', 1);
-      sheet.insertRule('#summaryTitle {color: ' + this.settingsParams.textColor + ' !important;}', 1);
-      sheet.insertRule('#summaryDesc {color: ' + this.settingsParams.textColor + ' !important;}', 1);
+      for (var i = 0; i < bodyClasses.length; i++) {
+        body.classList.add(bodyClasses[i]);
+      }
     };
 
     /**

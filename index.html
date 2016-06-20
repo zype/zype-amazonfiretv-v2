@@ -66,8 +66,12 @@
   <!-- Left Nav View Template -->
   <script id="left-nav-template" type="text/x-handlebars-template">
     <div id="left-nav" class="leftnav-main-container">
-      <div id="left-nav-menu-icon" class="leftnav-menu-icon"><img src="assets/menu.png" alt="Menu Icon" /></div>
-      <div id="left-nav-list-container" class="leftnav-menulist-expanded">
+      <div id="left-nav-menu-icon" class="leftnav-menu-icon">
+        <div class="menu-line"></div>
+        <div class="menu-line"></div>
+        <div class="menu-line"></div>
+      </div>
+      <div id="left-nav-list-container" class="leftnav-menu-list leftnav-menulist-collapsed">
         <div id="left-nav-scrolling-list" class="leftnav-menu-scrolling-list">
           {{#each leftNavItems}}
           <div class="leftnav-list-item-container">
@@ -83,7 +87,7 @@
 
   <!-- Search Row View Template -->
   <script id="search-input-template" type="text/x-handlebars-template">
-    <input id="search-input" class="leftnav-list-item-static leftnav-search-box" type="text" placeholder="Search"></input>
+    <input id="search-input" class="leftnav-search-box" type="text" placeholder="Search"></input>
   </script>
 
   <!-- 1D View Template  -->
@@ -98,7 +102,7 @@
         <div id="slider-pagination-container" class="slider-pagination"></div>
       </div>
       <div id="one-D-shoveler-container">
-        <div id="one-d-title" class="one-d-title-container">{{title}}</div>
+        <div id="one-d-title" class="one-d-title-container"><span>{{title}}</span></div>
       </div>
       <div id="one-D-summary-container" class="one-D-details-summary-text">
         <div id="summaryTitle" class="one-D-summary-title"></div>
@@ -143,8 +147,8 @@
     <div class="device-linking-view">
       <h1>Link your Fire TV</h1>
       <ol>
-        <li>From your computer or mobile device, go to {{link}}</li>
-        <li>Enter Pin: {{pin}}</li>
+        <li>From your computer or mobile device, go to <strong>{{link}}</strong></li>
+        <li>Enter Pin: <strong>{{pin}}</strong></li>
         <li>This screen will automatically update as soon as your activation is complete!</li>
       </ol>
       <div id="device-linking-buttons" class="device-linking-view-buttons-container"></div>
@@ -155,7 +159,7 @@
   <script id="button-view-template" type="text/x-handlebars-template">
     <div class="detail-row-container-buttons">
       {{#each allButtons}}
-      <div id="{{id}}" class="detail-item-button-static {{class}}">{{name}}</div>
+      <div id="{{id}}" class="detail-item-button detail-item-button-static {{class}}">{{name}}</div>
       {{/each}}
     </div>
   </script>
