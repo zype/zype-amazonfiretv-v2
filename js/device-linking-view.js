@@ -89,7 +89,7 @@
       }, this);
 
       buttonView.on("browse", function() {
-        this.trigger("startBrowse");
+        this.trigger("startBrowse", true);
       }, this);
 
       buttonView.update = function() {

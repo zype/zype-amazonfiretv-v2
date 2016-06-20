@@ -167,49 +167,59 @@
       }
     }.bind(this);
 
-    this.build = function() {
+    this.build = function(browse) {
       if (this.deviceLinkingView && this.currentView === this.deviceLinkingView) {
 
         this.deviceLinkingView.remove();
 
         this.data.loadData(function() {
-          // Retrieve Access Token
-          deviceLinkingHandler.retrieveAccessToken(this.settingsParams.device_id, deviceLinkingHandler.getDevicePin(), function(result) {
-            if (result) {
-              deviceLinkingHandler.setOauthData(result);
 
-              app.data.loadEntitlementData(deviceLinkingHandler.getAccessToken(), function(result) {
-                
-                app.data.categoryData.unshift('My Library');
-                
-                if (result) {
-                  if (result.response.length > 0) {
-                    app.data.entitlementData = result;
+          if (browse === true) {
+            if (app.settingsParams.nested_categories === true) {
+              this.initializeNestedCategories();
+              this.selectView(this.nestedCategoriesOneDView);
+            } else {
+              this.initializeLeftNavView();
+              this.initializeOneDView();
+              this.selectView(this.oneDView);
+              this.leftNavView.collapse();
+            }
+          }
+          else {
+            deviceLinkingHandler.retrieveAccessToken(this.settingsParams.device_id, deviceLinkingHandler.getDevicePin(), function(result) {
+              if (result) {
+                deviceLinkingHandler.setOauthData(result);
+
+                app.data.loadEntitlementData(deviceLinkingHandler.getAccessToken(), function(result) {
+                  
+                  app.data.categoryData.unshift('My Library');
+                  
+                  if (result) {
+                    if (result.response.length > 0) {
+                      app.data.entitlementData = result;
+                    }
                   }
-                }
 
-                /**
-                 * Handles nested categories
-                 */
-                if (app.settingsParams.nested_categories === true) {
-                  this.initializeNestedCategories();
-                  this.selectView(this.nestedCategoriesOneDView);
-                } else {
-                  this.initializeLeftNavView();
-                  this.initializeOneDView();
-                  this.selectView(this.oneDView);
-                  this.leftNavView.collapse();
-                }
+                  if (app.settingsParams.nested_categories === true) {
+                    this.initializeNestedCategories();
+                    this.selectView(this.nestedCategoriesOneDView);
+                  } else {
+                    this.initializeLeftNavView();
+                    this.initializeOneDView();
+                    this.selectView(this.oneDView);
+                    this.leftNavView.collapse();
+                  }
 
-              }.bind(this));
-            }
-            else {
-              console.log("Error - retrieveAccessToken failed");
-              alert("There was an error configuring your Fire TV App. Please relaunch and try again");
-              app.exit();
-            }
-          }.bind(this));
-
+                }.bind(this));
+              }
+              else {
+                console.log("Error - retrieveAccessToken failed");
+                alert("There was an error configuring your Fire TV App. Please relaunch and try again");
+                app.exit();
+              }
+            }.bind(this));
+          }
+          
         }.bind(this));
       } else {
         /**
@@ -360,8 +370,8 @@
         alert("Please reload the app!");
       }, this);
 
-      deviceLinkingView.on('startBrowse', function() {
-        this.build();
+      deviceLinkingView.on('startBrowse', function(browse) {
+        this.build(browse);
       }, this);
 
       deviceLinkingView.render(this.$appContainer);
