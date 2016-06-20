@@ -77,10 +77,22 @@
       settings.logoPosition = 'logo--' + app_json.response.logo_position; // 'center' or 'right'
 
       // main colors
+      settings.backgroundColor = app_json.response.background_color;
+      settings.textColor = app_json.response.text_color;
+      settings.mutedTextColor = app_json.response.muted_text_color;
       settings.brandColor = app_json.response.brand_color;
+
+      // navigation colors
+      settings.topBarColor = app_json.response.top_bar_color;
+      settings.leftNavBackgroundColor = app_json.response.left_nav_background_color;
+      settings.leftNavTextColor = app_json.response.left_nav_text_color;
+      settings.leftNavHoverTextColor = app_json.response.left_nav_hover_text_color;
+      settings.leftNavHoverBackgroundColor = app_json.response.left_nav_hover_background_color;
 
       // icon
       settings.icon = utils.makeSSL(app_json.response.logo_original_url);
+      settings.iconXPosition = app_json.response.icon_x_position + 'px';
+      settings.iconYPosition = app_json.response.icon_y_position + 'px';
 
       // use related images for video thumbnails
       settings.related_images = app_json.response.related_images; // boolean
