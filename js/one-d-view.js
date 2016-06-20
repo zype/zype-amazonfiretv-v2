@@ -34,7 +34,7 @@
 
     ID_SLIDER_SUMMARY_DESC = "sliderDesc";
 
-  var TIME_TIMEOUT_DISPLAY_INFO = 350;
+  var TIME_TIMEOUT_DISPLAY_INFO = 250;
 
   /**
    * @class OneDView
@@ -68,6 +68,7 @@
     //jquery global variables
     this.$el = null;
     this.el = null;
+    this.$body = $('body');
 
     this.onPurchaseSuccess = function() {
       this.transitionToShovelerView();
@@ -82,7 +83,7 @@
       this.$el.css('visibility', 'hidden');
       $(".one-d-title-container").css('visibility', 'hidden');
       this.shovelerView.hide();
-      $();
+
       if (this.sliderView !== null) this.sliderView.hide();
     };
 
@@ -93,7 +94,7 @@
       this.$el.css('visibility', 'visible');
       $(".one-d-title-container").css('visibility', 'visible');
       this.shovelerView.show();
-      $();
+
       if (this.sliderView !== null) this.sliderView.show();
     };
 
@@ -173,7 +174,7 @@
 
       if (args.displaySliderParam && app.data.sliderData.length > 0) {
         this.sliderData = app.data.sliderData;
-        // console.log(this.sliderData);
+        
         this.createSliderView(this.sliderData);
         $("#" + ID_ONED_SLIDER_CONTAINER).show(); // we need this for scrolling
         this.setCurrentView(this.sliderView);
@@ -481,7 +482,7 @@
 
       //change opacity of the shoveler
       this.shovelerView.fadeSelected();
-      this.shovelerView.shrinkSelected();
+      // this.shovelerView.shrinkSelected();
 
       //set default selected button and apply selected style
       this.buttonView.setCurrentSelectedIndex(0);
@@ -660,27 +661,40 @@
      * @param {Number} index number of current element to show data for
      */
     this.showExtraData = function(index) {
-      index = index || 0;
+      var index = index || 0;
 
       window.setTimeout(function() {
-        //add description
+        // add the extra data
         $("#" + ID_ONED_SUMMARY_TITLE).html(this.rowElements[index].title);
-        $("#" + ID_ONED_SUMMARY_DATE).html((this.rowElements[index].seconds) ? (this.parseTime(this.rowElements[index].seconds)) : ("<br/>"));
+        $("#" + ID_ONED_SUMMARY_DATE).html((this.rowElements[index].seconds) ? (utils.parseTime(this.rowElements[index].seconds)) : ("<br/>"));
         $("#" + ID_ONED_SUMMARY_DESC).html(this.rowElements[index].description);
         this.buttonView.update();
         $("#" + BUTTON_CONTAINER).show();
+
+        // show the extra data
+        this.$body.removeClass('transition-shoveler');
+
       }.bind(this), TIME_TIMEOUT_DISPLAY_INFO);
+
     };
 
     /**
      * Hide the text in the 1D view when scrolling starts
      */
     this.hideExtraData = function() {
-      $("#" + ID_ONED_SUMMARY_TITLE).text("");
-      $("#" + ID_ONED_SUMMARY_DATE).text("");
-      $("#" + ID_ONED_SUMMARY_DESC).text("");
-      $('.detail-row-container-buttons .btnIAP').hide();
-      $("#" + BUTTON_CONTAINER).hide();
+
+      // hide the extra data
+      this.$body.addClass('transition-shoveler');
+
+      // remove the extra data
+      window.setTimeout(function() {
+        $("#" + ID_ONED_SUMMARY_TITLE).text("");
+        $("#" + ID_ONED_SUMMARY_DATE).text("");
+        $("#" + ID_ONED_SUMMARY_DESC).text("");
+        $('.detail-row-container-buttons .btnIAP').hide();
+        $("#" + BUTTON_CONTAINER).hide();
+      }.bind(this), TIME_TIMEOUT_DISPLAY_INFO);
+      
     };
 
     /**
@@ -688,14 +702,16 @@
      * @param {Number} index number of current element to show data for
      */
     this.showSliderExtraData = function(index) {
-      index = index || 0;
+      var index = index || 0;
 
       window.setTimeout(function() {
-        //add description
-        // console.log(this.sliderData[index].title);
-        // console.log(this.sliderData[index].description);
+        // add the extra data
         $("#" + ID_SLIDER_SUMMARY_TITLE).html(this.sliderData[index].title);
         $("#" + ID_SLIDER_SUMMARY_DESC).html(this.sliderData[index].description);
+
+        // show the extra data
+        this.$body.removeClass('transition-slider');
+
       }.bind(this), TIME_TIMEOUT_DISPLAY_INFO);
     };
 
@@ -703,8 +719,14 @@
      * Hide the text in the Slider view when scrolling starts
      */
     this.hideSliderExtraData = function() {
-      $("#" + ID_SLIDER_SUMMARY_TITLE).text("");
-      $("#" + ID_SLIDER_SUMMARY_DESC).text("");
+      // hide the extra data
+      this.$body.addClass('transition-slider');
+
+      // remove the extra data
+      window.setTimeout(function() {
+        $("#" + ID_SLIDER_SUMMARY_TITLE).text("");
+        $("#" + ID_SLIDER_SUMMARY_DESC).text("");
+      }.bind(this), TIME_TIMEOUT_DISPLAY_INFO);
     };
 
     /*
@@ -735,16 +757,6 @@
       }
     };
     */
-
-    // Convert seconds to HH:MM:SS
-
-    this.parseTime = function(totalSec) {
-      var hours = parseInt(totalSec / 3600) % 24;
-      var minutes = parseInt(totalSec / 60) % 60;
-      var seconds = totalSec % 60;
-
-      return (hours < 10 ? "0" + hours : hours) + ":" + (minutes < 10 ? "0" + minutes : minutes) + ":" + (seconds < 10 ? "0" + seconds : seconds);
-    };
 
   };
 

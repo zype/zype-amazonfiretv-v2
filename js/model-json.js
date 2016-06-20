@@ -413,8 +413,8 @@
           "id": videos[i]._id,
           "title": videos[i].title,
           "pubDate": videos[i].published_at,
-          "thumbURL": this.parse_thumbnails(videos[i].thumbnails),
-          "imgURL": this.parse_thumbnails(videos[i].thumbnails),
+          "thumbURL": this.parse_thumbnails(videos[i]),
+          "imgURL": this.parse_thumbnails(videos[i]),
           // parse videoURL at playtime
           "description": videos[i].description,
           "seconds": videos[i].duration,
@@ -431,10 +431,14 @@
       return formattedVideos;
     };
 
-    this.parse_thumbnails = function(thumbnails) {
-      for (var i = 0; i < thumbnails.length; i++) {
-        if (thumbnails[i].width > 400) {
-          return utils.makeSSL(thumbnails[i].url);
+    this.parse_thumbnails = function(video) {
+      if (video.images && this.settingsParams.related_images) {
+        return utils.makeSSL(video.images[0].url);
+      } else {
+        for (var i = 0; i < video.thumbnails.length; i++) {
+          if (video.thumbnails[i].width > 400) {
+            return utils.makeSSL(video.thumbnails[i].url);
+          }
         }
       }
     };

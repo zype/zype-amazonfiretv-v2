@@ -65,7 +65,16 @@
       // for testing only
       // settings.IAP = false;
       // settings.device_linking = true;
+      // settings.theme = 'theme--dark';
+      // settings.theme = 'theme--light';
+      // settings.logoPosition = 'logo--center';
+      // settings.logoPosition = 'logo--right';
 
+      // theme
+      settings.theme = 'theme--' + app_json.response.theme; // 'light' or 'dark'
+
+      // logo position
+      settings.logoPosition = 'logo--' + app_json.response.logo_position; // 'center' or 'right'
 
       // main colors
       settings.backgroundColor = app_json.response.background_color;
@@ -84,6 +93,9 @@
       settings.icon = utils.makeSSL(app_json.response.logo_original_url);
       settings.iconXPosition = app_json.response.icon_x_position + 'px';
       settings.iconYPosition = app_json.response.icon_y_position + 'px';
+
+      // use related images for video thumbnails
+      settings.related_images = app_json.response.related_images; // boolean
 
       console.log('waiting for amazonPlatformReady...');
 
