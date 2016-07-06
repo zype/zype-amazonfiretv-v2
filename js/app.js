@@ -400,9 +400,14 @@
        * @param {Number} index the index of the selected item
        */
       leftNavView.on('select', function(index) {
-        if (!this.showSearch || index !== 0) {
+        if (this.settingsParams.nested_categories && index === 0) {
+          this.transitionToCategories();
+        }
+        else if (!this.showSearch || index !== 0) {
           //remove the contents of the oneDView
-          if (this.oneDView.sliderView) this.oneDView.sliderView.remove();
+          if (this.oneDView.sliderView) {
+            this.oneDView.sliderView.remove();
+          }
           this.oneDView.remove();
 
           //show the spinner
@@ -430,7 +435,8 @@
             this.leftNavView.searchUpdated = false;
             this.searchInputView.reset();
           }
-        } else {
+        }
+        else {
           //remove the contents of the oneDView
           this.oneDView.remove();
 
@@ -464,9 +470,12 @@
         this.transitionFromLefNavToOneD();
       }, this);
 
+      /**
+       * Event Handler - search query
+       */
       if (this.showSearch) {
         this.searchInputView.on('searchQueryEntered', function() {
-          if (this.leftNavView.currSelectedIndex === 0) {
+          if ((this.settingsParams.nested_categories === false && this.leftNavView.currSelectedIndex === 0) || (this.settingsParams.nested_categories === true && this.leftNavView.currSelectedIndex === 1)) {
             this.leftNavView.searchUpdated = true;
             this.leftNavView.confirmNavSelection();
           }
@@ -483,9 +492,10 @@
        */
       leftNavView.on('indexChange', function(index) {
         //set the newly selected category index
-        if (this.showSearch && index === 0) {
+        if (this.showSearch && ((this.settingsParams.nested_categories === false && index === 0) || (this.settingsParams.nested_categories === true && index === 1))) {
           this.searchInputView.select();
-        } else {
+        }
+        else {
           if (this.showSearch) {
             this.searchInputView.deselect();
           }
@@ -501,18 +511,39 @@
         if (this.showSearch) {
           leftNavData.unshift(this.searchInputView);
         }
+        if (this.settingsParams.nested_categories === true) {
+          leftNavData.unshift('Home');
+        }
         if (this.settingsParams.device_linking === true && this.settingsParams.linked === true) {
-          // Start on Featured Playlist
-          if (this.showSearch) {
-            startIndex = 2;
+          if (this.settingsParams.nested_categories === true) {
+            // Start on Featured Playlist
+            if (this.showSearch) {
+              startIndex = 3;
+            }
+            else if (!this.showSearch) {
+              startIndex = 2;
+            }
           }
-          else if (!this.showSearch) {
-            startIndex = 1;
+          else {
+            // Start on Featured Playlist
+            if (this.showSearch) {
+              startIndex = 2;
+            }
+            else if (!this.showSearch) {
+              startIndex = 1;
+            }
           }
         }
         else {
-          if (this.showSearch) {
-            startIndex = 1;
+          if (this.settingsParams.nested_categories === true) {
+            if (this.showSearch) {
+              startIndex = 2;
+            }
+          }
+          else {
+            if (this.showSearch) {
+              startIndex = 1;
+            }
           }
         }
         
@@ -729,7 +760,7 @@
         this.categoryData = categoryData;
 
         var categoryTitle = "";
-        if (this.showSearch && this.leftNavView.currSelectedIndex === 0) {
+        if ( this.showSearch && ( (this.settingsParams.nested_categories === false && this.leftNavView.currSelectedIndex === 0) || (this.settingsParams.nested_categories === true && this.leftNavView.currSelectedIndex === 1) ) ) {
           categoryTitle = "Search";
         } else {
           categoryTitle = app.data.categoryData[this.leftNavView.currSelectedIndex];
@@ -741,11 +772,32 @@
          * Actually that is not issue, we will add New Releases by default
          */
         var showSlider = function() {
-          if (this.showSearch && app.data.currentCategory === 1) {
-            return true;
-          } else if (!this.showSearch && app.data.currentCategory === 0) {
-            return true;
+          // Device Linking - LINKED / My Library
+          if (this.settingsParams.device_linking === true && this.settingsParams.linked === true) {
+            if (this.settingsParams.nested_categories === true) {
+              if ((this.showSearch && app.data.currentCategory === 3) || (!this.showSearch && app.data.currentCategory === 2)) {
+                return true;
+              }
+            }
+            else {
+              if ((this.showSearch && app.data.currentCategory === 2) || (!this.showSearch && app.data.currentCategory === 1)) {
+                return true;
+              }
+            }
           }
+          else {
+            if (this.settingsParams.nested_categories === true) {
+              if ((this.showSearch && app.data.currentCategory === 2) || (!this.showSearch && app.data.currentCategory === 1)) {
+                return true;
+              }
+            }
+            else {
+              if ((this.showSearch && app.data.currentCategory === 1) || (!this.showSearch && app.data.currentCategory === 0)) {
+                return true;
+              }
+            }
+          }
+
           return false;
         }.bind(this);
 
@@ -797,27 +849,55 @@
 
       oneDView.updateCategory = function() {
         if (this.settingsParams.device_linking === true && this.settingsParams.linked === true) {
-          // Entitlements / My Library
-          if ((this.showSearch && this.leftNavView.currSelectedIndex === 1) || (!this.showSearch && this.leftNavView.currSelectedIndex === 0)) {
-            app.data.getEntitlementData(app.data.entitlementData, successCallback);
+          if (this.settingsParams.nested_categories === true) {
+            // Entitlements / My Library
+            if ((this.showSearch && this.leftNavView.currSelectedIndex === 2) || (!this.showSearch && this.leftNavView.currSelectedIndex === 1)) {
+              app.data.getEntitlementData(app.data.entitlementData, successCallback);
+            }
+            // Category
+            if ((this.showSearch && this.leftNavView.currSelectedIndex > 3) || (!this.showSearch && this.leftNavView.currSelectedIndex > 2)) {
+              app.data.getCategoryData(successCallback);
+            }
+            // Playlist
+            if ((this.showSearch && this.leftNavView.currSelectedIndex === 3) || (!this.showSearch && this.leftNavView.currSelectedIndex === 2)) {
+              app.data.getPlaylistData(successCallback);
+            }
           }
-          // Category
-          if ((this.showSearch && this.leftNavView.currSelectedIndex > 2) || (!this.showSearch && this.leftNavView.currSelectedIndex > 1)) {
-            app.data.getCategoryData(successCallback);
-          }
-          // Playlist
-          if ((this.showSearch && this.leftNavView.currSelectedIndex === 2) || (!this.showSearch && this.leftNavView.currSelectedIndex === 1)) {
-            app.data.getPlaylistData(successCallback);
+          else {
+            // Entitlements / My Library
+            if ((this.showSearch && this.leftNavView.currSelectedIndex === 1) || (!this.showSearch && this.leftNavView.currSelectedIndex === 0)) {
+              app.data.getEntitlementData(app.data.entitlementData, successCallback);
+            }
+            // Category
+            if ((this.showSearch && this.leftNavView.currSelectedIndex > 2) || (!this.showSearch && this.leftNavView.currSelectedIndex > 1)) {
+              app.data.getCategoryData(successCallback);
+            }
+            // Playlist
+            if ((this.showSearch && this.leftNavView.currSelectedIndex === 2) || (!this.showSearch && this.leftNavView.currSelectedIndex === 1)) {
+              app.data.getPlaylistData(successCallback);
+            }
           }
         }
         else {
-          // Category
-          if ((this.showSearch && this.leftNavView.currSelectedIndex > 1) || (!this.showSearch && this.leftNavView.currSelectedIndex > 0)) {
-            app.data.getCategoryData(successCallback);
+          if (this.settingsParams.nested_categories === true) {
+            // Category
+            if ((this.showSearch && this.leftNavView.currSelectedIndex > 2) || (!this.showSearch && this.leftNavView.currSelectedIndex > 1)) {
+              app.data.getCategoryData(successCallback);
+            }
+            // Playlist
+            if ((this.showSearch && this.leftNavView.currSelectedIndex === 2) || (!this.showSearch && this.leftNavView.currSelectedIndex === 1)) {
+              app.data.getPlaylistData(successCallback);
+            }
           }
-          // Playlist
-          if ((this.showSearch && this.leftNavView.currSelectedIndex === 1) || (!this.showSearch && this.leftNavView.currSelectedIndex === 0)) {
-            app.data.getPlaylistData(successCallback);
+          else {
+            // Category
+            if ((this.showSearch && this.leftNavView.currSelectedIndex > 1) || (!this.showSearch && this.leftNavView.currSelectedIndex > 0)) {
+              app.data.getCategoryData(successCallback);
+            }
+            // Playlist
+            if ((this.showSearch && this.leftNavView.currSelectedIndex === 1) || (!this.showSearch && this.leftNavView.currSelectedIndex === 0)) {
+              app.data.getPlaylistData(successCallback);
+            }
           }
         }
       }.bind(this);
