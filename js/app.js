@@ -400,10 +400,12 @@
        * @param {Number} index the index of the selected item
        */
       leftNavView.on('select', function(index) {
+        
         if (this.settingsParams.nested_categories && index === 0) {
           this.transitionToCategories();
         }
-        else if (!this.showSearch || index !== 0) {
+        else if (!this.showSearch || (this.settingsParams.nested_categories && index > 1 || !this.settingsParams.nested_categories && index > 0)) {
+
           //remove the contents of the oneDView
           if (this.oneDView.sliderView) {
             this.oneDView.sliderView.remove();
@@ -419,14 +421,13 @@
           // }
 
           app.data.setCurrentCategory(index);
-          console.log('app.data.currentCategory', app.data.currentCategory);
+          console.log('app.data.currentCategory: ', app.data.currentCategory);
 
           //update the content
           this.oneDView.updateCategory();
 
           //set the selected view
           this.selectView(this.oneDView);
-
 
           //hide the leftNav
           this.leftNavView.collapse();
