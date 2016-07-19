@@ -479,37 +479,42 @@
       this.currData = [];
       var j = counter || 0;
       var videoData = videoData || [];
-      var video_id = jsonData.response[j].video_id;
+      var video_id = (jsonData.response) ? jsonData.response[j].video_id : null;
 
-      // For each video, get video details and save them
-      $.ajax({
-        url: this.settingsParams.endpoint + "videos/" + video_id,
-        type: 'GET',
-        crossDomain: true,
-        dataType: 'json',
-        context: this,
-        cache: false,
-        data: {
-          "app_key" : this.settingsParams.app_key,
-          "dpt" : true
-        },
-        success: function(result) {
-          videoData.push(result.response);
+      if (video_id) {
+        // For each video, get video details and save them
+        $.ajax({
+          url: this.settingsParams.endpoint + "videos/" + video_id,
+          type: 'GET',
+          crossDomain: true,
+          dataType: 'json',
+          context: this,
+          cache: false,
+          data: {
+            "app_key" : this.settingsParams.app_key,
+            "dpt" : true
+          },
+          success: function(result) {
+            videoData.push(result.response);
 
-          if (j < (jsonData.response.length - 1)) {
-            j++;
+            if (j < (jsonData.response.length - 1)) {
+              j++;
 
-            return this.getEntitlementData(jsonData, callback, j, videoData);
+              return this.getEntitlementData(jsonData, callback, j, videoData);
+            }
+
+            this.currData = this.formatVideos(videoData);
+
+            return callback(this.currData);
+          },
+          error: function(xhr) {
+            console.log('error', xhr);
           }
-
-          this.currData = this.formatVideos(videoData);
-
-          return callback(this.currData);
-        },
-        error: function(xhr) {
-          console.log('error', xhr);
-        }
-      });
+        });
+      }
+      else {
+        return callback(this.currData);
+      }
     };
 
     //  Format Zype videos
