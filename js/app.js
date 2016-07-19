@@ -1141,6 +1141,7 @@
 
     this.start_stream = function(playerView, container, items, index, accessToken) {
       var video = items[index];
+      console.log('video');
       var url_base = this.settingsParams.player_endpoint + 'embed/' + video.id + '.json';
       var uri = new URI(url_base);
       uri.addSearch({
@@ -1176,18 +1177,20 @@
               video.format = 'video/mp4';
             }
 
-            // add ad schedule to video json
-            if (player_json.response.body.advertising) {
-              video.ad_schedule = [];
-              var schedule = player_json.response.body.advertising.schedule;
-              for (i = 0; i < schedule.length; i++) {
-                // add each ad tag in, make played be false
-                var seconds = schedule[i].offset / 1000;
-                video.ad_schedule.push({
-                  offset: seconds,
-                  tag: schedule[i].tag,
-                  played: false
-                });
+            if (this.settingsParams.subscribe_to_watch_ad_free === false || (this.settingsParams.subscribe_to_watch_ad_free === true && (this.settingsParams.linked === false || iapHandler.hasValidSubscription() === false))) {
+              // add ad schedule to video json
+              if (player_json.response.body.advertising) {
+                video.ad_schedule = [];
+                var schedule = player_json.response.body.advertising.schedule;
+                for (i = 0; i < schedule.length; i++) {
+                  // add each ad tag in, make played be false
+                  var seconds = schedule[i].offset / 1000;
+                  video.ad_schedule.push({
+                    offset: seconds,
+                    tag: schedule[i].tag,
+                    played: false
+                  });
+                }
               }
             }
 
