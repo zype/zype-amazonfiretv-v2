@@ -1166,6 +1166,7 @@
         url: uri.href(),
         type: 'GET',
         dataType: 'json',
+        context: this,
         success: function(player_json) {
           var outputs = player_json.response.body.outputs;
           for (var i = 0; i < outputs.length; i++) {
@@ -1177,7 +1178,7 @@
               video.format = 'video/mp4';
             }
 
-            if (this.settingsParams.subscribe_to_watch_ad_free === false || (this.settingsParams.subscribe_to_watch_ad_free === true && (this.settingsParams.linked === false || iapHandler.hasValidSubscription() === false))) {
+            if (this.settingsParams.subscribe_to_watch_ad_free === false || (this.settingsParams.subscribe_to_watch_ad_free === true && ((this.settingsParams.device_linking && !this.settingsParams.linked) || (this.settingsParams.IAP && !iapHandler.hasValidSubscription())))) {
               // add ad schedule to video json
               if (player_json.response.body.advertising) {
                 video.ad_schedule = [];
@@ -1193,7 +1194,7 @@
                 }
               }
             }
-
+            
             playerView.render(container, items, index);
           }
         },
