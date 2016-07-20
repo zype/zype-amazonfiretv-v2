@@ -1141,7 +1141,6 @@
 
     this.start_stream = function(playerView, container, items, index, accessToken) {
       var video = items[index];
-      console.log('video');
       var url_base = this.settingsParams.player_endpoint + 'embed/' + video.id + '.json';
       var uri = new URI(url_base);
       uri.addSearch({
@@ -1194,7 +1193,7 @@
                 }
               }
             }
-            
+
             playerView.render(container, items, index);
           }
         },
