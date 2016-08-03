@@ -165,20 +165,18 @@
               video.format = 'video/mp4';
             }
 
-            if (settings.subscribe_to_watch_ad_free === false || (settings.subscribe_to_watch_ad_free === true && ((settings.device_linking && !settings.linked) || (settings.IAP && !iapHandler.hasValidSubscription())))) {
-              // add ad schedule to video json
-              if (player_json.response.body.advertising) {
-                video.ad_schedule = [];
-                var schedule = player_json.response.body.advertising.schedule;
-                for (var i = 0; i < schedule.length; i++) {
-                  // add each ad tag in, make played be false
-                  var seconds = schedule[i].offset / 1000;
-                  video.ad_schedule.push({
-                    offset: seconds,
-                    tag: schedule[i].tag,
-                    played: false
-                  });
-                }
+            // add ad schedule to video json
+            if (player_json.response.body.advertising) {
+              video.ad_schedule = [];
+              var schedule = player_json.response.body.advertising.schedule;
+              for (var i = 0; i < schedule.length; i++) {
+                // add each ad tag in, make played be false
+                var seconds = schedule[i].offset / 1000;
+                video.ad_schedule.push({
+                  offset: seconds,
+                  tag: schedule[i].tag,
+                  played: false
+                });
               }
             }
           }
