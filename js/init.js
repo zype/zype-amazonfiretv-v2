@@ -55,7 +55,6 @@
 
       settings.avod = app_json.response.avod;
       settings.IAP = app_json.response.in_app_purchase;
-      settings.subscribe_to_watch_ad_free = app_json.response.subscribe_to_watch_ad_free;
       settings.autoplay = app_json.response.autoplay;
       settings.nested_categories = app_json.response.nested;
 

@@ -1176,20 +1176,18 @@
               video.format = 'video/mp4';
             }
 
-            if (this.settingsParams.subscribe_to_watch_ad_free === false || (this.settingsParams.subscribe_to_watch_ad_free === true && (this.settingsParams.linked === false || iapHandler.hasValidSubscription() === false))) {
-              // add ad schedule to video json
-              if (player_json.response.body.advertising) {
-                video.ad_schedule = [];
-                var schedule = player_json.response.body.advertising.schedule;
-                for (i = 0; i < schedule.length; i++) {
-                  // add each ad tag in, make played be false
-                  var seconds = schedule[i].offset / 1000;
-                  video.ad_schedule.push({
-                    offset: seconds,
-                    tag: schedule[i].tag,
-                    played: false
-                  });
-                }
+            // add ad schedule to video json
+            if (player_json.response.body.advertising) {
+              video.ad_schedule = [];
+              var schedule = player_json.response.body.advertising.schedule;
+              for (i = 0; i < schedule.length; i++) {
+                // add each ad tag in, make played be false
+                var seconds = schedule[i].offset / 1000;
+                video.ad_schedule.push({
+                  offset: seconds,
+                  tag: schedule[i].tag,
+                  played: false
+                });
               }
             }
 
