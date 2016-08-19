@@ -798,10 +798,10 @@
       }.bind(this);
 
       oneDView.updateCategory = function() {
-        if (this.settingsParams.nav['library'] && this.leftNavView.currSelectedIndex === this.settingsParams.nav['library']) {
+        if (this.settingsParams.nav.library && this.leftNavView.currSelectedIndex === this.settingsParams.nav.library) {
           app.data.getEntitlementData(app.data.entitlementData, successCallback);
         }
-        else if (this.settingsParams.nav['playlist'] && this.leftNavView.currSelectedIndex === this.settingsParams.nav['playlist']) {
+        else if (this.settingsParams.nav.playlist && this.leftNavView.currSelectedIndex === this.settingsParams.nav.playlist) {
           app.data.getPlaylistData(successCallback);
         }
         else {
