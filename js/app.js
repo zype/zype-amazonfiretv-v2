@@ -1195,9 +1195,9 @@
           }
         },
         error: function() {
-          console.log(arguments);
-          alert("There was an error configuring your Fire TV App.");
-          app.exit();
+          alert("There was an error playing this video. Please try again.");
+          this.hideContentLoadingSpinner();
+          this.transitionFromPlayerToOneD();
         }
       });
     };
