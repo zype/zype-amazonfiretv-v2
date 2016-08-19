@@ -732,7 +732,7 @@
         this.categoryData = categoryData;
 
         var categoryTitle = "";
-        if ( this.showSearch && ( (this.settingsParams.nested_categories === false && this.leftNavView.currSelectedIndex === 0) || (this.settingsParams.nested_categories === true && this.leftNavView.currSelectedIndex === 1) ) ) {
+        if (this.leftNavView.currSelectedIndex === this.settingsParams.nav.search) {
           categoryTitle = "Search";
         } else {
           categoryTitle = app.data.categoryData[this.leftNavView.currSelectedIndex];
@@ -744,32 +744,10 @@
          * Actually that is not issue, we will add New Releases by default
          */
         var showSlider = function() {
-          // Device Linking - LINKED / My Library
-          if (this.settingsParams.device_linking === true && this.settingsParams.linked === true) {
-            if (this.settingsParams.nested_categories === true) {
-              if ((this.showSearch && app.data.currentCategory === 3) || (!this.showSearch && app.data.currentCategory === 2)) {
-                return true;
-              }
-            }
-            else {
-              if ((this.showSearch && app.data.currentCategory === 2) || (!this.showSearch && app.data.currentCategory === 1)) {
-                return true;
-              }
-            }
+          // Show Slider on Featured Playlist only
+          if (app.data.currentCategory === this.settingsParams.nav.playlist) {
+            return true;
           }
-          else {
-            if (this.settingsParams.nested_categories === true) {
-              if ((this.showSearch && app.data.currentCategory === 2) || (!this.showSearch && app.data.currentCategory === 1)) {
-                return true;
-              }
-            }
-            else {
-              if ((this.showSearch && app.data.currentCategory === 1) || (!this.showSearch && app.data.currentCategory === 0)) {
-                return true;
-              }
-            }
-          }
-
           return false;
         }.bind(this);
 
