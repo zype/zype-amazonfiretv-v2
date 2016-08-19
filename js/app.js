@@ -400,12 +400,31 @@
        * @param {Number} index the index of the selected item
        */
       leftNavView.on('select', function(index) {
-        
-        if (this.settingsParams.nested_categories && index === 0) {
+        // Home
+        if (index === this.settingsParams.nav.home) {
           this.transitionToCategories();
         }
-        else if (!this.showSearch || (this.settingsParams.nested_categories && index > 1 || !this.settingsParams.nested_categories && index > 0)) {
+        // Search
+        else if (index === this.settingsParams.nav.search) {
+          //remove the contents of the oneDView
+          this.oneDView.remove();
 
+          //show the spinner
+          this.showContentLoadingSpinner(true);
+
+          app.data.setCurrentCategory(index);
+          console.log(app.data.currentCategory);
+
+          this.oneDView.updateCategoryFromSearch(this.searchInputView.currentSearchQuery);
+
+          //set the selected view
+          this.selectView(this.oneDView);
+
+          //hide the leftNav
+          this.leftNavView.collapse();
+        }
+        // Library, Playlist, Category
+        else {
           //remove the contents of the oneDView
           if (this.oneDView.sliderView) {
             this.oneDView.sliderView.remove();
@@ -437,24 +456,6 @@
             this.searchInputView.reset();
           }
         }
-        else {
-          //remove the contents of the oneDView
-          this.oneDView.remove();
-
-          //show the spinner
-          this.showContentLoadingSpinner(true);
-
-          app.data.setCurrentCategory(index);
-          console.log(app.data.currentCategory);
-
-          this.oneDView.updateCategoryFromSearch(this.searchInputView.currentSearchQuery);
-
-          //set the selected view
-          this.selectView(this.oneDView);
-
-          //hide the leftNav
-          this.leftNavView.collapse();
-        }
       }, this);
 
       /**
@@ -476,7 +477,7 @@
        */
       if (this.showSearch) {
         this.searchInputView.on('searchQueryEntered', function() {
-          if ((this.settingsParams.nested_categories === false && this.leftNavView.currSelectedIndex === 0) || (this.settingsParams.nested_categories === true && this.leftNavView.currSelectedIndex === 1)) {
+          if (this.leftNavView.currSelectedIndex === this.settingsParams.nav.search) {
             this.leftNavView.searchUpdated = true;
             this.leftNavView.confirmNavSelection();
           }
@@ -493,7 +494,7 @@
        */
       leftNavView.on('indexChange', function(index) {
         //set the newly selected category index
-        if (this.showSearch && ((this.settingsParams.nested_categories === false && index === 0) || (this.settingsParams.nested_categories === true && index === 1))) {
+        if (index === this.settingsParams.nav.search) {
           this.searchInputView.select();
         }
         else {
@@ -501,7 +502,6 @@
             this.searchInputView.deselect();
           }
         }
-
       }, this);
 
       var successCallback = function(categoryItems) {
@@ -515,38 +515,9 @@
         if (this.settingsParams.nested_categories === true) {
           leftNavData.unshift('Home');
         }
-        if (this.settingsParams.device_linking === true && this.settingsParams.linked === true) {
-          if (this.settingsParams.nested_categories === true) {
-            // Start on Featured Playlist
-            if (this.showSearch) {
-              startIndex = 3;
-            }
-            else if (!this.showSearch) {
-              startIndex = 2;
-            }
-          }
-          else {
-            // Start on Featured Playlist
-            if (this.showSearch) {
-              startIndex = 2;
-            }
-            else if (!this.showSearch) {
-              startIndex = 1;
-            }
-          }
-        }
-        else {
-          if (this.settingsParams.nested_categories === true) {
-            if (this.showSearch) {
-              startIndex = 2;
-            }
-          }
-          else {
-            if (this.showSearch) {
-              startIndex = 1;
-            }
-          }
-        }
+
+        // Start on Featured Playlist
+        startIndex = this.settingsParams.nav.playlist;
         
         app.data.setCurrentCategory(startIndex);
         leftNavView.render(this.$appContainer, leftNavData, startIndex);
