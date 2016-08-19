@@ -72,6 +72,15 @@
       // settings.logoPosition = 'logo--center';
       // settings.logoPosition = 'logo--right';
 
+      // nav
+      settings.nav = {
+        home:   (settings.nested_categories) ? 0 : null,
+        search: (settings.nested_categories) ? 1 : 0
+      };
+      settings.nav.library  = (settings.device_linking) ? settings.nav.search + 1 : null;
+      settings.nav.playlist = (settings.device_linking) ? settings.nav.search + 2 : settings.nav.search + 1;
+      settings.nav.category = settings.nav.playlist + 1;
+
       // theme
       settings.theme = 'theme--' + app_json.response.theme; // 'light' or 'dark'
 

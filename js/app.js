@@ -849,57 +849,14 @@
       }.bind(this);
 
       oneDView.updateCategory = function() {
-        if (this.settingsParams.device_linking === true && this.settingsParams.linked === true) {
-          if (this.settingsParams.nested_categories === true) {
-            // Entitlements / My Library
-            if ((this.showSearch && this.leftNavView.currSelectedIndex === 2) || (!this.showSearch && this.leftNavView.currSelectedIndex === 1)) {
-              app.data.getEntitlementData(app.data.entitlementData, successCallback);
-            }
-            // Category
-            if ((this.showSearch && this.leftNavView.currSelectedIndex > 3) || (!this.showSearch && this.leftNavView.currSelectedIndex > 2)) {
-              app.data.getCategoryData(successCallback);
-            }
-            // Playlist
-            if ((this.showSearch && this.leftNavView.currSelectedIndex === 3) || (!this.showSearch && this.leftNavView.currSelectedIndex === 2)) {
-              app.data.getPlaylistData(successCallback);
-            }
-          }
-          else {
-            // Entitlements / My Library
-            if ((this.showSearch && this.leftNavView.currSelectedIndex === 1) || (!this.showSearch && this.leftNavView.currSelectedIndex === 0)) {
-              app.data.getEntitlementData(app.data.entitlementData, successCallback);
-            }
-            // Category
-            if ((this.showSearch && this.leftNavView.currSelectedIndex > 2) || (!this.showSearch && this.leftNavView.currSelectedIndex > 1)) {
-              app.data.getCategoryData(successCallback);
-            }
-            // Playlist
-            if ((this.showSearch && this.leftNavView.currSelectedIndex === 2) || (!this.showSearch && this.leftNavView.currSelectedIndex === 1)) {
-              app.data.getPlaylistData(successCallback);
-            }
-          }
+        if (this.settingsParams.nav['library'] && this.leftNavView.currSelectedIndex === this.settingsParams.nav['library']) {
+          app.data.getEntitlementData(app.data.entitlementData, successCallback);
+        }
+        else if (this.settingsParams.nav['playlist'] && this.leftNavView.currSelectedIndex === this.settingsParams.nav['playlist']) {
+          app.data.getPlaylistData(successCallback);
         }
         else {
-          if (this.settingsParams.nested_categories === true) {
-            // Category
-            if ((this.showSearch && this.leftNavView.currSelectedIndex > 2) || (!this.showSearch && this.leftNavView.currSelectedIndex > 1)) {
-              app.data.getCategoryData(successCallback);
-            }
-            // Playlist
-            if ((this.showSearch && this.leftNavView.currSelectedIndex === 2) || (!this.showSearch && this.leftNavView.currSelectedIndex === 1)) {
-              app.data.getPlaylistData(successCallback);
-            }
-          }
-          else {
-            // Category
-            if ((this.showSearch && this.leftNavView.currSelectedIndex > 1) || (!this.showSearch && this.leftNavView.currSelectedIndex > 0)) {
-              app.data.getCategoryData(successCallback);
-            }
-            // Playlist
-            if ((this.showSearch && this.leftNavView.currSelectedIndex === 1) || (!this.showSearch && this.leftNavView.currSelectedIndex === 0)) {
-              app.data.getPlaylistData(successCallback);
-            }
-          }
+          app.data.getCategoryData(successCallback);
         }
       }.bind(this);
 
