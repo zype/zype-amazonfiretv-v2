@@ -203,7 +203,7 @@
       var leftNavStrings = [];
       for (var i = 0; i < catData.length; i++) {
         if (typeof catData[i] == "string") {
-          leftNavStrings.push(catData[i].substring(0, 26));
+          leftNavStrings.push(catData[i]);
         } else {
           leftNavStrings.push("");
         }
@@ -222,14 +222,18 @@
 
       this.currSelectedIndex = startIndex;
       this.confirmedSelection = startIndex;
-      this.currentSelectionEle = this.$menuItems.eq(this.currSelectedIndex).children()[0];
+
+      if (startIndex > -1) {
+        this.currentSelectionEle = this.$menuItems.eq(this.currSelectedIndex).children()[0];
+      }
       this.scrollingContainerEle = $(CONTAINER_SCROLLING_LIST)[0];
       this.leftNavContainerEle = $(CONTAINER_MAIN)[0];
 
-      //set default selected item
-      this.setSelectedElement(this.currentSelectionEle);
-
-      this.shiftNavScrollContainer();
+      if (startIndex > -1) {
+        // set default selected item
+        this.setSelectedElement(this.currentSelectionEle);
+        this.shiftNavScrollContainer();
+      }
 
       //register touch handlers for the left-nav items
       touches.registerTouchHandler("leftnav-list-item-static", this.handleListItemSelection);
@@ -286,16 +290,7 @@
             this.confirmNavSelection();
             break;
           case buttons.RIGHT:
-            this.confirmNavSelection();
-            break;
-          case buttons.RIGHT:
-            if (this.confirmedSelection !== this.currSelectedIndex) {
-              // switch the current view state to the main content view
-              this.confirmedSelection = this.currSelectedIndex;
-              this.trigger('select', this.currSelectedIndex);
-            } else {
-              this.trigger('deselect');
-            }
+            this.trigger('deselect');
             break;
         }
       } else if (e.type === 'buttonrepeat') {
@@ -321,7 +316,12 @@
      * @param {number} direction to move the left nav
      */
     this.incrementCurrentSelectedIndex = function(direction) {
-      if ((direction > 0 && this.currSelectedIndex !== (this.$menuItems.length - 1)) || (direction < 0 && this.currSelectedIndex !== 0)) {
+      // If no item selected by default, select first item (Home) on UP / DOWN
+      if (this.currSelectedIndex === -1) {
+        this.currSelectedIndex = 0;
+        this.selectLeftNavItem();
+      }
+      else if ((direction > 0 && this.currSelectedIndex !== (this.$menuItems.length - 1)) || (direction < 0 && this.currSelectedIndex !== 0)) {
         this.currSelectedIndex += direction;
         this.selectLeftNavItem();
       }
@@ -347,7 +347,7 @@
           return;
         }
         this.confirmedSelection = this.currSelectedIndex;
-        this.trigger('select', this.currSelectedIndex);
+        this.trigger('select', this.currSelectedIndex);  
       } else if (this.searchUpdated) {
         this.trigger('select', this.currSelectedIndex);
       } else {

@@ -52,11 +52,14 @@
       settings.category_id = app_json.response.category_id;
       settings.playlist_id = app_json.response.featured_playlist_id;
       settings.per_page = app_json.response.per_page;
+      
+      settings.root_playlist_id = app_json.response.root_playlist_id;
 
       settings.avod = app_json.response.avod;
       settings.IAP = app_json.response.in_app_purchase;
       settings.autoplay = app_json.response.autoplay;
       settings.nested_categories = app_json.response.nested;
+      settings.playlists_only = app_json.response.playlists_only;
 
       settings.device_linking = app_json.response.device_linking;
       settings.device_link_url = app_json.response.device_link_url;
@@ -64,28 +67,14 @@
       // this should be true
       settings.displayButtons = true;
 
-      // for testing only
-      // settings.IAP = false;
-      // settings.device_linking = true;
-      // settings.theme = 'theme--dark';
-      // settings.theme = 'theme--light';
-      // settings.logoPosition = 'logo--center';
-      // settings.logoPosition = 'logo--right';
-
-      // nav
-      settings.nav = {
-        home:   (settings.nested_categories) ? 0 : null,
-        search: (settings.nested_categories) ? 1 : 0
-      };
-      settings.nav.library  = (settings.device_linking) ? settings.nav.search + 1 : null;
-      settings.nav.playlist = (settings.device_linking) ? settings.nav.search + 2 : settings.nav.search + 1;
-      settings.nav.category = settings.nav.playlist + 1;
-
       // theme
       settings.theme = 'theme--' + app_json.response.theme; // 'light' or 'dark'
 
       // logo position
       settings.logoPosition = 'logo--' + app_json.response.logo_position; // 'center' or 'right'
+
+      // use related images for video thumbnails
+      settings.related_images = app_json.response.related_images; // boolean
 
       // main colors
       settings.backgroundColor = app_json.response.background_color;
@@ -105,8 +94,22 @@
       settings.iconXPosition = app_json.response.icon_x_position + 'px';
       settings.iconYPosition = app_json.response.icon_y_position + 'px';
 
-      // use related images for video thumbnails
-      settings.related_images = app_json.response.related_images; // boolean
+      // For Testing
+      // settings.nested_categories = true;
+      // settings.playlists_only = true;
+      // settings.IAP = false;
+      // settings.device_linking = true;
+      // settings.theme = 'theme--dark';
+      // settings.theme = 'theme--light';
+      // settings.logoPosition = 'logo--center';
+      // settings.logoPosition = 'logo--right';
+
+      // nav
+      settings.nav = {};
+      settings.nav.home     = (settings.nested_categories) ? 0 : null;
+      settings.nav.search   = (settings.nested_categories) ? 1 : 0;
+      settings.nav.library  = (settings.device_linking) ? settings.nav.search + 1 : null;
+      settings.nav.playlist = (settings.device_linking) ? settings.nav.search + 2 : settings.nav.search + 1;
 
       console.log('waiting for amazonPlatformReady...');
 

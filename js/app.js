@@ -92,6 +92,7 @@
       alert("There was an error playing the video.");
       this.exit();
     }, this);
+
     /**
      * Callback from XHR to load the data model, this really starts the app UX
      */
@@ -402,53 +403,51 @@
       leftNavView.on('select', function(index) {
         // Home
         if (index === this.settingsParams.nav.home) {
-          this.transitionToCategories();
+          this.transitionToPlaylistChild(app.data.root_playlist_id, null, false);
+          // Reset ancestorPlaylistData
+          app.data.ancestorPlaylistData = [];
         }
         // Search
         else if (index === this.settingsParams.nav.search) {
-          //remove the contents of the oneDView
+          // remove the contents of the oneDView
           this.oneDView.remove();
 
-          //show the spinner
+          // show the spinner
           this.showContentLoadingSpinner(true);
 
+          // @LEGACY
+          // set the current selected (left nav items)
           app.data.setCurrentCategory(index);
-          console.log(app.data.currentCategory);
 
           this.oneDView.updateCategoryFromSearch(this.searchInputView.currentSearchQuery);
 
-          //set the selected view
+          // set the selected view
           this.selectView(this.oneDView);
 
-          //hide the leftNav
+          // hide the leftNav
           this.leftNavView.collapse();
         }
-        // Library, Playlist, Category
+        // Library (Playlists only displayed in NestedCategories view)
         else {
-          //remove the contents of the oneDView
+          // remove the contents of the oneDView
           if (this.oneDView.sliderView) {
             this.oneDView.sliderView.remove();
           }
           this.oneDView.remove();
 
-          //show the spinner
+          // show the spinner
           this.showContentLoadingSpinner(true);
 
-          //set the newly selected category index
-          // if (this.showSearch) {
-          //   index;
-          // }
-
+          // @LEGACY
           app.data.setCurrentCategory(index);
-          console.log('app.data.currentCategory: ', app.data.currentCategory);
 
-          //update the content
+          // update the content
           this.oneDView.updateCategory();
 
-          //set the selected view
+          // set the selected view
           this.selectView(this.oneDView);
 
-          //hide the leftNav
+          // hide the leftNav
           this.leftNavView.collapse();
 
           if (this.showSearch) {
@@ -507,19 +506,21 @@
       var successCallback = function(categoryItems) {
         var leftNavData = categoryItems;
 
-        var startIndex = 0;
+        // Since Categories and Playlists are not displayed in Left Nav, set "startIndex" to -1
+        var startIndex = -1;
 
+        // Add Search
         if (this.showSearch) {
           leftNavData.unshift(this.searchInputView);
         }
+        // Add Home
         if (this.settingsParams.nested_categories === true) {
           leftNavData.unshift('Home');
         }
-
-        // Start on Featured Playlist
-        startIndex = this.settingsParams.nav.playlist;
         
+        // @LEGACY
         app.data.setCurrentCategory(startIndex);
+
         leftNavView.render(this.$appContainer, leftNavData, startIndex);
       }.bind(this);
 
@@ -530,12 +531,25 @@
       this.leftNavView.updateCategoryItems();
     };
 
+
     /**
-     * Nested Categories One D View
+     * Nested Playlists One D View
+     *
+     * @param {string} the Playlist ID
      */
-    this.initializeNestedCategories = function() {
-      // since we are using the One D View to show categories, we pass true
-      // to identify that we are creating the object for the categories
+    this.initializeNestedCategories = function(playlist_id, playlist_title) {
+      console.log('initializeNestedCategories');
+
+      /**
+       * Set default values for arguments
+       * 
+       * App init uses root_playlist_id as playlist_id and `null` as playlist_parent_id
+       * Subsequent calls use passed arguments (and bypass `select` event)
+       */
+      var _playlist_id    = playlist_id || this.settingsParams.root_playlist_id;
+      var _playlist_title = playlist_title || "Categories";
+
+      // Create nestedCategoriesOneDView
       var nestedCategoriesOneDView = this.nestedCategoriesOneDView = new OneDViewCategories();
 
       /**
@@ -543,21 +557,53 @@
        * @param {number} index the index of the selected item
        */
       nestedCategoriesOneDView.on('select', function(index) {
-        console.log('on.select.event');
-        app.data.setcurrentChannel(index);
+        // Set the current Playlist index
+        app.data.setCurrentPlaylistIndex(index);
 
-        var data = this.channelsData[index];
-        app.data.setCategoryId(data.category_id);
-        app.data.setPlaylistId(data.playlist_id);
+        // Get the current Playlist data
+        var currPlaylistData = this.playlistData[index];
 
-        this.transitionToCategory();
+        /** 
+         * Add the current Playlist Parent ID and Title to this.ancestorPlaylistData
+         * this.ancestorPlaylistData is used when a user presses "Back"
+         */
+        app.data.setCurrentPlaylistParentData(currPlaylistData.parent_id, currPlaylistData.title);
+
+        /**
+         * Set the current Playlist ID
+         * The current Playlist ID is used to query Playlist Children or Videos, respectively
+         */ 
+        app.data.setCurrentPlaylistId(currPlaylistData.id);
+
+        /**
+         * Set the current Playlist Title
+         * The current Playlist Title is used as the nestedCategoriesOneDView Title
+         */
+        app.data.setCurrentPlaylistTitle(currPlaylistData.title);
+
+        /**
+         * Transition to Video or Playlist Child view, respectively
+         */
+        if (currPlaylistData.playlist_item_count > 0) {
+          this.transitionToVideos(app.data.currentPlaylistId);
+        }
+        else {
+          this.transitionToPlaylistChild(app.data.currentPlaylistId, app.data.currentPlaylistTitle, false);
+        }
       }, this);
 
       /**
-       * Exit if the user presses back
+       * Handle `Back` button press
+       * Transition to Parent Playlist or Exit
        */
       nestedCategoriesOneDView.on('exit', function() {
-        this.exitApp();
+        // If there is ancestorsPlaylistData
+        if (app.data.ancestorPlaylistData.length !== 0) {
+          this.transitionToPlaylistChild(null, null, true);  
+        }
+        else {
+          this.exitApp();
+        }
       }, this);
 
       /**
@@ -571,41 +617,132 @@
       }, this);
 
       /**
-       * Success Callback handler for categories data request
-       * @param {Object} categories data
+       * Success Callback handler for Playlist Child data request
+       * @param {Object} playlist data
        */
-      var successCallback = function(channelsData) {
-        this.channelsData = channelsData;
-        var OneDViewCategoriesArgs = {
+      var successCallback = function(playlistData) {
+        console.log('nestedCatsOneDView callback fired', playlistData);
+
+        // Store the current Playlist Data on the app object
+        // @TODO - refactor
+        this.playlistData = playlistData;
+
+        // Define OneDView args
+        var OneDViewPlaylistArgs = {
           $el: app.$appContainer,
-          title: "Categories",
-          rowData: channelsData
+          title: _playlist_title,
+          rowData: playlistData
         };
-        nestedCategoriesOneDView.render(OneDViewCategoriesArgs);
+
+        // Render nestedCategoriesOneDView
+        nestedCategoriesOneDView.render(OneDViewPlaylistArgs);
       }.bind(this);
 
-      /*
-       * Get the categories data from the data model
+      /**
+       * Load Playlist Children
+       * 
+       * On init, get initial Playlist Child data from the data model using Root Playlist ID
+       * Subsequent calls on `select` and `exit` events
        */
-      nestedCategoriesOneDView.updateCategories = function() {
-        app.data.getCategories(successCallback);
+      nestedCategoriesOneDView.loadPlaylistChildren = function(playlist_id) {
+        console.log('nestedCatsOneDView.loadPlaylistChildren');
+
+        app.data.getPlaylistChildren(playlist_id, successCallback);
       }.bind(this);
 
-      this.nestedCategoriesOneDView.updateCategories();
+      this.nestedCategoriesOneDView.loadPlaylistChildren(_playlist_id);
     };
 
-    /**
-     * Set the UI appropriately for the category
+
+    /** @TODO refactor name
+     * Transition To Playlist Child
+     *
+     * @param {string}  the playlist id
+     * @param {string}  the playlist title
+     * @param {boolean} true if called from `exit` event. handles ancestorPlaylistData.
      */
-    this.transitionToCategory = function() {
+    this.transitionToPlaylistChild = function(playlist_id, playlist_title, exit) {
+      console.log('transitionToPlaylistView');
+
+      // Defaults
+      var _playlist_id    = playlist_id || null;
+      var _playlist_title = playlist_title || null;
+
       this.showContentLoadingSpinner(true);
-      console.log('transition.to.category');
+
+      // Handle calls from `exit` event
+      if (exit) {
+        var ancestors_length = app.data.ancestorPlaylistData.length;
+        var index = (ancestors_length === 1) ? 0 : ancestors_length - 1;
+        
+        /**
+         * Set the Parent Playlist ID and Title
+         * 
+         * Since there is no `parent_title` property from the API, 
+         * we use (index - 1) to obtain parent title from ancestorPlaylistData[]
+         */ 
+        _playlist_id    = app.data.ancestorPlaylistData[index].playlist_parent_id;
+        _playlist_title = (app.data.ancestorPlaylistData[index - 1]) ? app.data.ancestorPlaylistData[index - 1].playlist_title : null;
+
+        // Remove invalid Ancestors
+        app.data.ancestorPlaylistData.pop();
+      }
+
+      // Remove respective Views
+      if (this.nestedCategoriesOneDView) {
+        if (this.nestedCategoriesOneDView.shovelerView) {
+          this.nestedCategoriesOneDView.shovelerView.remove();
+        }
+
+        this.nestedCategoriesOneDView.remove();
+        this.nestedCategoriesOneDView = null;
+      }
+      
+      if (this.oneDView) {
+        if (this.oneDView.sliderView) {
+          this.oneDView.sliderView.remove();
+        }
+
+        if (this.oneDView.shovelerView) {
+          this.oneDView.shovelerView.remove();
+        }
+        this.oneDView.remove();
+        this.oneDView = null;
+      }
+
+      if (this.leftNavView) {
+        this.leftNavView.remove();
+        this.leftNavView = null;
+      }
+      
+      this.initializeNestedCategories(_playlist_id, _playlist_title);
+
+      this.nestedCategoriesOneDView.on('loadComplete', function() {
+        this.selectView(this.nestedCategoriesOneDView);
+      }, this);
+    };
+
+
+    /**
+     * Transition to Videos
+     *
+     * @param {string} the Playlist ID to load
+     */
+    this.transitionToVideos = function(playlist_id) {
+      console.log('transitionToVideos');
+      console.log('playlist_id', playlist_id);
+      console.log('this category data', app.data.categoryData);
+
+      this.showContentLoadingSpinner(true);
 
       this.nestedCategoriesOneDView.shovelerView.remove();
       this.nestedCategoriesOneDView.remove();
       this.nestedCategoriesOneDView = null;
 
-      app.data.loadData(function() {
+      // Call getPlaylistData() directly rather than loadData()
+      // Reset _categoryData_ in callback since getPlaylistData() is called directly
+      app.data.getPlaylistData(playlist_id, function() {
+        app.data.categoryData = [];
         this.initializeLeftNavView();
         this.initializeOneDView();
         this.selectView(this.oneDView);
@@ -613,26 +750,6 @@
       }.bind(this));
     };
 
-    /**
-     * Set the UI appropriately for the categories
-     */
-    this.transitionToCategories = function() {
-      this.showContentLoadingSpinner(true);
-      console.log('transition.to.categories');
-
-      if (this.oneDView.sliderView) this.oneDView.sliderView.remove();
-      if (this.oneDView.shovelerView) this.oneDView.shovelerView.remove();
-      this.oneDView.remove();
-      this.oneDView = null;
-
-      this.leftNavView.remove();
-      this.leftNavView = null;
-
-      this.initializeNestedCategories();
-      this.nestedCategoriesOneDView.on('loadComplete', function() {
-        this.selectView(this.nestedCategoriesOneDView);
-      }, this);
-    };
 
     /***************************
      *
@@ -675,11 +792,11 @@
       }, this);
 
       /**
-       * Go back to the left-nav menu list if the user presses back
+       * Go back to the Parent Playlist if the user presses back
        */
       oneDView.on('exit', function() {
         if (this.settingsParams.nested_categories === true) {
-          this.transitionToCategories();
+          this.transitionToPlaylistChild(null, null, true);
         } else {
           this.exitApp();
         }
@@ -728,32 +845,30 @@
        * @param {Object} categoryData
        */
       var successCallback = function(categoryData) {
-        // these are the videos
+        // @TODO Refactor
+        // these are the videos (app.categoryData)
         this.categoryData = categoryData;
 
-        var categoryTitle = "";
+        var playlistTitle = "";
         if (this.leftNavView.currSelectedIndex === this.settingsParams.nav.search) {
-          categoryTitle = "Search";
+          playlistTitle = "Search";
         } else {
-          categoryTitle = app.data.categoryData[this.leftNavView.currSelectedIndex];
+          playlistTitle = app.data.playlistData[app.data.currentPlaylistIndex].title;
         }
 
-        /*
+        /* @LEGACY
          * Here we assume that a client has, so called, the "Featured" list by default
-         * @NOTE What if the client does not have that playlist?
-         * Actually that is not issue, we will add New Releases by default
          */
         var showSlider = function() {
-          // Show Slider on Featured Playlist only
-          if (app.data.currentCategory === this.settingsParams.nav.playlist) {
-            return true;
-          }
+          // Show Slider on Featured Playlist
+          // if (app.data.currentCategory === this.settingsParams.nav.playlist) {
+          //   return true;
+          // }
           return false;
         }.bind(this);
 
+        // IAP
         if (this.settingsParams.IAP === true) {
-          // this part handles the IAP case
-
           // add video ids to iapHandler
           var video_ids = _.map(this.categoryData, function(v) {
             return v.id;
@@ -775,8 +890,8 @@
         function renderOneDView() {
           var oneDViewArgs = {
             $el: app.$appContainer,
-            title: categoryTitle,
-            rowData: app.categoryData,
+            title: playlistTitle,
+            rowData: app.categoryData, // @TODO refactor
             displayButtonsParam: app.settingsParams.displayButtons,
             displaySliderParam: false
           };
@@ -801,17 +916,15 @@
         if (this.settingsParams.nav.library && this.leftNavView.currSelectedIndex === this.settingsParams.nav.library) {
           app.data.getEntitlementData(app.data.entitlementData, successCallback);
         }
-        else if (this.settingsParams.nav.playlist && this.leftNavView.currSelectedIndex === this.settingsParams.nav.playlist) {
-          app.data.getPlaylistData(successCallback);
-        }
         else {
-          app.data.getCategoryData(successCallback);
+          app.data.getPlaylistData(app.data.currentPlaylistId, successCallback);
         }
       }.bind(this);
 
       // Get first video row on load
       this.oneDView.updateCategory();
     };
+
 
     /**
      * Hide content loading spinner
@@ -989,7 +1102,6 @@
         }
         else {
           // Device Linking is enabled, but device is not linked
-          deviceLinkingHandler.clearLocalStorage();
           alert('Authentication Error: You are not authorized to access this content. Device is not linked.');
           this.transitionFromAlertToOneD();
           return false;

@@ -10,13 +10,23 @@
   // @param {Object} appSettings are the user-defined settings from the index page
   var JSONMediaModel = function(appSettings) {
     this.settingsParams = appSettings;
-    this.categoryData = [];
+
+    this.categoryData = []; // "Titles" for leftNav-view and old category-based OneDView
     this.categoryTitle = "";
     this.currData = [];
     this.currentCategory = 0;
     this.currentItem = 0;
     this.plans = [];
 
+    // Enhanced Playlists
+    this.currentPlaylistTitle = "";
+    this.currentPlaylistId = null; 
+    this.currentPlaylistParentId = null;
+    this.ancestorPlaylistData = []; // current playlist's ancestor playlist data (old - new)
+    this.playlistData = []; // current playlists data (objects)
+    this.currentPlaylistIndex = 0; // current playlist's index in playlistData[]
+
+    // @LEGACY
     this.channelsData = [];
     this.currentChannel = 0;
 
@@ -28,7 +38,6 @@
      * This function loads the initial data needed to start the app and calls the provided callback with the data when it is fully loaded
      * @param {function} the callback function to call with the loaded data
      */
-
     this.loadData = function(dataLoadedCallback) {
       // Important to load any plans as the IAP handler will need to have those available.
       var that = this;
@@ -46,9 +55,13 @@
 
       this.getPlans(function(plans) {
         that.plans = plans;
-        that.loadCategoryData(dataLoadedCallback);
+        if (that.settingsParams.playlists_only) {
+          that.getPlaylistChildren(that.settingsParams.root_playlist_id, dataLoadedCallback);
+        }
+        else {
+          console.log('Enhanced Playlists are required for this app version');
+        }
       });
-
     }.bind(this);
 
     this.loadZObjectData = function(callback) {
@@ -64,7 +77,6 @@
           var data = arguments[0].response;
 
           for (var i = 0; i < data.length; i++) {
-            // console.log(data[i]);
             this.zobjectData.push({
               id: data[i].video_ids[0],
               title: data[i].title,
@@ -83,7 +95,6 @@
         },
         error: function() {
           console.log('loadZObjectData.error');
-          // alert("There was an error configuring your Fire TV App. Please exit.");
         },
         complete: function() {
           callback();
@@ -129,88 +140,115 @@
     };
 
     /**
-     * Loads the Featured Category data specified in the API. 
-     * If none specified, createds a dummy category called "All Videos".
+     * Get Playlist Children
+     *
+     * @param {string}   the ID of the Playlist to get
+     * @param {function} the callback function
      */
-    this.loadCategoryData = function(categoryDataLoadedCallback) {
-      console.log('load.category.data');
+    this.getPlaylistChildren = function(playlist_id, callback) {
+      console.log('getPlaylistChildren');
+
       $.ajax({
-        url: this.settingsParams.endpoint + "categories/" + this.settingsParams.category_id + "/?app_key=" + this.settingsParams.app_key,
+        url: this.settingsParams.endpoint + 'playlists',
+        data: {
+          'parent_id': playlist_id,
+          'app_key'  : this.settingsParams.app_key,
+          'per_page' : 100,
+          'order'    : 'desc',
+          'sort'     : 'priority'
+        },
         type: 'GET',
         crossDomain: true,
         dataType: 'json',
         context: this,
-        cache: true,
-        success: function() {
-          var contentData = arguments[0];
-          this.getCategoryRowValues(contentData);
-          this.loadPlaylistData();
+        cache: false,
+        success: function(res) {
+          // format playlist children
+          this.formatPlaylistChildren(res);
         },
         error: function() {
-          var contentData = {
-            response: {
-              title: 'Videos',
-              values: ['All Videos']
-            }
-          };
-          this.getCategoryRowValues(contentData);
-          this.loadPlaylistData();
+          console.log('getPlaylistChildren.error', arguments);
         },
         complete: function() {
-          console.log('loadCategoryData.complete');
-          this.loadZObjectData(categoryDataLoadedCallback);
-          // categoryDataLoadedCallback();
+          callback(this.playlistData);
         }
       });
     };
 
     /**
-     * Handles requests that contain json data
-     * @param {Object} jsonData data returned from request
+     * Format Playlist Children
+     *
+     * @param {object} playlist data
      */
-    this.getCategoryRowValues = function(jsonData) {
-      this.categoryData = jsonData.response.values;
-      this.categoryTitle = jsonData.response.title;
-    }.bind(this);
+    this.formatPlaylistChildren = function(jsonData) {
+      console.log('formatPlaylistChildren');
 
-    /**
-     * Return the category items for the left-nav view
-     * @NOTE uses async: false
-     */
-    this.loadPlaylistData = function() {
-      console.log("load.playlist.data");
-      if (this.settingsParams.playlist_id) {
-        $.ajax({
-          url: this.settingsParams.endpoint + "playlists/" + this.settingsParams.playlist_id + "/?app_key=" + this.settingsParams.app_key,
-          type: 'GET',
-          crossDomain: true,
-          dataType: 'json',
-          context: this,
-          cache: true,
-          async: false,
-          success: function() {
-            var contentData = arguments[0];
-            this.getPlaylistRowValue(contentData);
-          },
-          error: function() {
-            var contentData = {
-              response: {
-                title: 'New Releases'
-              }
-            };
-            this.getPlaylistRowValue(contentData);
-          }
-        });
+      var data = jsonData.response;
+      var _playlistData = [];
+
+      for (var i = 0; i < data.length; i++) {
+        var args = {
+          id: data[i]._id,
+          description: data[i].description,
+          parent_id: data[i].parent_id,
+          playlist_item_count: data[i].playlist_item_count,
+          title: data[i].title,
+          imgURL: (data[i].thumbnails && data[i].thumbnails.length > 0) ? data[i].thumbnails[0].url : ''
+        };
+        var formatted_playlist = new PlaylistChild(args);
+        _playlistData.push(formatted_playlist);
       }
+      this.playlistData = _playlistData;
     };
 
-    this.getPlaylistRowValue = function(jsonData) {
-      var playlistTitle = jsonData.response.title;
-      this.categoryData.unshift(playlistTitle);
-    }.bind(this);
+    /**
+     * Set Current Playlist Parent ID
+     *
+     * @param {string} ID of current playlist parent 
+     */
+    this.setCurrentPlaylistParentData = function(playlist_parent_id, playlist_title) {
+      console.log('setCurrentPlaylistParentData');
+
+      this.ancestorPlaylistData.push({
+        "playlist_parent_id" : playlist_parent_id,
+        "playlist_title"     : playlist_title
+      });
+    };
+
+    /**
+     * Set Current Playlist ID
+     *
+     * @param {string} the current playlist id
+     */
+    this.setCurrentPlaylistId = function(id) {
+      console.log('setCurrentPlaylistId', id);
+      this.currentPlaylistId = id;
+    };
+
+    /**
+     * Set Current Playlist Title
+     *
+     * @param {string} the current playlist title
+     */
+    this.setCurrentPlaylistTitle = function(title) {
+      console.log('setCurrentPlaylistTitle');
+      this.currentPlaylistTitle = title;
+    };
+
+    /**
+     * Set Current Playlist Index
+     *
+     * @param {number} the current playlist
+     */
+    this.setCurrentPlaylistIndex = function(index) {
+      console.log('setCurrentPlaylistIndex', index);
+      this.currentPlaylistIndex = index;
+    };
+
 
     /**
      * Load Entitlement data
+     * 
      * @param {string}   a valid Access Token
      * @param {function} the callback function
      */
@@ -277,57 +315,7 @@
       Plan.getPlans(this.settingsParams, callback);
     };
 
-    /**
-     * Get the nested categories data
-     * @param {function} the callback function
-     */
-    this.getCategories = function(callback) {
-      $.ajax({
-        url: this.settingsParams.endpoint + "zobjects/?app_key=" + this.settingsParams.app_key + "&zobject_type=channels&per_page=100&sort=priority&order=asc",
-        type: 'GET',
-        crossDomain: true,
-        dataType: 'json',
-        context: this,
-        cache: true,
-        success: function() {
-          var contentData = arguments[0];
-          this.formatCategories(contentData);
-        },
-        error: function() {
-          console.log(arguments);
-          alert("There was an error configuring your Fire TV App. Please exit.");
-          app.exit();
-        },
-        complete: function() {
-          console.log('loadData.complete');
-          callback(this.channelsData);
-        }
-      });
-    };
-
-    this.formatCategories = function(jsonData) {
-      var data = jsonData.response;
-      var formattedChannel = [];
-      for (var i = 0; i < data.length; i++) {
-        var args = {
-          id: data[i]._id,
-          title: data[i].title,
-          playlist_id: data[i].playlist_id,
-          category_id: data[i].category_id,
-          description: data[i].description
-        };
-        if (data[i].pictures && data[i].pictures.length > 0) {
-          args.imgUrl = utils.makeSSL(data[i].pictures[0].url);
-        }
-        // Channel (Channels) is a ZObject based item
-        var formatted_channel = new Channel(args);
-        formattedChannel.push(formatted_channel);
-      }
-      // this push the channels to the channelsData and currData
-      // (Channel model is almost the same as Video)
-      this.channelsData = formattedChannel;
-    };
-
+    // @LEGACY
     this.setcurrentChannel = function(index) {
       this.currentChannel = index;
     };
@@ -340,52 +328,23 @@
       this.settingsParams.playlist_id = id;
     };
 
-    /***************************
-     *
-     * Utilility Methods
-     *
-     ***************************/
-    /**
-     * Sort the data array alphabetically
-     * This method is just a simple sorting example - but the
-     * data can be sorted in any way that is optimal for your application
-     */
-    this.sortAlphabetically = function(arr) {
-      arr.sort();
-    };
-
-    /**
-     * Convert unix timestamp to date
-     * @param {Number} d unix timestamp
-     * @return {Date}
-     */
-    this.unixTimestampToDate = function(d) {
-
-      var unixTimestamp = new Date(d * 1000);
-
-      var year = unixTimestamp.getFullYear();
-      var months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
-      var month = months[unixTimestamp.getMonth()];
-      var date = unixTimestamp.getDate();
-      var hour = unixTimestamp.getHours();
-      var minute = unixTimestamp.getMinutes();
-      var second = unixTimestamp.getSeconds();
-
-      return date + ',' + month + ' ' + year + ' ' + hour + ':' + minute + ':' + second;
-    };
+    
 
     /***************************
      *
      * Category Methods
      *
      ***************************/
-    /**
+
+    /** @LEGACY
      * Hang onto the index of the currently selected category
      * @param {Number} index the index into the categories array
      */
     this.setCurrentCategory = function(index) {
       this.currentCategory = index;
     };
+
+
 
     /***************************
      *
@@ -400,76 +359,49 @@
       callback(this.categoryData);
     };
 
+
     /**
-     * Get and return data for a selected category
-     * @param {Function} categoryCallback method to call with returned requested data
+     * Get Playlist data
+     *  
+     * @param {string}   playlist id
+     * @param {function} the callback function
      */
-    this.getCategoryData = function(categoryCallback) {
+    this.getPlaylistData = function(playlist_id, callback) {
       this.currData = [];
-      var categoryTitle = encodeURIComponent(this.categoryTitle);
-      var categoryValue = encodeURIComponent(this.categoryData[this.currentCategory]);
-      //  we want to push all the videos with this category value into this.currData()
-
-      var category_url = null;
-      if (this.settingsParams.category_id) {
-        category_url = this.settingsParams.endpoint + "videos/?app_key=" + this.settingsParams.app_key + "&category[" + categoryTitle + "]=" + categoryValue + "&per_page=" + this.settingsParams.per_page + "&dpt=true&sort=episode&order=asc";
-      } else {
-        category_url = this.settingsParams.endpoint + "videos/?app_key=" + this.settingsParams.app_key + "&per_page=25&dpt=true&sort=created_at&order=asc";
-      }
 
       $.ajax({
-        url: category_url,
+        url: this.settingsParams.endpoint + 'playlists/'+ playlist_id +'/videos',
+        data: {
+          app_key: this.settingsParams.app_key,
+          per_page: 100,
+          dpt: true,
+          sort: 'priority',
+          order: 'desc'
+        },
         type: 'GET',
         crossDomain: true,
         dataType: 'json',
         context: this,
-        cache: false
-      }).fail(function(msg) {
-        console.log(msg);
-      }).done(function(msg) {
-        this.currData = this.formatVideos(msg);
-      }).always(function() {
-        categoryCallback(this.currData);
-      });
-
-    };
-
-    this.getPlaylistData = function(categoryCallback) {
-      this.currData = [];
-      var categoryValue = encodeURIComponent(this.categoryData[this.currentCategory]);
-      //  we want to push all the videos with this category value into this.currData()
-
-      var playlist_url = null;
-      if (this.settingsParams.playlist_id) {
-        playlist_url = this.settingsParams.endpoint + "playlists/" + this.settingsParams.playlist_id + "/videos/?app_key=" + this.settingsParams.app_key + "&per_page=" + this.settingsParams.per_page;
-      } else {
-        playlist_url = this.settingsParams.endpoint + "videos/?app_key=" + this.settingsParams.app_key + "&per_page=10&dpt=true&sort=created_at&order=desc";
-      }
-
-      $.ajax({
-        url: playlist_url,
-        type: 'GET',
-        crossDomain: true,
-        dataType: 'json',
-        context: this,
-        cache: true,
-        success: function() {
-          var contentData = arguments[0];
+        cache: false,
+        success: function(res) {
+          console.log('getPlaylistData', res);
+          var contentData = res;
           this.currData = this.formatVideos(contentData);
         },
         error: function() {
-          console.log(arguments);
-          alert("There was an error configuring your Fire TV App. Please exit.");
-          app.exit();
+          console.log('getPlaylistData.error', arguments);
         },
         complete: function() {
-          categoryCallback(this.currData);
+          console.log('getPlaylistData.complete currData', this.currData);
+          callback(this.currData);
         }
       });
     };
 
+
     /**
      * Get Entitlement video data recursively
+     * 
      * @param {object}   the entitlement data
      * @param {function} the callback function
      * @param {integer}  the starting index 
@@ -581,8 +513,7 @@
         },
         error: function() {
           console.log(arguments);
-          alert("There was an error configuring your Fire TV App. Please exit.");
-          app.exit();
+          alert("There was a search error. Please try again.");
         },
         complete: function() {
           searchCallback(this.currData);
@@ -595,11 +526,49 @@
      * @param {Number} index the index of the selected item
      */
     this.setCurrentItem = function(index) {
+      console.log('setCurrentItem', index);
       this.currentItem = index;
       this.currentItemData = this.currData[index];
     };
 
-  };
+
+
+
+    /***************************
+     *
+     * Utilility Methods
+     *
+     ***************************/
+    /**
+     * Sort the data array alphabetically
+     * This method is just a simple sorting example - but the
+     * data can be sorted in any way that is optimal for your application
+     */
+    this.sortAlphabetically = function(arr) {
+      arr.sort();
+    };
+
+    /**
+     * Convert unix timestamp to date
+     * @param {Number} d unix timestamp
+     * @return {Date}
+     */
+    this.unixTimestampToDate = function(d) {
+
+      var unixTimestamp = new Date(d * 1000);
+
+      var year = unixTimestamp.getFullYear();
+      var months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+      var month = months[unixTimestamp.getMonth()];
+      var date = unixTimestamp.getDate();
+      var hour = unixTimestamp.getHours();
+      var minute = unixTimestamp.getMinutes();
+      var second = unixTimestamp.getSeconds();
+
+      return date + ',' + month + ' ' + year + ' ' + hour + ':' + minute + ':' + second;
+    };
+
+  }; // JSONMediaModel
 
   exports.JSONMediaModel = JSONMediaModel;
 
