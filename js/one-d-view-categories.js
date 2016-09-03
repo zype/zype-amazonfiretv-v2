@@ -98,7 +98,7 @@
      */
     this.remove = function() {
       if (this.$el) {
-        $(this.$el).remove();
+        this.$el.remove();
       }
     };
 
@@ -321,13 +321,30 @@
       // pressing play triggers select on the media element
       if (e.type === 'buttonpress') {
         switch (e.keyCode) {
+          case buttons.UP:
+            console.log('button UP', e);
+            switch (this.currentView) {
+              case this.sliderView:
+                this.trigger('bounce');
+                break;
+              case this.shovelerView:
+                this.trigger('bounce');
+                break;
+            }
+            dirty = true;
+
+            // if (this.sliderView !== null) {
+            //   this.shiftOneDCategoriesContainer();
+            // }
+
+            break;
           case buttons.BACK:
-            //  console.log(this.currentView);
             switch (this.currentView) {
               case this.shovelerView:
                 this.trigger('exit');
                 break;
               default:
+                this.trigger('exit');
                 break;
             }
             dirty = true;
@@ -342,6 +359,23 @@
         this.currentView.handleControls(e);
       }
     }.bind(this);
+
+    /**
+     * Move the One D Categories container as new components are selected
+     */
+    this.shiftOneDCategoriesContainer = function() {
+      if (this.currentView !== null && this.currentView == this.shovelerView) {
+        this.scrollingContainerEle.style.webkitTransform = "translateY(" + (-this.$shovelerContainerOffset + 240) + "px)";
+        $('#slider-summary-container').css("opacity", 0);
+        this.$sliderContainer.css("opacity", 0);
+      }
+
+      if (this.currentView !== null && this.currentView == this.sliderView) {
+        this.scrollingContainerEle.style.webkitTransform = "translateY(" + 0 + "px)";
+        $('#slider-summary-container').css("opacity", 100);
+        this.$sliderContainer.css("opacity", 100);
+      }
+    };
 
     /**
      * Show summary text in the 1D View

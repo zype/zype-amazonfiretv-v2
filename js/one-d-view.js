@@ -103,7 +103,7 @@
      */
     this.remove = function() {
       if (this.$el) {
-        $(this.$el).remove();
+        this.$el.remove();
       }
     };
 

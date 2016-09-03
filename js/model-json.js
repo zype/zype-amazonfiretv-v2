@@ -336,8 +336,9 @@
      *
      ***************************/
 
-    /** @LEGACY
+    /**
      * Hang onto the index of the currently selected category
+     * Used for leftNavView
      * @param {Number} index the index into the categories array
      */
     this.setCurrentCategory = function(index) {

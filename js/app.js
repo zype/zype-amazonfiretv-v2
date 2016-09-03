@@ -178,6 +178,8 @@
 
           if (browse === true) {
             if (app.settingsParams.nested_categories === true) {
+              this.initializeLeftNavView();
+              this.leftNavView.collapse();
               this.initializeNestedCategories();
               this.selectView(this.nestedCategoriesOneDView);
             } else {
@@ -203,6 +205,8 @@
                   }
 
                   if (app.settingsParams.nested_categories === true) {
+                    this.initializeLeftNavView();
+                    this.leftNavView.collapse();
                     this.initializeNestedCategories();
                     this.selectView(this.nestedCategoriesOneDView);
                   } else {
@@ -228,6 +232,8 @@
          * Handles nested categories
          */
         if (this.settingsParams.nested_categories === true) {
+          this.initializeLeftNavView();
+          this.leftNavView.collapse();
           this.initializeNestedCategories();
           this.selectView(this.nestedCategoriesOneDView);
         } else {
@@ -409,18 +415,27 @@
         }
         // Search
         else if (index === this.settingsParams.nav.search) {
-          // remove the contents of the oneDView
-          this.oneDView.remove();
-
           // show the spinner
           this.showContentLoadingSpinner(true);
 
           // @LEGACY
           // set the current selected (left nav items)
           app.data.setCurrentCategory(index);
+          
+          if (this.oneDView) {
+            this.oneDView.remove();
 
-          this.oneDView.updateCategoryFromSearch(this.searchInputView.currentSearchQuery);
+            this.oneDView.updateCategoryFromSearch(this.searchInputView.currentSearchQuery);
+          }
 
+          if (this.nestedCategoriesOneDView) {
+            this.nestedCategoriesOneDView.remove();
+            // also set to null because we're transitioning to oneDView
+            this.nestedCategoriesOneDView = null;
+
+            this.initializeOneDView(this.searchInputView.currentSearchQuery);
+          }
+          
           // set the selected view
           this.selectView(this.oneDView);
 
@@ -593,8 +608,15 @@
       }, this);
 
       /**
+       * Go back to the left-nav menu list
+       */
+      nestedCategoriesOneDView.on('bounce', function() {
+        this.transitionToLeftNavView();
+      }, this);
+
+      /**
        * Handle `Back` button press
-       * Transition to Parent Playlist or Exit
+       * Transition to Parent Playlist or Exit App
        */
       nestedCategoriesOneDView.on('exit', function() {
         // If there is ancestorsPlaylistData
@@ -664,6 +686,8 @@
     this.transitionToPlaylistChild = function(playlist_id, playlist_title, exit) {
       console.log('transitionToPlaylistView');
 
+      this.transitionFromLefNavToOneD();
+
       // Defaults
       var _playlist_id    = playlist_id || null;
       var _playlist_title = playlist_title || null;
@@ -671,7 +695,7 @@
       this.showContentLoadingSpinner(true);
 
       // Handle calls from `exit` event
-      if (exit) {
+      if (exit && app.data.ancestorPlaylistData.length > 0) {
         var ancestors_length = app.data.ancestorPlaylistData.length;
         var index = (ancestors_length === 1) ? 0 : ancestors_length - 1;
         
@@ -699,6 +723,7 @@
       }
       
       if (this.oneDView) {
+        console.log('removing oneDView');
         if (this.oneDView.sliderView) {
           this.oneDView.sliderView.remove();
         }
@@ -714,8 +739,18 @@
         this.leftNavView.remove();
         this.leftNavView = null;
       }
+
+      // Reset the currentCategory to -1 for leftNavView
+      app.data.setCurrentCategory(-1);
+
+      // reset for initializeLeftNavView
+      app.data.categoryData = []; 
+
+      this.initializeLeftNavView();
       
       this.initializeNestedCategories(_playlist_id, _playlist_title);
+
+      this.leftNavView.collapse();
 
       this.nestedCategoriesOneDView.on('loadComplete', function() {
         this.selectView(this.nestedCategoriesOneDView);
@@ -730,24 +765,30 @@
      */
     this.transitionToVideos = function(playlist_id) {
       console.log('transitionToVideos');
-      console.log('playlist_id', playlist_id);
-      console.log('this category data', app.data.categoryData);
 
       this.showContentLoadingSpinner(true);
 
-      this.nestedCategoriesOneDView.shovelerView.remove();
-      this.nestedCategoriesOneDView.remove();
-      this.nestedCategoriesOneDView = null;
+      if (this.nestedCategoriesOneDView) {
+        this.nestedCategoriesOneDView.shovelerView.remove();
+        this.nestedCategoriesOneDView.remove();
+        this.nestedCategoriesOneDView = null;
+      }
 
-      // Call getPlaylistData() directly rather than loadData()
-      // Reset _categoryData_ in callback since getPlaylistData() is called directly
-      app.data.getPlaylistData(playlist_id, function() {
-        app.data.categoryData = [];
-        this.initializeLeftNavView();
-        this.initializeOneDView();
-        this.selectView(this.oneDView);
-        this.leftNavView.collapse();
-      }.bind(this));
+      if (this.leftNavView) {
+        this.leftNavView.remove();
+        this.leftNavView = null;
+      }
+
+      // Reset the currentCategory to -1 for leftNavView
+      app.data.setCurrentCategory(-1);
+
+      // initializeLeftNavView() calls getPlaylistData() directly rather than legacy loadData()
+      // Reset _categoryData_ manually
+      app.data.categoryData = [];
+      this.initializeLeftNavView();
+      this.initializeOneDView();
+      this.selectView(this.oneDView);
+      this.leftNavView.collapse();
     };
 
 
@@ -756,7 +797,7 @@
      * One D View
      *
      **************************/
-    this.initializeOneDView = function() {
+    this.initializeOneDView = function(searchTerm) {
       // create and set up the 1D view
       var oneDView = this.oneDView = new OneDView();
 
@@ -912,17 +953,20 @@
         app.data.getDataFromSearch(searchTerm, successCallback);
       }.bind(this);
 
-      oneDView.updateCategory = function() {
+      oneDView.updateCategory = function(searchTerm) {
         if (this.settingsParams.nav.library && this.leftNavView.currSelectedIndex === this.settingsParams.nav.library) {
           app.data.getEntitlementData(app.data.entitlementData, successCallback);
+        }
+        else if (searchTerm && this.settingsParams.nav.search && this.leftNavView.currSelectedIndex === this.settingsParams.nav.search) {
+          console.log('searchTerm && search curr selected - calling getDataFromSearch');
+          app.data.getDataFromSearch(searchTerm, successCallback);
         }
         else {
           app.data.getPlaylistData(app.data.currentPlaylistId, successCallback);
         }
       }.bind(this);
 
-      // Get first video row on load
-      this.oneDView.updateCategory();
+      this.oneDView.updateCategory(searchTerm);
     };
 
 
@@ -978,7 +1022,13 @@
       this.leftNavView.setHighlightedElement();
 
       //change size of selected slider and shoveler item
-      this.oneDView.shrink();
+      if (this.oneDView) {
+        this.oneDView.shrink();  
+      }
+
+      if (this.nestedCategoriesOneDView) {
+        this.nestedCategoriesOneDView.shrink();
+      }
     };
 
     /**
@@ -992,22 +1042,39 @@
       this.leftNavView.expand();
 
       //change size of selected shoveler item
-      this.oneDView.shrink();
+      if (this.oneDView) {
+        this.oneDView.shrink();
+      }
+
+      if (this.nestedCategoriesOneDView) {
+        this.nestedCategoriesOneDView.shrink();
+      }
+
     };
 
     /**
      * Transition from left nav to the oneD view
      */
     this.transitionFromLefNavToOneD = function() {
-      if (this.oneDView.noItems) {
-        this.leftNavView.setHighlightedElement();
-        return;
+      if (this.oneDView) {
+        if (this.oneDView.noItems) {
+          this.leftNavView.setHighlightedElement();
+          return;
+        }
+
+        this.leftNavView.collapse();
+        this.selectView(this.oneDView);
+        //change size of selected slider item
+        this.oneDView.expand();
       }
 
-      this.leftNavView.collapse();
-      this.selectView(this.oneDView);
-      //change size of selected slider item
-      this.oneDView.expand();
+      if (this.nestedCategoriesOneDView) {
+        this.leftNavView.collapse();
+        this.selectView(this.nestedCategoriesOneDView);
+        //change size of selected slider item
+        this.nestedCategoriesOneDView.expand();
+      }
+      
     };
 
     /**
