@@ -21,7 +21,6 @@
     // Enhanced Playlists
     this.currentPlaylistTitle = "";
     this.currentPlaylistId = null; 
-    this.currentPlaylistParentId = null;
     this.ancestorPlaylistData = []; // current playlist's ancestor playlist data (old - new)
     this.playlistData = []; // current playlists data (objects)
     this.currentPlaylistIndex = 0; // current playlist's index in playlistData[]
