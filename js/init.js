@@ -60,6 +60,7 @@
       settings.autoplay = app_json.response.autoplay;
       settings.nested_categories = app_json.response.nested;
       settings.playlists_only = app_json.response.playlists_only;
+      settings.slider = app_json.response.slider;
 
       settings.device_linking = app_json.response.device_linking;
       settings.device_link_url = app_json.response.device_link_url;
