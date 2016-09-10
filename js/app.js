@@ -558,7 +558,7 @@
       /**
        * Set default values for arguments
        * 
-       * App init uses root_playlist_id as playlist_id and `null` as playlist_parent_id
+       * App init uses playlist_id = root_playlist_id and playlist_parent_id = `null`
        * Subsequent calls use passed arguments (and bypass `select` event)
        */
       var _playlist_id    = playlist_id || this.settingsParams.root_playlist_id;
@@ -571,39 +571,43 @@
        * Event handler - select shoveler item
        * @param {number} index the index of the selected item
        */
-      nestedCategoriesOneDView.on('select', function(index) {
-        // Set the current Playlist index
-        app.data.setCurrentPlaylistIndex(index);
+      nestedCategoriesOneDView.on('select', function(index, fromSlider) {
+        if (fromSlider) {
+          this.verifyVideo(index, fromSlider);
+        } else {
+          // Set the current Playlist index
+          app.data.setCurrentPlaylistIndex(index);
 
-        // Get the current Playlist data
-        var currPlaylistData = this.playlistData[index];
+          // Get the current Playlist data
+          var currPlaylistData = this.playlistData[index];
 
-        /** 
-         * Add the current Playlist Parent ID and Title to this.ancestorPlaylistData
-         * this.ancestorPlaylistData is used when a user presses "Back"
-         */
-        app.data.setCurrentPlaylistParentData(currPlaylistData.parent_id, currPlaylistData.title);
+          /** 
+           * Add the current Playlist Parent ID and Title to this.ancestorPlaylistData
+           * this.ancestorPlaylistData is used when a user presses "Back"
+           */
+          app.data.setCurrentPlaylistParentData(currPlaylistData.parent_id, currPlaylistData.title);
 
-        /**
-         * Set the current Playlist ID
-         * The current Playlist ID is used to query Playlist Children or Videos, respectively
-         */ 
-        app.data.setCurrentPlaylistId(currPlaylistData.id);
+          /**
+           * Set the current Playlist ID
+           * The current Playlist ID is used to query Playlist Children or Videos, respectively
+           */ 
+          app.data.setCurrentPlaylistId(currPlaylistData.id);
 
-        /**
-         * Set the current Playlist Title
-         * The current Playlist Title is used as the nestedCategoriesOneDView Title
-         */
-        app.data.setCurrentPlaylistTitle(currPlaylistData.title);
+          /**
+           * Set the current Playlist Title
+           * The current Playlist Title is used as the nestedCategoriesOneDView Title
+           */
+          app.data.setCurrentPlaylistTitle(currPlaylistData.title);
 
-        /**
-         * Transition to Video or Playlist Child view, respectively
-         */
-        if (currPlaylistData.playlist_item_count > 0) {
-          this.transitionToVideos(app.data.currentPlaylistId);
-        }
-        else {
-          this.transitionToPlaylistChild(app.data.currentPlaylistId, app.data.currentPlaylistTitle, false);
+          /**
+           * Transition to Video or Playlist Child view, respectively
+           */
+          if (currPlaylistData.playlist_item_count > 0) {
+            this.transitionToVideos(app.data.currentPlaylistId);
+          }
+          else {
+            this.transitionToPlaylistChild(app.data.currentPlaylistId, app.data.currentPlaylistTitle, false);
+          }
         }
       }, this);
 
@@ -649,11 +653,20 @@
         // @TODO - refactor
         this.playlistData = playlistData;
 
+        var showSlider = function() {
+          // Show Slider on Home screen only
+          if (app.data.ancestorPlaylistData.length === 0) {
+            return true;
+          }
+          return false;
+        }
+
         // Define OneDView args
         var OneDViewPlaylistArgs = {
           $el: app.$appContainer,
           title: _playlist_title,
-          rowData: playlistData
+          rowData: playlistData,
+          displaySliderParam: showSlider()
         };
 
         // Render nestedCategoriesOneDView
@@ -666,13 +679,13 @@
        * On init, get initial Playlist Child data from the data model using Root Playlist ID
        * Subsequent calls on `select` and `exit` events
        */
-      nestedCategoriesOneDView.loadPlaylistChildren = function(playlist_id) {
+      nestedCategoriesOneDView.loadPlaylistChildren = function(playlist_id, callback) {
         console.log('nestedCatsOneDView.loadPlaylistChildren');
 
-        app.data.getPlaylistChildren(playlist_id, successCallback);
+        app.data.getPlaylistChildren(playlist_id, callback);
       }.bind(this);
 
-      this.nestedCategoriesOneDView.loadPlaylistChildren(_playlist_id);
+      this.nestedCategoriesOneDView.loadPlaylistChildren(_playlist_id, successCallback);
     };
 
 
@@ -712,8 +725,12 @@
         app.data.ancestorPlaylistData.pop();
       }
 
-      // Remove respective Views
+      // Remove nestedCategoriesOneDView
       if (this.nestedCategoriesOneDView) {
+        if (this.nestedCategoriesOneDView.sliderView) {
+          this.nestedCategoriesOneDView.sliderView.remove();
+        }
+
         if (this.nestedCategoriesOneDView.shovelerView) {
           this.nestedCategoriesOneDView.shovelerView.remove();
         }
@@ -722,8 +739,8 @@
         this.nestedCategoriesOneDView = null;
       }
       
+      // Remove oneDView
       if (this.oneDView) {
-        console.log('removing oneDView');
         if (this.oneDView.sliderView) {
           this.oneDView.sliderView.remove();
         }
@@ -735,6 +752,7 @@
         this.oneDView = null;
       }
 
+      // Remove leftNavView
       if (this.leftNavView) {
         this.leftNavView.remove();
         this.leftNavView = null;
@@ -743,8 +761,8 @@
       // Reset the currentCategory to -1 for leftNavView
       app.data.setCurrentCategory(-1);
 
-      // reset for initializeLeftNavView
-      app.data.categoryData = []; 
+      // Reset for initializeLeftNavView
+      app.data.categoryData = [];
 
       this.initializeLeftNavView();
       
@@ -769,7 +787,14 @@
       this.showContentLoadingSpinner(true);
 
       if (this.nestedCategoriesOneDView) {
-        this.nestedCategoriesOneDView.shovelerView.remove();
+        if (this.nestedCategoriesOneDView.sliderView) {
+          this.nestedCategoriesOneDView.sliderView.remove();
+        }
+
+        if (this.nestedCategoriesOneDView.shovelerView) {
+          this.nestedCategoriesOneDView.shovelerView.remove();
+        }
+
         this.nestedCategoriesOneDView.remove();
         this.nestedCategoriesOneDView = null;
       }
@@ -783,7 +808,7 @@
       app.data.setCurrentCategory(-1);
 
       // initializeLeftNavView() calls getPlaylistData() directly rather than legacy loadData()
-      // Reset _categoryData_ manually
+      // Reset `categoryData` manually
       app.data.categoryData = [];
       this.initializeLeftNavView();
       this.initializeOneDView();
@@ -1078,6 +1103,20 @@
     };
 
     /**
+     * Transition from player view to Nested Categories one-D view
+     */
+    this.transitionFromPlayerToNestedCategoriesOneD = function() {
+      this.selectView(this.nestedCategoriesOneDView);
+      this.playerView.off('videoStatus', this.handleVideoStatus, this);
+      this.playerView.remove();
+      this.playerView = null;
+      this.nestedCategoriesOneDView.show();
+      this.leftNavView.show();
+      this.nestedCategoriesOneDView.shovelerView.show();
+      this.showHeaderBar();
+    };
+
+    /**
      * Transition from player view to one-D view
      */
     this.transitionFromPlayerToOneD = function() {
@@ -1195,7 +1234,14 @@
         playerView = this.playerView = new this.settingsParams.PlayerView(this.settingsParams);
       }
 
-      this.oneDView.hide();
+      if (this.oneDView) {
+        this.oneDView.hide();  
+      }
+
+      if (this.nestedCategoriesOneDView) {
+        this.nestedCategoriesOneDView.hide();
+      }
+      
       this.leftNavView.hide();
       this.hideHeaderBar();
 
@@ -1204,11 +1250,18 @@
 
       playerView.on('exit', function() {
         this.hideContentLoadingSpinner();
-        this.transitionFromPlayerToOneD();
+        if (this.oneDView) {
+          this.transitionFromPlayerToOneD();
+        }
+        if (this.nestedCategoriesOneDView) {
+          this.transitionFromPlayerToNestedCategoriesOneD();
+        }
       }, this);
 
       playerView.on('indexChange', function(index) {
-        this.oneDView.changeIndex(index);
+        if (this.oneDView) {
+          this.oneDView.changeIndex(index);  
+        }
       }, this);
 
 
@@ -1298,7 +1351,14 @@
         this.playerView.playVideo();
       } else if (type === "ended") {
         this.hideContentLoadingSpinner();
-        this.transitionFromPlayerToOneD();
+
+        if (this.oneDView) {
+          this.transitionFromPlayerToOneD();  
+        }
+
+        if (this.nestedCategoriesOneDView) {
+          this.transitionFromPlayerToNestedCategoriesOneD();
+        }
       }
     };
 

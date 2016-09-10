@@ -58,7 +58,7 @@
     this.$summaryContainer = null;
     this.$descContainer = null;
     this.$buttonsContainer = null;
-    this.$scrollingContainerEle = null;
+    this.$scrollingContainerEle = null; // @note
     this.noItems = false;
     this.translateAmount = null;
     this.sliderData = null;

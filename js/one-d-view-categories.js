@@ -50,7 +50,7 @@
     this.currentView = null;
     this.titleText = "";
     this.$title = null;
-    this.slider = null;
+    // this.slider = null;
     this.$sliderContainer = null;
     this.$sliderContainerOffset = null;
     this.$shovelerContainer = null;
@@ -59,6 +59,7 @@
     this.$summaryContainer = null;
     this.$descContainer = null;
     this.$buttonsContainer = null;
+    this.$scrollingContainerEle = null;
     this.noItems = false;
     this.translateAmount = null;
     this.sliderData = null;
@@ -78,7 +79,7 @@
       this.$el.css('visibility', 'hidden');
       $(".one-d-title-container").css('visibility', 'hidden');
       this.shovelerView.hide();
-      $();
+      
       if (this.sliderView !== null) this.sliderView.hide();
     };
 
@@ -89,7 +90,7 @@
       this.$el.css('visibility', 'visible');
       $(".one-d-title-container").css('visibility', 'visible');
       this.shovelerView.show();
-      $();
+      
       if (this.sliderView !== null) this.sliderView.show();
     };
 
@@ -125,6 +126,18 @@
       //Make sure we don't already have a full container
       this.remove();
 
+
+      // Slider
+      if (app.data.sliderData.length === 0) {
+        args.displaySliderParam = false;
+      }
+
+
+      // make sure to clean slider's objects if we do not want to show
+      if (args.displaySliderParam === false) {
+        this.sliderView = null;
+      }
+
       // set up title
       this.$title = $("#" + ID_ONED_TITLE);
       if (args.title.length > 0) {
@@ -156,10 +169,73 @@
       //gather widths of all the row elements
       this.$elementWidths = [];
 
-      $("#" + ID_ONED_SLIDER_CONTAINER).hide(); // we need this for scrolling
-      this.createShovelerView(args.rowData);
-      this.setCurrentView(this.shovelerView);
+      // Set OneDView as the scrollingContainerEle
+      this.scrollingContainerEle = $(ID_ONED_VIEW_ELEMENTS)[0];
+
+      if (args.displaySliderParam && app.data.sliderData.length > 0) {
+        this.sliderData = app.data.sliderData;
+        
+        this.createSliderView(this.sliderData);
+        $("#" + ID_ONED_SLIDER_CONTAINER).show(); // we need this for scrolling
+        this.setCurrentView(this.sliderView);
+        this.createShovelerView(args.rowData);
+      } else {
+        $("#" + ID_ONED_SLIDER_CONTAINER).hide(); // we need this for scrolling
+        this.createShovelerView(args.rowData);
+        this.setCurrentView(this.shovelerView);
+      }
     };
+
+
+    /**
+     * Initialize the slider view
+     * @param {Object} rowData data for the content items
+     */
+    this.createSliderView = function(rowData) {
+      // create the slider subview
+      this.$sliderContainer = this.$el.children("#" + ID_ONED_SLIDER_CONTAINER);
+      var sliderView = this.sliderView = new SliderView();
+
+      this.sliderView.render(this.$sliderContainer, rowData);
+      this.$sliderContainerOffset = $(this.$sliderContainer)[0].getBoundingClientRect().top;
+
+      sliderView.on('exit', function() {
+        this.trigger('exit');
+      }, this);
+
+      sliderView.on('select', function(index) {
+        this.currSliderSelection = index;
+        // let's play a video from the slider
+        // to do that we trigger the 'select' event passing 3d arg true
+        this.trigger('select', index, true);
+      }, this);
+
+      sliderView.on('bounce', function(direction) {
+        this.trigger('bounce', direction);
+      }, this);
+
+      sliderView.on('startScroll', function(direction) {
+        this.hideSliderExtraData();
+      }, this);
+
+      sliderView.on('stopScroll', function(index) {
+        this.currSliderSelection = index;
+        this.showSliderExtraData(index);
+      }, this);
+
+      sliderView.on('indexChange', function(index) {
+        this.currSliderSelection = index;
+      }, this);
+
+      sliderView.on('loadComplete', function() {
+        this.sliderLoadComplete = true;
+        this.showSliderExtraData();
+        if (this.shovelerLoadComplete) {
+          this.trigger('loadComplete');
+        }
+      }, this);
+    };
+
 
     /**
      * Initialize the shoveler subview
@@ -227,6 +303,21 @@
       this.shovelerView.trigger("stopScroll", this.shovelerView.currSelection);
     };
 
+    /** Make the slider the active view
+     *
+     */
+    this.transitionToSliderView = function() {
+      // change to shoveler view
+      this.setCurrentView(this.sliderView);
+
+      // change opacity of the slider
+      if (this.sliderView !== null) this.sliderView.unfadeSelected();
+      if (this.sliderView !== null) this.sliderView.setTransforms();
+
+      this.shovelerView.fadeSelected();
+      this.shovelerView.shrinkSelected();
+    };
+
 
     /**
      * Make the shoveler the active view
@@ -239,6 +330,9 @@
       //change opacity of the shoveler
       this.shovelerView.unfadeSelected();
       this.shovelerView.setTransforms();
+
+      if (this.sliderView !== null) this.sliderView.fadeSelected();
+      if (this.sliderView !== null) this.sliderView.shrinkSelected();
     };
 
     /**
@@ -283,6 +377,8 @@
     this.shrink = function() {
       console.log("shrink");
       switch (this.currentView) {
+        case null:
+          break;
         case this.sliderView:
           this.sliderView.shrinkSelected();
           break;
@@ -322,20 +418,43 @@
       if (e.type === 'buttonpress') {
         switch (e.keyCode) {
           case buttons.UP:
-            console.log('button UP', e);
             switch (this.currentView) {
+              case null:
+                break;
               case this.sliderView:
                 this.trigger('bounce');
                 break;
               case this.shovelerView:
-                this.trigger('bounce');
+                if (this.sliderView) {
+                  this.transitionToSliderView();
+                } else {
+                  this.trigger('bounce');
+                }
                 break;
             }
             dirty = true;
 
-            // if (this.sliderView !== null) {
-            //   this.shiftOneDCategoriesContainer();
-            // }
+            if (this.sliderView !== null) {
+              this.shiftOneDCategoriesContainer();
+            }
+
+            break;
+          case buttons.DOWN:
+            switch (this.currentView) {
+              case null:
+                break;
+              case this.sliderView:
+                this.transitionToShovelerView();
+                break;
+              case this.shovelerView:
+                this.transitionToButtonView();
+                break;
+            }
+            dirty = true;
+
+            if (this.sliderView !== null) {
+              this.shiftOneDCategoriesContainer();
+            }
 
             break;
           case buttons.BACK:
@@ -408,6 +527,38 @@
         $("#" + ID_ONED_SUMMARY_TITLE).text("");
         $("#" + ID_ONED_SUMMARY_DATE).text("");
         $("#" + ID_ONED_SUMMARY_DESC).text("");
+      }.bind(this), TIME_TIMEOUT_DISPLAY_INFO);
+    };
+
+    /**
+     * Show summary text in the Slider View
+     * @param {Number} index number of current element to show data for
+     */
+    this.showSliderExtraData = function(index) {
+      var index = index || 0;
+
+      window.setTimeout(function() {
+        // add the extra data
+        $("#" + ID_SLIDER_SUMMARY_TITLE).html(this.sliderData[index].title);
+        $("#" + ID_SLIDER_SUMMARY_DESC).html(this.sliderData[index].description);
+
+        // show the extra data
+        this.$body.removeClass('transition-slider');
+
+      }.bind(this), TIME_TIMEOUT_DISPLAY_INFO);
+    };
+
+    /**
+     * Hide the text in the Slider view when scrolling starts
+     */
+    this.hideSliderExtraData = function() {
+      // hide the extra data
+      this.$body.addClass('transition-slider');
+
+      // remove the extra data
+      window.setTimeout(function() {
+        $("#" + ID_SLIDER_SUMMARY_TITLE).text("");
+        $("#" + ID_SLIDER_SUMMARY_DESC).text("");
       }.bind(this), TIME_TIMEOUT_DISPLAY_INFO);
     };
 
