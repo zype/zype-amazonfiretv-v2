@@ -70,7 +70,7 @@
       this.sliderData = [];
 
       $.ajax({
-        url: this.settingsParams.endpoint + "zobjects/?zobject_type=sliderstest&app_key=" + this.settingsParams.app_key,
+        url: this.settingsParams.endpoint + "zobjects/?zobject_type=slider&app_key=" + this.settingsParams.app_key,
         type: 'GET',
         crossDomain: true,
         dataType: 'json',
