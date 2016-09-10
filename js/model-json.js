@@ -65,8 +65,12 @@
 
     this.loadZObjectData = function(callback) {
       console.log('load.zobject.data');
+
+      this.zobjectData = [];
+      this.sliderData = [];
+
       $.ajax({
-        url: this.settingsParams.endpoint + "zobjects/?zobject_type=slider&app_key=" + this.settingsParams.app_key,
+        url: this.settingsParams.endpoint + "zobjects/?zobject_type=sliderstest&app_key=" + this.settingsParams.app_key,
         type: 'GET',
         crossDomain: true,
         dataType: 'json',
@@ -85,23 +89,29 @@
           }
 
           if (this.zobjectData.length > 0) {
-            for (i = 0; i < this.zobjectData.length; i++) {
-              if (this.zobjectData[i].id) {
-                this.loadSliderVideoDetails(this.zobjectData[i].id, this.zobjectData[i].title, this.zobjectData[i].desc, this.zobjectData[i].thumbnail);
-              }
-            }
+            this.loadSliderVideoDetails(this.zobjectData, callback);
           }
         },
         error: function() {
           console.log('loadZObjectData.error');
-        },
-        complete: function() {
-          callback();
         }
       });
     };
 
-    this.loadSliderVideoDetails = function(video_id, title, desc, thumbnail) {
+    /**
+     * Load Slider Video Details (recursive)
+     *
+     * @param {Array}    the ZObject Data
+     * @param {Function} the callback function
+     * @param {Number}   the starting index (optional)
+     */
+    this.loadSliderVideoDetails = function(zobjectData, callback, counter) {
+      var j         = counter || 0;
+      var video_id  = zobjectData[j].id;
+      var title     = zobjectData[j].title;
+      var desc      = zobjectData[j].desc;
+      var thumbnail = zobjectData[j].thumbnail;
+
       $.ajax({
         url: this.settingsParams.endpoint + "videos/" + video_id + "?app_key=" + this.settingsParams.app_key,
         type: 'GET',
@@ -127,8 +137,16 @@
           };
 
           var formatted_video = new Video(args);
-          // console.log(formatted_video);
+
           this.sliderData.push(formatted_video);
+
+          if (j < (zobjectData.length - 1)) {
+            j++;
+
+            return this.loadSliderVideoDetails(zobjectData, callback, j);
+          }
+
+          return callback(this.playlistData);
         },
         error: function() {
           console.log('loadVideoDetails.error');
@@ -169,7 +187,12 @@
           console.log('getPlaylistChildren.error', arguments);
         },
         complete: function() {
-          callback(this.playlistData);
+          // call loadZObjectData if on Home screen
+          if (this.settingsParams.slider && playlist_id === this.settingsParams.root_playlist_id) {
+            return this.loadZObjectData(callback);
+          } else {
+            return callback(this.playlistData);  
+          }
         }
       });
     };
@@ -180,8 +203,6 @@
      * @param {object} playlist data
      */
     this.formatPlaylistChildren = function(jsonData) {
-      console.log('formatPlaylistChildren');
-
       var data = jsonData.response;
       var _playlistData = [];
 
