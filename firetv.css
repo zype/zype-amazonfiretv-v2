@@ -569,7 +569,7 @@ h1 {
 .one-d-no-items-container {
   position: relative;
   display: none;
-  top: 380px;
+  top: 10px;
   left: 150px;
   color: #878b98;
   font-size: 1.7em;
