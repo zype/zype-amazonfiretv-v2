@@ -663,10 +663,12 @@
        * Event Handler - No content found for oneD event
        */
       oneDView.on('noContent', function(index) {
-        window.setTimeout(function() {
-          this.transitionToLeftNavView();
-          this.leftNavView.setHighlightedElement();
-        }.bind(this), 10);
+        if (this.oneDView.sliderView === null) {
+          window.setTimeout(function() {
+            this.transitionToLeftNavView();
+            this.leftNavView.setHighlightedElement();
+          }.bind(this), 10);
+        }
       }, this);
 
       /**
@@ -740,6 +742,9 @@
         } else {
           categoryTitle = app.data.categoryData[this.leftNavView.currSelectedIndex];
         }
+
+        // reset searchUpdated
+        this.leftNavView.searchUpdated = false;
 
         /*
          * Here we assume that a client has, so called, the "Featured" list by default
@@ -889,9 +894,8 @@
      * Transition from left nav to the oneD view
      */
     this.transitionFromLefNavToOneD = function() {
-      if (this.oneDView.noItems) {
-        this.leftNavView.setHighlightedElement();
-        return;
+      if (this.oneDView.noItems && !this.oneDView.sliderView) {
+        return this.leftNavView.setHighlightedElement();
       }
 
       this.leftNavView.collapse();
@@ -910,7 +914,9 @@
       this.playerView = null;
       this.oneDView.show();
       this.leftNavView.show();
-      this.oneDView.shovelerView.show();
+      if (this.oneDView.shovelerView) {
+        this.oneDView.shovelerView.show();  
+      }
       this.showHeaderBar();
     };
 

@@ -203,7 +203,7 @@
       var leftNavStrings = [];
       for (var i = 0; i < catData.length; i++) {
         if (typeof catData[i] == "string") {
-          leftNavStrings.push(catData[i].substring(0, 26));
+          leftNavStrings.push(catData[i]);
         } else {
           leftNavStrings.push("");
         }
@@ -287,15 +287,6 @@
             break;
           case buttons.RIGHT:
             this.confirmNavSelection();
-            break;
-          case buttons.RIGHT:
-            if (this.confirmedSelection !== this.currSelectedIndex) {
-              // switch the current view state to the main content view
-              this.confirmedSelection = this.currSelectedIndex;
-              this.trigger('select', this.currSelectedIndex);
-            } else {
-              this.trigger('deselect');
-            }
             break;
         }
       } else if (e.type === 'buttonrepeat') {
