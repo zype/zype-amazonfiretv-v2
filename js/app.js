@@ -355,8 +355,14 @@
             this.searchInputView.reset();
           }
         } else {
-          //remove the contents of the oneDView
-          this.oneDView.remove();
+          if (this.oneDView.sliderView) {
+            this.oneDView.sliderView.remove();
+          }
+
+          if (this.oneDView) {
+            //remove the contents of the oneDView
+            this.oneDView.remove();  
+          }
 
           //show the spinner
           this.showContentLoadingSpinner(true);
@@ -567,10 +573,12 @@
        * Event Handler - No content found for oneD event
        */
       oneDView.on('noContent', function(index) {
-        window.setTimeout(function() {
-          this.transitionToLeftNavView();
-          this.leftNavView.setHighlightedElement();
-        }.bind(this), 10);
+        if (this.oneDView.sliderView === null) {
+          window.setTimeout(function() {
+            this.transitionToLeftNavView();
+            this.leftNavView.setHighlightedElement();
+          }.bind(this), 10);
+        }
       }, this);
 
       /**
@@ -799,9 +807,8 @@
      * Transition from left nav to the oneD view
      */
     this.transitionFromLefNavToOneD = function() {
-      if (this.oneDView.noItems) {
-        this.leftNavView.setHighlightedElement();
-        return;
+      if (this.oneDView.noItems && !this.oneDView.sliderView) {
+        return this.leftNavView.setHighlightedElement();
       }
 
       this.leftNavView.collapse();
@@ -820,7 +827,9 @@
       this.playerView = null;
       this.oneDView.show();
       this.leftNavView.show();
-      this.oneDView.shovelerView.show();
+      if (this.oneDView.shovelerView) {
+        this.oneDView.shovelerView.show();  
+      }
       this.showHeaderBar();
     };
 

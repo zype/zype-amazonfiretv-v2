@@ -18,6 +18,8 @@
 
     ID_ONED_SUMMARY_CONTAINER = "one-D-summary-container",
 
+    ID_ONED_NO_CONTENT_CONTAINER = "one-d-no-items",
+
     ID_ONED_SUMMARY_TITLE = "summaryTitle",
 
     ID_ONED_SUMMARY_DATE = "summaryDate",
@@ -50,6 +52,7 @@
     this.currentView = null;
     this.titleText = "";
     this.$title = null;
+    this.$noContentContainer = null;
     this.$sliderContainer = null;
     this.$sliderContainerOffset = null;
     this.$shovelerContainer = null;
@@ -82,9 +85,18 @@
     this.hide = function() {
       this.$el.css('visibility', 'hidden');
       $(".one-d-title-container").css('visibility', 'hidden');
-      this.shovelerView.hide();
 
-      if (this.sliderView !== null) this.sliderView.hide();
+      if (this.noItems) {
+        this.$noContentContainer.css('visibility', 'hidden');
+      }
+      
+      if (this.shovelerView) {
+        this.shovelerView.hide();
+      }
+
+      if (this.sliderView !== null) {
+        this.sliderView.hide();
+      }
     };
 
     /**
@@ -93,9 +105,18 @@
     this.show = function() {
       this.$el.css('visibility', 'visible');
       $(".one-d-title-container").css('visibility', 'visible');
-      this.shovelerView.show();
 
-      if (this.sliderView !== null) this.sliderView.show();
+      if (this.noItems) {
+        this.$noContentContainer.css('visibility', 'visible');
+      }
+
+      if (this.shovelerView) {
+        this.shovelerView.show();
+      }
+
+      if (this.sliderView !== null) {
+        this.sliderView.show();
+      }
     };
 
     /**
@@ -155,37 +176,50 @@
       this.$el = args.$el.children().last();
       this.el = this.$el[0];
 
-      //no results found
+      // no results found
       if (args.rowData.length <= 0) {
-        $(".one-d-no-items-container").show();
-        this.trigger('loadComplete');
+        this.$noContentContainer = $('#' + ID_ONED_NO_CONTENT_CONTAINER);
+        this.$noContentContainer.show();
+
         this.trigger("noContent");
         this.noItems = true;
-        return;
+
+        // Display the slider if no results found on Featured Playlist screen
+        if (args.displaySliderParam && app.data.sliderData.length > 0) {
+          this.sliderData = app.data.sliderData;
+          
+          this.createSliderView(this.sliderData);
+          $("#" + ID_ONED_SLIDER_CONTAINER).show(); // we need this for scrolling
+          this.setCurrentView(this.sliderView);
+        }
+        else {
+          this.trigger('loadComplete');
+        }
       }
+      else {
+        this.noItems = false;
+        this.rowElements = args.rowData;
 
-      this.noItems = false;
-      this.rowElements = args.rowData;
+        //gather widths of all the row elements
+        this.$elementWidths = [];
 
-      //gather widths of all the row elements
-      this.$elementWidths = [];
+        this.scrollingContainerEle = $(ID_ONED_VIEW_ELEMENTS)[0];
 
-      this.scrollingContainerEle = $(ID_ONED_VIEW_ELEMENTS)[0];
+        if (args.displaySliderParam && app.data.sliderData.length > 0) {
+          this.sliderData = app.data.sliderData;
+          
+          this.createSliderView(this.sliderData);
+          $("#" + ID_ONED_SLIDER_CONTAINER).show(); // we need this for scrolling
+          this.setCurrentView(this.sliderView);
+          this.createShovelerView(args.rowData);
+        } else {
+          $("#" + ID_ONED_SLIDER_CONTAINER).hide(); // we need this for scrolling
+          this.createShovelerView(args.rowData);
+          this.setCurrentView(this.shovelerView);
+        }
 
-      if (args.displaySliderParam && app.data.sliderData.length > 0) {
-        this.sliderData = app.data.sliderData;
-        
-        this.createSliderView(this.sliderData);
-        $("#" + ID_ONED_SLIDER_CONTAINER).show(); // we need this for scrolling
-        this.setCurrentView(this.sliderView);
-        this.createShovelerView(args.rowData);
-      } else {
-        $("#" + ID_ONED_SLIDER_CONTAINER).hide(); // we need this for scrolling
-        this.createShovelerView(args.rowData);
-        this.setCurrentView(this.shovelerView);
+        this.createButtonView(args.displayButtonsParam, this.$el);
       }
-
-      this.createButtonView(args.displayButtonsParam, this.$el);
     };
 
     /**
@@ -232,6 +266,8 @@
         this.sliderLoadComplete = true;
         this.showSliderExtraData();
         if (this.shovelerLoadComplete) {
+          this.trigger('loadComplete');
+        } else {
           this.trigger('loadComplete');
         }
       }, this);
@@ -600,7 +636,7 @@
             }
             dirty = true;
 
-            if (this.sliderView !== null) {
+            if (this.sliderView !== null && this.noItems === false) {
               this.shiftOneDContainer();
             }
 
@@ -611,7 +647,9 @@
               case null:
                 break;
               case this.sliderView:
-                this.transitionToShovelerView();
+                if (this.noItems === false) {
+                  this.transitionToShovelerView();  
+                }
                 break;
               case this.shovelerView:
                 this.transitionToButtonView();
@@ -624,7 +662,7 @@
             }
             dirty = true;
 
-            if (this.sliderView !== null) {
+            if (this.sliderView !== null && this.noItems === false) {
               this.shiftOneDContainer();
             }
 
