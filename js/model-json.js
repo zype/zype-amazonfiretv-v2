@@ -49,8 +49,16 @@
 
     }.bind(this);
 
-    this.loadZObjectData = function(callback) {
-      console.log('load.zobject.data');
+    /**
+     * Load ZObject Data
+     *
+     * @param {Function} the callback function
+     * @param {Number}   the number of times the ajax request has failed
+     */
+    this.loadZObjectData = function(callback, fail) {
+      var fail  = fail || 0;
+      var retry = 2;
+
       $.ajax({
         url: this.settingsParams.endpoint + "zobjects/?zobject_type=slider&app_key=" + this.settingsParams.app_key,
         type: 'GET',
@@ -62,7 +70,6 @@
           var data = arguments[0].response;
 
           for (var i = 0; i < data.length; i++) {
-            // console.log(data[i]);
             this.zobjectData.push({
               id: data[i].video_ids[0],
               title: data[i].title,
@@ -72,24 +79,38 @@
           }
 
           if (this.zobjectData.length > 0) {
-            for (i = 0; i < this.zobjectData.length; i++) {
-              if (this.zobjectData[i].id) {
-                this.loadSliderVideoDetails(this.zobjectData[i].id, this.zobjectData[i].title, this.zobjectData[i].desc, this.zobjectData[i].thumbnail);
-              }
-            }
+            return this.loadSliderVideoDetails(this.zobjectData, callback);
           }
+          return callback();
         },
         error: function() {
           console.log('loadZObjectData.error');
-          // alert("There was an error configuring your Fire TV App. Please exit.");
-        },
-        complete: function() {
-          callback();
+          if (fail < retry) {
+            fail++;
+            return this.loadZObjectData(callback, fail);
+          }
+          return callback();
         }
       });
     };
 
-    this.loadSliderVideoDetails = function(video_id, title, desc, thumbnail) {
+    /**
+     * Load Slider Video Details (recursive)
+     *
+     * @param {Array}    the ZObject Data
+     * @param {Function} the callback function
+     * @param {Number}   the starting index (optional)
+     * @param {Number}   the number of times the ajax request has failed
+     */
+    this.loadSliderVideoDetails = function(zobjectData, callback, counter, fail) {
+      var j         = counter || 0;
+      var fail      = fail || 0;
+      var retry     = 1;
+      var video_id  = zobjectData[j].id;
+      var title     = zobjectData[j].title;
+      var desc      = zobjectData[j].desc;
+      var thumbnail = zobjectData[j].thumbnail;
+
       $.ajax({
         url: this.settingsParams.endpoint + "videos/" + video_id + "?app_key=" + this.settingsParams.app_key,
         type: 'GET',
@@ -115,13 +136,23 @@
           };
 
           var formatted_video = new Video(args);
-          // console.log(formatted_video);
+
           this.sliderData.push(formatted_video);
+
+          if (j < (zobjectData.length - 1)) {
+            j++;
+            return this.loadSliderVideoDetails(zobjectData, callback, j, 0);
+          }
+          return callback();
         },
         error: function() {
           console.log('loadVideoDetails.error');
+          if (fail < retry) {
+            fail++;
+            return this.loadSliderVideoDetails(zobjectData, callback, j, fail);
+          }
           alert("There was an error configuring your Fire TV App. Please exit.");
-          app.exit();
+          return app.exit();
         }
       });
     };
@@ -138,7 +169,6 @@
         success: function() {
           var contentData = arguments[0];
           this.getCategoryRowValues(contentData);
-          this.loadPlaylistData();
         },
         error: function() {
           var contentData = {
@@ -148,12 +178,9 @@
             }
           };
           this.getCategoryRowValues(contentData);
-          this.loadPlaylistData();
         },
         complete: function() {
-          console.log('loadData.complete');
-          this.loadZObjectData(categoryDataLoadedCallback);
-          // categoryDataLoadedCallback();
+          this.loadPlaylistData(categoryDataLoadedCallback);
         }
       });
     };
@@ -164,14 +191,14 @@
      */
     this.getCategoryRowValues = function(jsonData) {
       this.categoryData = jsonData.response.values;
-      console.log(this.categoryData);
+      console.log('this.categoryData', this.categoryData);
       this.categoryTitle = jsonData.response.title;
     }.bind(this);
 
     /**
      * Return the category items for the left-nav view
      */
-    this.loadPlaylistData = function() {
+    this.loadPlaylistData = function(categoryDataLoadedCallback) {
       console.log("load.playlist.data");
       if (this.settingsParams.playlist_id) {
         $.ajax({
@@ -181,7 +208,6 @@
           dataType: 'json',
           context: this,
           cache: true,
-          async: false,
           success: function() {
             var contentData = arguments[0];
             this.getPlaylistRowValue(contentData);
@@ -193,6 +219,9 @@
               }
             };
             this.getPlaylistRowValue(contentData);
+          },
+          complete: function() {
+            this.loadZObjectData(categoryDataLoadedCallback);
           }
         });
       }
