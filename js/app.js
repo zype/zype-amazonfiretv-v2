@@ -645,6 +645,9 @@
           categoryTitle = app.data.categoryData[this.leftNavView.currSelectedIndex];
         }
 
+        // reset searchUpdated
+        this.leftNavView.searchUpdated = false;
+
         /*
          * Here we assume that a client has, so called, the "Featured" list by default
          * @NOTE What if the client does not have that playlist?
