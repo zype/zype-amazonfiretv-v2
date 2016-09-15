@@ -288,15 +288,6 @@
           case buttons.RIGHT:
             this.confirmNavSelection();
             break;
-          case buttons.RIGHT:
-            if (this.confirmedSelection !== this.currSelectedIndex) {
-              // switch the current view state to the main content view
-              this.confirmedSelection = this.currSelectedIndex;
-              this.trigger('select', this.currSelectedIndex);
-            } else {
-              this.trigger('deselect');
-            }
-            break;
         }
       } else if (e.type === 'buttonrepeat') {
         switch (e.keyCode) {
