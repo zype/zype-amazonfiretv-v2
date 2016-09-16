@@ -267,7 +267,8 @@
         this.showSliderExtraData();
         if (this.shovelerLoadComplete) {
           this.trigger('loadComplete');
-        } else {
+        } 
+        else {
           this.trigger('loadComplete');
         }
       }, this);

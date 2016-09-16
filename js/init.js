@@ -61,6 +61,7 @@
 
       settings.device_linking = app_json.response.device_linking;
       settings.device_link_url = app_json.response.device_link_url;
+      settings.entitlements = app_json.response.entitlements;
 
       // this should be true
       settings.displayButtons = true;
@@ -72,13 +73,14 @@
       // settings.theme = 'theme--light';
       // settings.logoPosition = 'logo--center';
       // settings.logoPosition = 'logo--right';
+      // settings.entitlements = true;
 
       // nav
       settings.nav = {};
       settings.nav.home     = (settings.nested_categories) ? 0 : null;
       settings.nav.search   = (settings.nested_categories) ? 1 : 0;
-      settings.nav.library  = (settings.device_linking) ? settings.nav.search + 1 : null;
-      settings.nav.playlist = (settings.device_linking) ? settings.nav.search + 2 : settings.nav.search + 1;
+      settings.nav.library  = (settings.device_linking && settings.entitlements) ? settings.nav.search + 1 : null;
+      settings.nav.playlist = (settings.device_linking && settings.entitlements) ? settings.nav.search + 2 : settings.nav.search + 1;
       settings.nav.category = settings.nav.playlist + 1;
 
       // theme
