@@ -400,7 +400,7 @@
       }, this);
 
       deviceLinkingView.on('startBrowse', function() {
-        this.showContentLoadingSpinner();
+        this.showContentLoadingSpinner(true);
         this.settingsParams.browse = true;
         this.build();
       }, this);
@@ -850,10 +850,10 @@
      * Hide content loading spinner
      */
     this.hideContentLoadingSpinner = function() {
-      $('#app-loading-spinner').hide();
+      $('#app-loading-spinner').fadeOut();
 
       if ($('#app-overlay').css('display') !== 'none') {
-        $('#app-overlay').fadeOut(250);
+        $('#app-overlay').fadeOut();
       }
     };
 
