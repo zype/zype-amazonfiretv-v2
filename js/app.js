@@ -137,6 +137,9 @@
                     
                     app.data.categoryData.unshift('My Library');
 
+                    this.settingsParams.nav.library = this.settingsParams.nav.search + 1;
+                    this.settingsParams.nav.playlist = this.settingsParams.nav.search + 2;
+
                     if (result) {
                       if (result.response.length > 0) {
                         app.data.entitlementData = result;
@@ -203,6 +206,9 @@
                   app.data.loadEntitlementData(deviceLinkingHandler.getAccessToken(), function(result) {
                     
                     app.data.categoryData.unshift('My Library');
+
+                    this.settingsParams.nav.library = this.settingsParams.nav.search + 1;
+                    this.settingsParams.nav.playlist = this.settingsParams.nav.search + 2;
                     
                     if (result) {
                       if (result.response.length > 0) {
