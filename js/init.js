@@ -72,7 +72,7 @@
       settings.slider = app_json.response.slider;
 
       // default image
-      settings.default_image_url = (app_json.response.default_image_url) ? app_json.response.default_image_url : '/assets/default-image.png';
+      settings.default_image_url = (app_json.response.default_image_url) ? app_json.response.default_image_url : './assets/default-image.png';
 
       // this should be true
       settings.displayButtons = true;
