@@ -581,13 +581,15 @@
     this.parse_thumbnails = function(video) {
       if (video.images && this.settingsParams.related_images) {
         return utils.makeSSL(video.images[0].url);
-      } else {
+      }
+      else if (video.thumbnails.length > 0) {
         for (var i = 0; i < video.thumbnails.length; i++) {
           if (video.thumbnails[i].width > 400) {
             return utils.makeSSL(video.thumbnails[i].url);
           }
         }
       }
+      return this.settingsParams.default_image_url;
     };
 
     /**
