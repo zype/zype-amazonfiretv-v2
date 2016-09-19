@@ -59,7 +59,7 @@
      */
     this.loadZObjectData = function(callback, fail) {
       var fail  = fail || 0;
-      var retry = 2;
+      var retry = 1;
 
       $.ajax({
         url: this.settingsParams.endpoint + "zobjects/?zobject_type=slider&app_key=" + this.settingsParams.app_key,
