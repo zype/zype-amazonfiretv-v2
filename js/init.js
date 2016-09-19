@@ -53,12 +53,11 @@
       settings.category_id = app_json.response.category_id;
       settings.playlist_id = app_json.response.featured_playlist_id;
       settings.per_page = app_json.response.per_page;
+      settings.nested_categories = app_json.response.nested;
+      settings.autoplay = app_json.response.autoplay;
 
       settings.avod = app_json.response.avod;
       settings.IAP = app_json.response.in_app_purchase;
-      settings.autoplay = app_json.response.autoplay;
-      settings.nested_categories = app_json.response.nested;
-
       settings.device_linking = app_json.response.device_linking;
       settings.device_link_url = app_json.response.device_link_url;
       settings.entitlements = app_json.response.entitlements;
