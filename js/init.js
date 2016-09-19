@@ -63,6 +63,15 @@
       settings.device_link_url = app_json.response.device_link_url;
       settings.entitlements = app_json.response.entitlements;
 
+      // theme
+      settings.theme = 'theme--' + app_json.response.theme; // 'light' or 'dark'
+
+      // logo position
+      settings.logoPosition = 'logo--' + app_json.response.logo_position; // 'center' or 'right'
+
+      // slider
+      settings.slider = app_json.response.slider;
+
       // this should be true
       settings.displayButtons = true;
 
@@ -74,6 +83,7 @@
       // settings.logoPosition = 'logo--center';
       // settings.logoPosition = 'logo--right';
       // settings.entitlements = true;
+      // settings.slider = true;
 
       // nav
       settings.nav = {};
@@ -82,12 +92,6 @@
       settings.nav.library  = null;
       settings.nav.playlist = settings.nav.search + 1;
       settings.nav.category = settings.nav.playlist + 1;
-
-      // theme
-      settings.theme = 'theme--' + app_json.response.theme; // 'light' or 'dark'
-
-      // logo position
-      settings.logoPosition = 'logo--' + app_json.response.logo_position; // 'center' or 'right'
 
       // main colors
       settings.backgroundColor = app_json.response.background_color;
