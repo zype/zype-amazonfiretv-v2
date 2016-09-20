@@ -392,6 +392,7 @@ h1 {
   background: transparent none no-repeat right 40px center;
 }
 .leftnav-menu-scrolling-list {
+  -webkit-backface-visibility: hidden;
   -webkit-transition-property: -webkit-transform, top;
   -webkit-transition-duration: 0.25s;
   -webkit-transition-timing-function: linear;
