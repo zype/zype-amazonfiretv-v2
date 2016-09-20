@@ -57,6 +57,8 @@
 
       settings.avod = app_json.response.avod;
       settings.IAP = app_json.response.in_app_purchase;
+      settings.subscribe_ad_free = app_json.response.subscribe_ad_free;
+      settings.subscribe_ad_free_silent = app_json.response.subscribe_ad_free_silent;
       settings.autoplay = app_json.response.autoplay;
       settings.nested_categories = app_json.response.nested;
       settings.playlists_only = app_json.response.playlists_only;
@@ -98,6 +100,7 @@
       // For Testing
       // settings.nested_categories = true;
       // settings.playlists_only = true;
+      // settings.subscribe_ad_free_silent = true;
       // settings.IAP = false;
       // settings.device_linking = true;
       // settings.theme = 'theme--dark';

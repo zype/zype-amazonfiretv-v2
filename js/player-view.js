@@ -178,7 +178,7 @@
 
       this.$el.append(this.videoElement);
       // add the script to load the preroll ad
-      if (settings.avod) {
+      if ((settings.avod && !settings.subscribe_ad_free_silent) || (settings.avod && settings.subscribe_ad_free_silent && settings.device_linking === true && settings.linked === false)) {
         /**
          * Here we provide an ad tag, but we want to be sure that
          * we do not have an empty XML response.
