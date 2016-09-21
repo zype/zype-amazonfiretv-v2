@@ -943,6 +943,7 @@
      * Transition from player view to one-D view
      */
     this.transitionFromPlayerToOneD = function() {
+      this.hideContentLoadingSpinner();
       this.selectView(this.oneDView);
       this.playerView.off('videoStatus', this.handleVideoStatus, this);
       this.playerView.remove();
@@ -1121,6 +1122,7 @@
         url: uri.href(),
         type: 'GET',
         dataType: 'json',
+        context: this,
         success: function(player_json) {
           var outputs = player_json.response.body.outputs;
           for (var i = 0; i < outputs.length; i++) {
@@ -1136,7 +1138,7 @@
             if (player_json.response.body.advertising) {
               video.ad_schedule = [];
               var schedule = player_json.response.body.advertising.schedule;
-              for (i = 0; i < schedule.length; i++) {
+              for (var i = 0; i < schedule.length; i++) {
                 // add each ad tag in, make played be false
                 var seconds = schedule[i].offset / 1000;
                 video.ad_schedule.push({
@@ -1151,9 +1153,10 @@
           }
         },
         error: function() {
-          console.log(arguments);
-          alert("There was an error configuring your Fire TV App.");
-          app.exit();
+          console.log('start_stream.error', arguments);
+          alert("There was an error playing this video, please try again");
+          this.transitionFromPlayerToOneD();
+          this.transitionFromAlertToOneD();
         }
       });
     };
