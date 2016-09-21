@@ -1103,19 +1103,20 @@
       uri.addSearch({
         autoplay: this.settingsParams.autoplay
       });
-      if (typeof accessToken !== 'undefined' && accessToken) {
+      if (!this.settingsParams.IAP && typeof accessToken !== 'undefined' && accessToken) {
         uri.addSearch({ access_token: accessToken });
-      } 
+      }
+      else if (this.settingsParams.IAP) {
+        var consumer = iapHandler.state.currentConsumer;
+
+        if (typeof consumer !== 'undefined' && consumer && consumer.access_token) {
+          uri.addSearch({
+            access_token: consumer.access_token
+          });
+        }
+      }
       else {
         uri.addSearch({ app_key: this.settingsParams.app_key });
-      }
-
-      var consumer = iapHandler.state.currentConsumer;
-
-      if (typeof consumer !== 'undefined' && consumer && consumer.access_token) {
-        uri.addSearch({
-          access_token: consumer.access_token
-        });
       }
 
       $.ajax({
