@@ -52,6 +52,7 @@
       // set dynamic from the api
       settings.category_id = app_json.response.category_id;
       settings.playlist_id = app_json.response.featured_playlist_id;
+      settings.playlist_ids = null;
       settings.per_page = app_json.response.per_page;
       settings.nested_categories = app_json.response.nested;
       settings.playlists_only = app_json.response.playlists_only; // use PLs, remove Categories. Includes PLs in place of "Nested Categories".
@@ -88,7 +89,7 @@
       // settings.entitlements = true;
       // settings.slider = true;
       // settings.nested_categories = false;
-      // settings.playlists_only = true;
+      // settings.playlists_only = false;
 
       // nav
       settings.nav = {};

@@ -10,6 +10,7 @@ var Channel = function(args) {
   this.description = args.description || "";
   this.playlist_id = args.playlist_id || null;
   this.category_id = args.category_id || null;
+  this.playlist_ids = args.playlist_ids || [];
 };
 
 Channel.prototype = {

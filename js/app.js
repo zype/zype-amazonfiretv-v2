@@ -568,8 +568,6 @@
      * Nested Categories One D View
      */
     this.initializeNestedCategories = function() {
-      // since we are using the One D View to show categories, we pass true
-      // to identify that we are creating the object for the categories
       var nestedCategoriesOneDView = this.nestedCategoriesOneDView = new OneDViewCategories();
 
       /**
@@ -584,6 +582,9 @@
         app.data.setCategoryId(data.category_id);
         app.data.setPlaylistId(data.playlist_id);
 
+        app.data.setPlaylistIds(data.playlist_ids);
+
+        // here, "Category" refers to the selected ZObject Category / Title of Playlists
         this.transitionToCategory();
       }, this);
 

@@ -46,8 +46,11 @@
 
       this.getPlans(function(plans) {
         that.plans = plans;
-        if (that.settingsParams.playlists_only) {
-          that.loadPlaylistData(dataLoadedCallback);
+        if (that.settingsParams.playlists_only && !that.settingsParams.nested_categories) {
+          that.loadAllPlaylistData(dataLoadedCallback);
+        }
+        else if (that.settingsParams.playlists_only && that.settingsParams.nested_categories) {
+          that.loadPlaylistData(dataLoadedCallback, that.settingsParams.playlist_ids);
         }
         else {
           that.loadCategoryData(dataLoadedCallback);  
@@ -191,7 +194,7 @@
           this.getCategoryRowValues(contentData);
         },
         complete: function() {
-          this.loadPlaylistData(categoryDataLoadedCallback);
+          this.loadAllPlaylistData(categoryDataLoadedCallback);
         }
       });
     };
@@ -206,13 +209,13 @@
     }.bind(this);
 
     /**
-     * Load Playlist Data
+     * Load All Playlist Data
      * 
-     * Return the category items for the left-nav view
+     * Loads either the Featured Playlist data or all Active Playlists data
      * 
      * @param {Function} the callback function
      */
-    this.loadPlaylistData = function(categoryDataLoadedCallback) {
+    this.loadAllPlaylistData = function(categoryDataLoadedCallback) {
       console.log("load.playlist.data");
 
       var data = {};
@@ -256,17 +259,68 @@
     };
 
     /**
+     * Load Playlist data for the leftNavView recursively
+     *
+     * @param {Function} the callback function
+     * @param {Array}    array of playlistIds from the selected ZObject
+     * @param {Number}   the starting index
+     * @param {Array}    the retrieved playlist data
+     */
+    this.loadPlaylistData = function(callback, playlistIds, counter, playlistData) {
+      var j = counter || 0;
+      var playlist_id = (playlistIds) ? playlistIds[j] : null;
+      var playlistData = playlistData || [];
+
+      // If an array of Playlist IDs is passed, get respective data recursively
+      if (playlist_id) {
+        $.ajax({
+          url: this.settingsParams.endpoint + 'playlists/' + playlist_id,
+          type: 'GET',
+          crossDomain: true,
+          dataType: 'json',
+          context: this,
+          cache: false,
+          data: {
+            'app_key' : this.settingsParams.app_key
+          },
+          success: function(result) {
+            playlistData.push(result.response);
+
+            if (j < (playlistIds.length - 1)) {
+              j++;
+
+              return this.loadPlaylistData(callback, playlistIds, j, playlistData);
+            }
+
+            // save the current playlist data in app.data.categoryData for leftNavView
+            this.getPlaylistRowValues(playlistData);
+
+            return (this.settingsParams.slider) ? this.loadZObjectData(callback) : callback();
+          },
+          error: function(xhr) {
+            console.log('error', xhr);
+          }
+        });
+      }
+      else {
+        return (this.settingsParams.slider) ? this.loadZObjectData(callback) : callback();
+      }
+    };
+
+    /**
      * Store Playlist data
      *
-     * @param {object} jsonData data returned from request
+     * @param {object|array} jsonData data returned from request || array of Playlist objects
      */
     this.getPlaylistRowValues = function(jsonData) {
       if (this.settingsParams.playlists_only) {
+        var playlists = jsonData.response || jsonData;
         var playlistData = [];
-        for (var i = 0; i < jsonData.response.length; i++) {
+
+        for (var i = 0; i < playlists.length; i++) {
           playlistData.push({
-            "title" : jsonData.response[i].title,
-            "id"    : jsonData.response[i]._id
+            "title" : playlists[i].title,
+            "id"    : playlists[i]._id
           });
         }
         this.categoryData = playlistData;
@@ -378,12 +432,25 @@
       var data = jsonData.response;
       var formattedChannel = [];
       for (var i = 0; i < data.length; i++) {
+        var pl_ids = data[i].playlist_id;
+
+        // parse comma-separated playlist IDs into an array
+        if (this.settingsParams.playlists_only && this.settingsParams.nested_categories && pl_ids.indexOf(',' > -1)) {
+          pl_ids = pl_ids.split(',');
+
+          // trim whitespace of each item in the array
+          for (var j = 0; j < pl_ids.length; j++) {
+            pl_ids[j] = pl_ids[j].trim();
+          }
+        }
+        
         var args = {
           id: data[i]._id,
           title: data[i].title,
           playlist_id: data[i].playlist_id,
           category_id: data[i].category_id,
-          description: data[i].description
+          description: data[i].description,
+          playlist_ids: pl_ids
         };
         if (data[i].pictures && data[i].pictures.length > 0) {
           args.imgUrl = utils.makeSSL(data[i].pictures[0].url);
@@ -407,6 +474,16 @@
 
     this.setPlaylistId = function(id) {
       this.settingsParams.playlist_id = id;
+    };
+
+    /**
+     * Set the Playlist IDs of the currently selected Nested Category
+     *
+     * @param {Array} the IDs of the currently selected Playlist
+     */
+    this.setPlaylistIds = function(ids) {
+      this.settingsParams.playlist_ids = ids;
+      console.log('setPlaylistIds', this.settingsParams.playlist_ids);
     };
 
     /***************************
