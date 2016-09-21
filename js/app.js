@@ -837,12 +837,15 @@
       }.bind(this);
 
       oneDView.updateCategory = function() {
+        // Entitlements / My Library
         if (this.settingsParams.entitlements && this.settingsParams.nav.library && this.leftNavView.currSelectedIndex === this.settingsParams.nav.library) {
           app.data.getEntitlementData(app.data.entitlementData, successCallback);
         }
-        else if (this.settingsParams.nav.playlist && this.leftNavView.currSelectedIndex === this.settingsParams.nav.playlist) {
+        // Featured Playlist || Playlists only
+        else if ((!this.settingsParams.playlists_only && this.settingsParams.nav.playlist && this.leftNavView.currSelectedIndex === this.settingsParams.nav.playlist) || (this.settingsParams.playlists_only && this.leftNavView.currSelectedIndex >= this.settingsParams.nav.playlist)) {
           app.data.getPlaylistData(successCallback);
         }
+        // Category
         else {
           app.data.getCategoryData(successCallback);
         }

@@ -46,7 +46,12 @@
 
       this.getPlans(function(plans) {
         that.plans = plans;
-        that.loadCategoryData(dataLoadedCallback);
+        if (that.settingsParams.playlists_only) {
+          that.loadPlaylistData(dataLoadedCallback);
+        }
+        else {
+          that.loadCategoryData(dataLoadedCallback);  
+        }
       });
 
     }.bind(this);
@@ -201,21 +206,37 @@
     }.bind(this);
 
     /**
+     * Load Playlist Data
+     * 
      * Return the category items for the left-nav view
+     * 
+     * @param {Function} the callback function
      */
     this.loadPlaylistData = function(categoryDataLoadedCallback) {
       console.log("load.playlist.data");
+
+      var data = {};
+      var url = this.settingsParams.endpoint + "playlists/";
+      url += (!this.settingsParams.playlists_only) ? this.settingsParams.playlist_id : '';
+      
+      data['app_key']    = this.settingsParams.app_key;
+      if (this.settingsParams.playlists_only) {
+        data['per_page'] = 100;
+        data['sort']     = 'priority';
+        data['order']    = 'asc';
+      }
       
       $.ajax({
-        url: this.settingsParams.endpoint + "playlists/" + this.settingsParams.playlist_id + "/?app_key=" + this.settingsParams.app_key,
+        url: url,
         type: 'GET',
         crossDomain: true,
         dataType: 'json',
         context: this,
         cache: true,
-        success: function() {
-          var contentData = arguments[0];
-          this.getPlaylistRowValue(contentData);
+        data: data,
+        success: function(result) {
+          var contentData = result;
+          this.getPlaylistRowValues(contentData);
         },
         error: function() {
           var contentData = {
@@ -223,7 +244,7 @@
               title: 'New Releases'
             }
           };
-          this.getPlaylistRowValue(contentData);
+          this.getPlaylistRowValues(contentData);
         },
         complete: function() {
           if (this.settingsParams.slider) {
@@ -234,13 +255,31 @@
       });
     };
 
-    this.getPlaylistRowValue = function(jsonData) {
-      var playlistTitle = jsonData.response.title;
-      this.categoryData.unshift(playlistTitle);
+    /**
+     * Store Playlist data
+     *
+     * @param {object} jsonData data returned from request
+     */
+    this.getPlaylistRowValues = function(jsonData) {
+      if (this.settingsParams.playlists_only) {
+        var playlistData = [];
+        for (var i = 0; i < jsonData.response.length; i++) {
+          playlistData.push({
+            "title" : jsonData.response[i].title,
+            "id"    : jsonData.response[i]._id
+          });
+        }
+        this.categoryData = playlistData;
+      }
+      else {
+        var playlistTitle = jsonData.response.title;
+        this.categoryData.unshift(playlistTitle);
+      }
     }.bind(this);
 
     /**
      * Load Entitlement data
+     *
      * @param {string}   a valid Access Token
      * @param {function} the callback function
      */
@@ -464,33 +503,45 @@
 
     };
 
+    /**
+     * Get data for a selected playlist
+     * 
+     * @param {function} the callback function
+     */
     this.getPlaylistData = function(categoryCallback) {
       this.currData = [];
-      var categoryValue = encodeURIComponent(this.categoryData[this.currentCategory]);
-      //  we want to push all the videos with this category value into this.currData()
-
-      var playlist_url = null;
-      if (this.settingsParams.playlist_id) {
-        playlist_url = this.settingsParams.endpoint + "playlists/" + this.settingsParams.playlist_id + "/videos/?app_key=" + this.settingsParams.app_key + "&per_page=" + this.settingsParams.per_page;
-      } else {
-        playlist_url = this.settingsParams.endpoint + "videos/?app_key=" + this.settingsParams.app_key + "&per_page=10&dpt=true&sort=created_at&order=desc";
+      var _url = this.settingsParams.endpoint;
+      var _playlist_id = (this.settingsParams.playlists_only) ? this.categoryData[this.currentCategory].id : this.settingsParams.playlist_id;
+      var _data = {
+        'app_key'  : this.settingsParams.app_key,
+        'per_page' : this.settingsParams.per_page,
+        'dpt'      : true
+      }
+      
+      if (this.settingsParams.playlists_only || this.settingsParams.playlist_id) {
+        _url += 'playlists/' + _playlist_id + '/videos/';
+      }
+      else {
+        _url += 'videos/';
+        _data['sort'] = 'created_at';
+        _data['order'] = 'desc';
       }
 
       $.ajax({
-        url: playlist_url,
+        url: _url,
         type: 'GET',
         crossDomain: true,
         dataType: 'json',
         context: this,
         cache: true,
+        data: _data,
         success: function() {
           var contentData = arguments[0];
           this.currData = this.formatVideos(contentData);
         },
         error: function() {
           console.log(arguments);
-          alert("There was an error configuring your Fire TV App. Please exit.");
-          app.exit();
+          alert("There was an error configuring your Fire TV App. Please try again.");
         },
         complete: function() {
           categoryCallback(this.currData);

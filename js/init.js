@@ -87,7 +87,8 @@
       // settings.logoPosition = 'logo--right';
       // settings.entitlements = true;
       // settings.slider = true;
-      settings.playlists_only = true;
+      // settings.nested_categories = false;
+      // settings.playlists_only = true;
 
       // nav
       settings.nav = {};
