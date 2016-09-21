@@ -785,7 +785,7 @@
          */
         var showSlider = function() {
           // Show Slider on Featured Playlist only
-          if (app.data.currentCategory === this.settingsParams.nav.playlist) {
+          if (app.data.currentCategory === this.settingsParams.nav.playlist && !this.settingsParams.nested_categories) {
             return true;
           }
           return false;
