@@ -116,55 +116,70 @@
       var j         = counter || 0;
       var fail      = fail || 0;
       var retry     = 1;
-      var video_id  = zobjectData[j].id;
+      var video_id  = (zobjectData[j].id) ? zobjectData[j].id : null;
       var title     = zobjectData[j].title;
       var desc      = zobjectData[j].desc;
       var thumbnail = zobjectData[j].thumbnail;
 
-      $.ajax({
-        url: this.settingsParams.endpoint + "videos/" + video_id + "?app_key=" + this.settingsParams.app_key,
-        type: 'GET',
-        crossDomain: true,
-        dataType: 'json',
-        context: this,
-        cache: true,
-        success: function() {
-          var video = arguments[0].response;
-          var args = {
-            "id": video._id,
-            "title": title,
-            "pubDate": video.published_at,
-            "thumbURL": thumbnail,
-            "imgURL": thumbnail,
-            // parse videoURL at playtime
-            "description": desc,
-            "seconds": video.duration,
-            "subscription_required": video.subscription_required,
-            "rental_required": video.rental_required,
-            "purchase_required": video.purchase_required,
-            "pass_required": video.pass_required
-          };
+      // If Video ID exists, get video data
+      if (video_id) {
+        $.ajax({
+          url: this.settingsParams.endpoint + "videos/" + video_id + "?app_key=" + this.settingsParams.app_key,
+          type: 'GET',
+          crossDomain: true,
+          dataType: 'json',
+          context: this,
+          cache: true,
+          success: function() {
+            var video = arguments[0].response;
+            var args = {
+              "id": video._id,
+              "title": title,
+              "pubDate": video.published_at,
+              "thumbURL": thumbnail,
+              "imgURL": thumbnail,
+              // parse videoURL at playtime
+              "description": desc,
+              "seconds": video.duration,
+              "subscription_required": video.subscription_required,
+              "rental_required": video.rental_required,
+              "purchase_required": video.purchase_required,
+              "pass_required": video.pass_required
+            };
 
-          var formatted_video = new Video(args);
+            var formatted_video = new Video(args);
 
-          this.sliderData.push(formatted_video);
+            this.sliderData.push(formatted_video);
 
-          if (j < (zobjectData.length - 1)) {
-            j++;
-            return this.loadSliderVideoDetails(zobjectData, callback, j, 0);
+            if (j < (zobjectData.length - 1)) {
+              j++;
+              return this.loadSliderVideoDetails(zobjectData, callback, j, 0);
+            }
+            return callback();
+          },
+          error: function(xhr) {
+            console.log('loadVideoDetails.error', xhr);
+            // Retry current item
+            if (fail < retry) {
+              fail++;
+              return this.loadSliderVideoDetails(zobjectData, callback, j, fail);
+            }
+            // Retry failed. Try next item
+            else if (j < (zobjectData.length - 1)) {
+              j++;
+              return this.loadSliderVideoDetails(zobjectData, callback, j, 0);
+            }
+            return callback();
           }
-          return callback();
-        },
-        error: function() {
-          console.log('loadVideoDetails.error');
-          if (fail < retry) {
-            fail++;
-            return this.loadSliderVideoDetails(zobjectData, callback, j, fail);
-          }
-          alert("There was an error configuring your Fire TV App. Please exit.");
-          return app.exit();
+        });
+      }
+      else {
+        if (j < (zobjectData.length - 1)) {
+          j++;
+          return this.loadSliderVideoDetails(zobjectData, callback, j, 0);
         }
-      });
+        return callback();
+      }
     };
 
     /**
@@ -309,7 +324,7 @@
             // if error on last Playlist ID
             // save the current playlist data in app.data.categoryData for leftNavView
             this.getPlaylistRowValues(playlistData);
-            
+
             return (this.settingsParams.slider) ? this.loadZObjectData(callback) : callback();
           }
         });
