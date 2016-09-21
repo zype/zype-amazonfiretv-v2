@@ -54,6 +54,7 @@
       settings.playlist_id = app_json.response.featured_playlist_id;
       settings.per_page = app_json.response.per_page;
       settings.nested_categories = app_json.response.nested;
+      settings.playlists_only = app_json.response.playlists_only; // use PLs, remove Categories. Includes PLs in place of "Nested Categories".
       settings.autoplay = app_json.response.autoplay;
 
       settings.avod = app_json.response.avod;
@@ -86,6 +87,7 @@
       // settings.logoPosition = 'logo--right';
       // settings.entitlements = true;
       // settings.slider = true;
+      settings.playlists_only = true;
 
       // nav
       settings.nav = {};
