@@ -298,7 +298,19 @@
             return (this.settingsParams.slider) ? this.loadZObjectData(callback) : callback();
           },
           error: function(xhr) {
-            console.log('error', xhr);
+            console.log('loadPlaylistData.error', xhr);
+
+            // skip the failed playlist and load the next one
+            if (j < (playlistIds.length - 1)) {
+              j++;
+              return this.loadPlaylistData(callback, playlistIds, j, playlistData);
+            }
+            
+            // if error on last Playlist ID
+            // save the current playlist data in app.data.categoryData for leftNavView
+            this.getPlaylistRowValues(playlistData);
+            
+            return (this.settingsParams.slider) ? this.loadZObjectData(callback) : callback();
           }
         });
       }
