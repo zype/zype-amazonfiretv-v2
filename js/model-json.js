@@ -42,7 +42,6 @@
       that.channelsData = [];
       that.zobjectData = [];
       that.sliderData = [];
-      that.entitlementData = {};
 
       this.getPlans(function(plans) {
         that.plans = plans;
