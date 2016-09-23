@@ -57,7 +57,8 @@
       settings.nested_categories = app_json.response.nested;
       settings.playlists_only = app_json.response.playlists_only; // use PLs, remove Categories. Includes PLs in place of "Nested Categories".
       settings.autoplay = app_json.response.autoplay;
-      settings.related_images = app_json.response.related_images;
+      settings.related_images = app_json.response.related_images; // use related images for video thumbnails
+      settings.related_images_title = app_json.response.related_images_title;
 
       settings.avod = app_json.response.avod;
       settings.IAP = app_json.response.in_app_purchase;
@@ -92,6 +93,7 @@
       // settings.nested_categories = false;
       // settings.playlists_only = false;
       // settings.related_images = true;
+      // settings.related_images_title = 'film-poster';
 
       // nav
       settings.nav = {};
@@ -118,9 +120,6 @@
       settings.icon = utils.makeSSL(app_json.response.logo_original_url);
       settings.iconXPosition = app_json.response.icon_x_position + 'px';
       settings.iconYPosition = app_json.response.icon_y_position + 'px';
-
-      // use related images for video thumbnails
-      settings.related_images = app_json.response.related_images; // boolean
 
       console.log('waiting for amazonPlatformReady...');
 

@@ -732,9 +732,15 @@
     };
 
     this.parse_thumbnails = function(video) {
+      // Custom Image
       if (video.images && this.settingsParams.related_images) {
-        return utils.makeSSL(video.images[0].url);
+        for (var i = 0; i < video.images.length; i++) {
+          if (video.images[i].title && (video.images[i].title.toLowerCase() === this.settingsParams.related_images_title)) {
+            return utils.makeSSL(video.images[i].url);
+          }
+        }
       }
+      // Standard Thumbnails
       else if (video.thumbnails.length > 0) {
         for (var i = 0; i < video.thumbnails.length; i++) {
           if (video.thumbnails[i].width > 400) {
@@ -742,6 +748,7 @@
           }
         }
       }
+      // Default Image
       return this.settingsParams.default_image_url;
     };
 
