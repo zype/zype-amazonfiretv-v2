@@ -764,11 +764,19 @@
         // these are the videos
         this.categoryData = categoryData;
 
+        // Set the OneDView Title
         var categoryTitle = "";
+        // Search
         if (this.leftNavView.currSelectedIndex === this.settingsParams.nav.search) {
           categoryTitle = "Search";
-        } else {
+        }
+        // Category (array), My Library (array)
+        else if (typeof app.data.categoryData[this.leftNavView.currSelectedIndex] === "string") {
           categoryTitle = app.data.categoryData[this.leftNavView.currSelectedIndex];
+        }
+        // Playlist (object)
+        else {
+          categoryTitle = app.data.categoryData[this.leftNavView.currSelectedIndex].title;
         }
 
         // reset searchUpdated
