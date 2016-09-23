@@ -510,7 +510,6 @@
      */
     this.setPlaylistIds = function(ids) {
       this.settingsParams.playlist_ids = ids;
-      console.log('setPlaylistIds', this.settingsParams.playlist_ids);
     };
 
     /***************************
