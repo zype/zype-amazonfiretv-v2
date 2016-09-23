@@ -117,10 +117,16 @@
      * Remove the video element from the app
      */
     this.remove = function() {
-      this.videoElement.pause();
-      this.videoElement.src = "";
-      this.controlsView.remove();
-      this.$el.remove();
+      if (this.videoElement) {
+        this.videoElement.pause();
+        this.videoElement.src = "";  
+      }
+      if (this.controlsView) {
+        this.controlsView.remove();  
+      }
+      if (this.$el) {
+        this.$el.remove();  
+      }
     };
 
     /**
