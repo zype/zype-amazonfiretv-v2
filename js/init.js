@@ -57,6 +57,7 @@
       settings.nested_categories = app_json.response.nested;
       settings.playlists_only = app_json.response.playlists_only; // use PLs, remove Categories. Includes PLs in place of "Nested Categories".
       settings.autoplay = app_json.response.autoplay;
+      settings.related_images = app_json.response.related_images;
 
       settings.avod = app_json.response.avod;
       settings.IAP = app_json.response.in_app_purchase;
@@ -90,6 +91,7 @@
       // settings.slider = true;
       // settings.nested_categories = false;
       // settings.playlists_only = false;
+      // settings.related_images = true;
 
       // nav
       settings.nav = {};
