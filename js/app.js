@@ -571,7 +571,6 @@
        * @param {number} index the index of the selected item
        */
       nestedCategoriesOneDView.on('select', function(index) {
-        console.log('on.select.event');
         app.data.setcurrentChannel(index);
 
         var data = this.channelsData[index];
