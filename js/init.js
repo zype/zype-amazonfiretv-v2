@@ -49,39 +49,34 @@
     dataType: 'json',
     cache: false,
     success: function(app_json) {
-      // set dynamic from the api
-      settings.category_id = app_json.response.category_id;
-      settings.playlist_id = app_json.response.featured_playlist_id;
-      settings.playlist_ids = null;
-      settings.per_page = app_json.response.per_page;
-      settings.nested_categories = app_json.response.nested;
-      settings.playlists_only = app_json.response.playlists_only; // use PLs, remove Categories. Includes PLs in place of "Nested Categories".
-      settings.autoplay = app_json.response.autoplay;
-      settings.related_images = app_json.response.related_images; // use related images for video thumbnails
-      settings.related_images_title = app_json.response.related_images_title;
+      var res = app_json.response;
 
-      settings.avod = app_json.response.avod;
-      settings.IAP = app_json.response.in_app_purchase;
-      settings.device_linking = app_json.response.device_linking;
-      settings.device_link_url = app_json.response.device_link_url;
-      settings.entitlements = app_json.response.entitlements;
+      // Main
+      settings.category_id          = res.category_id;
+      settings.playlist_id          = res.featured_playlist_id;
+      settings.playlist_ids         = null;
+      settings.autoplay             = res.autoplay;
+      settings.per_page             = res.per_page;
+      settings.nested_categories    = res.nested;
+      settings.playlists_only       = res.playlists_only; // use PLs, remove Categories. Includes PLs in place of "Nested Categories".
+      
+      // Monetization
+      settings.avod                 = res.avod;
+      settings.IAP                  = res.in_app_purchase;
+      settings.device_linking       = res.device_linking;
+      settings.device_link_url      = res.device_link_url;
+      settings.entitlements         = res.entitlements;
 
-      // theme
-      settings.theme = 'theme--' + app_json.response.theme; // 'light' or 'dark'
+      // Theme and Images
+      settings.theme                = 'theme--' + res.theme; // 'light' or 'dark'
+      settings.logoPosition         = 'logo--' + res.logo_position; // 'center' or 'right'
+      settings.displayButtons       = true; // this should be true
+      settings.slider               = res.slider;
+      settings.related_images       = res.related_images; // use related images for video thumbnails
+      settings.related_images_title = res.related_images_title;
+      settings.default_image_url    = (res.default_image_url) ? res.default_image_url : './assets/default-image.png';
 
-      // logo position
-      settings.logoPosition = 'logo--' + app_json.response.logo_position; // 'center' or 'right'
-
-      // slider
-      settings.slider = app_json.response.slider;
-
-      // default image
-      settings.default_image_url = (app_json.response.default_image_url) ? app_json.response.default_image_url : './assets/default-image.png';
-
-      // this should be true
-      settings.displayButtons = true;
-
-      // for testing only
+      //* For Testing
       // settings.IAP = false;
       // settings.device_linking = true;
       // settings.theme = 'theme--dark';
@@ -95,7 +90,7 @@
       // settings.related_images = true;
       // settings.related_images_title = 'film-poster';
 
-      // nav
+      // Navigation
       settings.nav = {};
       settings.nav.home     = (settings.nested_categories) ? 0 : null;
       settings.nav.search   = (settings.nested_categories) ? 1 : 0;
@@ -103,23 +98,25 @@
       settings.nav.playlist = settings.nav.search + 1;
       settings.nav.category = settings.nav.playlist + 1;
 
+      //* Super User
+
       // main colors
-      settings.backgroundColor = app_json.response.background_color;
-      settings.textColor = app_json.response.text_color;
-      settings.mutedTextColor = app_json.response.muted_text_color;
-      settings.brandColor = app_json.response.brand_color;
+      settings.backgroundColor = res.background_color;
+      settings.textColor       = res.text_color;
+      settings.mutedTextColor  = res.muted_text_color;
+      settings.brandColor      = res.brand_color;
 
       // navigation colors
-      settings.topBarColor = app_json.response.top_bar_color;
-      settings.leftNavBackgroundColor = app_json.response.left_nav_background_color;
-      settings.leftNavTextColor = app_json.response.left_nav_text_color;
-      settings.leftNavHoverTextColor = app_json.response.left_nav_hover_text_color;
-      settings.leftNavHoverBackgroundColor = app_json.response.left_nav_hover_background_color;
+      settings.topBarColor                 = res.top_bar_color;
+      settings.leftNavBackgroundColor      = res.left_nav_background_color;
+      settings.leftNavTextColor            = res.left_nav_text_color;
+      settings.leftNavHoverTextColor       = res.left_nav_hover_text_color;
+      settings.leftNavHoverBackgroundColor = res.left_nav_hover_background_color;
 
       // icon
-      settings.icon = utils.makeSSL(app_json.response.logo_original_url);
-      settings.iconXPosition = app_json.response.icon_x_position + 'px';
-      settings.iconYPosition = app_json.response.icon_y_position + 'px';
+      settings.icon          = utils.makeSSL(res.logo_original_url);
+      settings.iconXPosition = res.icon_x_position + 'px';
+      settings.iconYPosition = res.icon_y_position + 'px';
 
       console.log('waiting for amazonPlatformReady...');
 
