@@ -67,6 +67,9 @@
       settings.device_link_url      = res.device_link_url;
       settings.entitlements         = res.entitlements;
 
+      // Video Features
+      settings.time_limit_videos    = res.time_limit_videos;
+
       // Theme and Images
       settings.theme                = 'theme--' + res.theme; // 'light' or 'dark'
       settings.logoPosition         = 'logo--' + res.logo_position; // 'center' or 'right'
@@ -89,6 +92,7 @@
       // settings.playlists_only = false;
       // settings.related_images = true;
       // settings.related_images_title = 'film-poster';
+      // settings.time_limit_videos = true;
 
       // Navigation
       settings.nav = {};
