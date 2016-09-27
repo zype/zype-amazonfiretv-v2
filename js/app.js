@@ -74,6 +74,8 @@
    *                 settingsParams.displayButtons {Boolean} flag that tells the app to display the buttons or not
    */
   var App = function(settingsParams) {
+    var that = this;
+
     // hold onto the app settings
     this.settingsParams = settingsParams;
     this.showSearch = settingsParams.showSearch;
