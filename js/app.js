@@ -993,8 +993,9 @@
      * @param {integer} the video's index
      * @param {boolean} if selected video was from the slider
      * @param {string}  a valid access token
+     * @param {boolean} true if from Playlist Player
      */
-    this.doTimeLimit = function(index, fromSlider, accessToken) {
+    this.doTimeLimit = function(index, fromSlider, accessToken, playlistPlayer) {
       var _v = this.settingsParams.videos_time_limited[app.data.currVideoTimedIndex];
       // if video has not been watched
       if (_v && _v.watched === false) {
@@ -1002,12 +1003,21 @@
         this.startVideoTimer(_v);
 
         // play the video
-        this.transitionToPlayer(index, fromSlider, accessToken);
+        if (playlistPlayer && this.playerView) {
+          this.playerView.transitionToNextVideo(index, accessToken);
+        }
+        else {
+          this.transitionToPlayer(index, fromSlider, accessToken);
+        }
       }
       else {
         // throw error
+        if (playlistPlayer && this.playerView) {
+          // Exit Playlist Player
+          this.playerView.exit();
+        }
         alert('You have watched the maximum allowed time for this video. Please subscribe for full access.');
-        this.transitionFromAlertToOneD();
+        this.transitionFromAlertToOneD();  
       }
     };
 
@@ -1017,7 +1027,7 @@
      * @param {Object} the timed video object
      */
     this.startVideoTimer = function(videoTimed) {
-      var intervalId = window.setInterval(timerCallback, 1000);
+      app.data.videoTimerId = window.setInterval(timerCallback, 1000);
 
       function timerCallback() {
         // update amount of time watched
@@ -1028,14 +1038,20 @@
         else {
           videoTimed.watched = true;
 
-          that.clearVideoTimer(intervalId);
+          that.clearVideoTimer(app.data.videoTimerId);
         }
       }
     };
 
-    this.clearVideoTimer = function(intervalId) {
+    this.clearVideoTimer = function(videoTimerId) {
       // clear the current timer
-      window.clearInterval(intervalId);
+      window.clearInterval(videoTimerId);
+
+      // reset the timer var
+      app.data.videoTimerId = null;
+
+      // reset the currVideoTimedIndex
+      app.data.currVideoTimedIndex = null;
 
       // stop the video and exit
       if (this.playerView) {
@@ -1073,7 +1089,7 @@
               if (result === true) {
                 // Handle Time-Limited Videos
                 if (this.settingsParams.limit_videos_by_time && this.isTimeLimited(video) === true) {
-                  return this.doTimeLimit();
+                  return this.doTimeLimit(index, fromSlider, accessToken, false);
                 }
                 return this.transitionToPlayer(index, fromSlider, accessToken);
               }
@@ -1101,7 +1117,7 @@
                   if (result === true) {
                     // Handle Time-Limited Videos
                     if (this.settingsParams.limit_videos_by_time && this.isTimeLimited(video) === true) {
-                      return this.doTimeLimit(index, fromSlider, accessToken);
+                      return this.doTimeLimit(index, fromSlider, accessToken, false);
                     }
                     return this.transitionToPlayer(index, fromSlider, accessToken);
                   }
@@ -1136,7 +1152,7 @@
       else {
         // Handle Time-Limited Videos
         if (this.settingsParams.limit_videos_by_time && this.isTimeLimited(video) === true) {
-          return this.doTimeLimit(index, fromSlider, accessToken);
+          return this.doTimeLimit(index, fromSlider, accessToken, false);
         }
         // canPlayVideo === true && device_linking === false - transitionToPlayer
         return this.transitionToPlayer(index, fromSlider, accessToken);
@@ -1166,6 +1182,12 @@
       this.showContentLoadingSpinner(true);
 
       playerView.on('exit', function() {
+        // Clear and reset video timer
+        if (app.data.videoTimerId) {
+          window.clearInterval(app.data.videoTimerId);
+          app.data.videoTimerId = null;
+          app.data.currVideoTimedIndex = null;
+        }
         this.hideContentLoadingSpinner();
         this.transitionFromPlayerToOneD();
       }, this);
