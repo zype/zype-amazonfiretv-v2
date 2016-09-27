@@ -967,18 +967,92 @@
     };
 
     /**
+     * Check if a video is time-limited. Save its index.
+     *
+     * @param  {Object} the current video
+     * @return {Boolean}
+     */
+    this.isTimeLimited = function(video) {
+      var _v = (this.settingsParams.videos_time_limited.length > 0) ? this.settingsParams.videos_time_limited : null;
+
+      if (_v) {
+        for (var i = 0; i < _v.length; i++) {
+          if (video.id === _v[i].id) {
+            // save current videos_time_limited index
+            app.data.currVideoTimedIndex = i;
+            return true;  
+          }
+        }
+      }
+      return false;
+    };
+
+    /**
+     * Do Video Time Limit
+     *
+     * @param {integer} the video's index
+     * @param {boolean} if selected video was from the slider
+     * @param {string}  a valid access token
+     */
+    this.doTimeLimit = function(index, fromSlider, accessToken) {
+      var _v = this.settingsParams.videos_time_limited[app.data.currVideoTimedIndex];
+      // if video has not been watched
+      if (_v && _v.watched === false) {
+        // start the timer
+        this.startVideoTimer(_v);
+
+        // play the video
+        this.transitionToPlayer(index, fromSlider, accessToken);
+      }
+      else {
+        // throw error
+        alert('You have watched the maximum allowed time for this video. Please subscribe for full access.');
+        this.transitionFromAlertToOneD();
+      }
+    };
+
+    /**
+     * Start Video Timer
+     *
+     * @param {Object} the timed video object
+     */
+    this.startVideoTimer = function(videoTimed) {
+      var intervalId = window.setInterval(timerCallback, 1000);
+
+      function timerCallback() {
+        // update amount of time watched
+        if (videoTimed.time_watched < videoTimed.time_limit) {
+          // increment by 1;
+          videoTimed.time_watched++;
+        }
+        else {
+          videoTimed.watched = true;
+
+          that.clearVideoTimer(intervalId);
+        }
+      }
+    };
+
+    this.clearVideoTimer = function(intervalId) {
+      // clear the current timer
+      window.clearInterval(intervalId);
+
+      // stop the video and exit
+      if (this.playerView) {
+        this.playerView.trigger('exit');
+        alert('You have watched the maximum allowed time for this video. Please subscribe for full access.');
+        this.transitionFromAlertToOneD();
+      }
+    };
+
+    /**
      * Verifies video playability and calls appropriate method
+     * 
      * @param {integer} the video's index
      * @param {boolean} if selected video was from the slider
      */
     this.verifyVideo = function(index, fromSlider) {
-      var video;
-
-      if (fromSlider) {
-        video = app.data.sliderData[index];
-      } else {
-        video = this.categoryData[index];
-      }
+      var video = (fromSlider) ? app.data.sliderData[index] : this.categoryData[index];
 
       // IAP and Free
       if (iapHandler.canPlayVideo(video) === false) {
@@ -997,6 +1071,10 @@
             // Entitlement check
             deviceLinkingHandler.isEntitled(video.id, accessToken, function(result) {
               if (result === true) {
+                // Handle Time-Limited Videos
+                if (this.settingsParams.limit_videos_by_time && this.isTimeLimited(video) === true) {
+                  return this.doTimeLimit();
+                }
                 return this.transitionToPlayer(index, fromSlider, accessToken);
               }
               else {
@@ -1021,6 +1099,10 @@
                 // Entitlement check
                 deviceLinkingHandler.isEntitled(video.id, accessToken, function(result) {
                   if (result === true) {
+                    // Handle Time-Limited Videos
+                    if (this.settingsParams.limit_videos_by_time && this.isTimeLimited(video) === true) {
+                      return this.doTimeLimit(index, fromSlider, accessToken);
+                    }
                     return this.transitionToPlayer(index, fromSlider, accessToken);
                   }
                   else {
@@ -1034,7 +1116,7 @@
                 alert('Authentication Error: Please try again.');
                 return this.transitionFromAlertToOneD();
               }
-            }.bind(this));  
+            }.bind(this));
           }
         }
         else {
@@ -1052,8 +1134,12 @@
         }
       }
       else {
+        // Handle Time-Limited Videos
+        if (this.settingsParams.limit_videos_by_time && this.isTimeLimited(video) === true) {
+          return this.doTimeLimit(index, fromSlider, accessToken);
+        }
         // canPlayVideo === true && device_linking === false - transitionToPlayer
-        this.transitionToPlayer(index, fromSlider, accessToken);
+        return this.transitionToPlayer(index, fromSlider, accessToken);
       }
     };
 

@@ -68,7 +68,8 @@
       settings.entitlements         = res.entitlements;
 
       // Video Features
-      settings.time_limit_videos    = res.time_limit_videos;
+      settings.limit_videos_by_time = res.limit_videos_by_time;
+      settings.videos_time_limited  = res.videos_time_limited; // array of objects
 
       // Theme and Images
       settings.theme                = 'theme--' + res.theme; // 'light' or 'dark'
@@ -88,11 +89,19 @@
       // settings.logoPosition = 'logo--right';
       // settings.entitlements = true;
       // settings.slider = true;
-      // settings.nested_categories = false;
-      // settings.playlists_only = false;
+      // settings.nested_categories = true;
+      // settings.playlists_only = true;
       // settings.related_images = true;
       // settings.related_images_title = 'film-poster';
-      // settings.time_limit_videos = true;
+      // settings.limit_videos_by_time = true;
+      // settings.videos_time_limited = [
+      //   {
+      //     id : '',
+      //     time_limit   : 10, // seconds
+      //     time_watched : 0,
+      //     watched      : false
+      //   }
+      // ];
 
       // Navigation
       settings.nav = {};

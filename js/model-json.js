@@ -23,6 +23,7 @@
     this.zobjectData = [];
     this.sliderData = [];
     this.entitlementData = {};
+    this.currVideoTimedIndex = null; // current timed video's index
 
     /**
      * This function loads the initial data needed to start the app and calls the provided callback with the data when it is fully loaded
