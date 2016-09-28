@@ -133,7 +133,7 @@
      */
     this.transitionToNextVideo = function(index, accessToken) {
       var video = this.items[index];
-      var url_base = this.settings.player_endpoint + 'embedzzzzz/' + video.id + '.json';
+      var url_base = this.settings.player_endpoint + 'embed/' + video.id + '.json';
       var uri = new URI(url_base);
       uri.addSearch({
         autoplay: this.settings.autoplay

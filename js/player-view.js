@@ -119,7 +119,6 @@
     this.remove = function() {
       if (this.videoElement) {
         this.videoElement.pause();
-        this.videoElement.src = "";  
       }
       if (this.controlsView) {
         this.controlsView.remove();  
