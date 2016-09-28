@@ -133,25 +133,26 @@
      */
     this.transitionToNextVideo = function(index, accessToken) {
       var video = this.items[index];
-      var url_base = this.settings.player_endpoint + 'embed/' + video.id + '.json';
+      var url_base = this.settings.player_endpoint + 'embedzzzzz/' + video.id + '.json';
       var uri = new URI(url_base);
       uri.addSearch({
         autoplay: this.settings.autoplay
       });
 
-      if (typeof accessToken !== 'undefined' && accessToken) {
+      if (!this.settingsParams.IAP && typeof accessToken !== 'undefined' && accessToken) {
         uri.addSearch({ access_token: accessToken });
       }
-      else {
-        uri.addSearch({ app_key: this.settings.app_key });
+      else if (this.settingsParams.IAP) {
+        var consumer = iapHandler.state.currentConsumer;
+
+        if (typeof consumer !== 'undefined' && consumer && consumer.access_token) {
+          uri.addSearch({
+            access_token: consumer.access_token
+          });
+        }
       }
-
-      var consumer = iapHandler.state.currentConsumer;
-
-      if (typeof consumer !== 'undefined' && consumer && consumer.access_token) {
-        uri.addSearch({
-          access_token: consumer.access_token
-        });
+      else {
+        uri.addSearch({ app_key: this.settingsParams.app_key });
       }
 
       $.ajax({
