@@ -74,6 +74,8 @@
    *                 settingsParams.displayButtons {Boolean} flag that tells the app to display the buttons or not
    */
   var App = function(settingsParams) {
+    var that = this;
+
     // hold onto the app settings
     this.settingsParams = settingsParams;
     this.showSearch = settingsParams.showSearch;
@@ -1136,6 +1138,110 @@
     };
 
     /**
+     * Check if a video is time-limited. Save its index.
+     *
+     * @param  {Object} the current video
+     * @return {Boolean}
+     */
+    this.isTimeLimited = function(video) {
+      var _v = (this.settingsParams.videos_time_limited.length > 0) ? this.settingsParams.videos_time_limited : null;
+
+      if (_v) {
+        for (var i = 0; i < _v.length; i++) {
+          if (video.id === _v[i].id) {
+            // save current videos_time_limited index
+            app.data.currVideoTimedIndex = i;
+            return true;  
+          }
+        }
+      }
+      return false;
+    };
+
+    /**
+     * Do Video Time Limit
+     *
+     * @param {integer} the video's index
+     * @param {boolean} if selected video was from the slider
+     * @param {string}  a valid access token
+     * @param {boolean} true if from Playlist Player
+     */
+    this.doTimeLimit = function(index, fromSlider, accessToken, playlistPlayer) {
+      var _v = this.settingsParams.videos_time_limited[app.data.currVideoTimedIndex];
+
+      if (_v && _v.watched === false) {
+        // clear existing timers
+        if (app.data.videoTimerId) {
+          this.clearVideoTimer(app.data.videoTimerId, false);  
+        }
+        
+        // start the timer
+        this.startVideoTimer(_v);
+
+        // play the video
+        if (playlistPlayer && this.playerView) {
+          this.playerView.transitionToNextVideo(index, accessToken);
+        }
+        else {
+          this.transitionToPlayer(index, fromSlider, accessToken);
+        }
+      }
+      else {
+        // Exit if called from playlistPlayer and already watched
+        if (playlistPlayer && this.playerView) {
+          this.playerView.exit();
+        }
+        alert('You have watched the maximum allowed time for this video. Please subscribe for full access.');
+        this.transitionFromAlertToOneD();  
+      }
+    };
+
+    /**
+     * Start Video Timer
+     *
+     * @param {Object} the timed video object
+     */
+    this.startVideoTimer = function(videoTimed) {
+      app.data.videoTimerId = window.setInterval(timerHandler, 1000);
+
+      function timerHandler() {
+        // update amount of time watched
+        if (videoTimed.time_watched < videoTimed.time_limit) {
+          videoTimed.time_watched++;
+        }
+        else {
+          videoTimed.watched = true;
+
+          that.clearVideoTimer(app.data.videoTimerId, true);
+        }
+      }
+    };
+
+    /**
+     * Clear and reset the video timer. Optionally exit the current playerView
+     *
+     * @param {number}  Timer ID to remove
+     * @param {boolean} true to exit the current playerView
+     */
+    this.clearVideoTimer = function(videoTimerId, exitPlayerView) {
+      // clear the current timer
+      window.clearInterval(videoTimerId);
+
+      // reset the timer var
+      app.data.videoTimerId = null;
+
+      // reset the currVideoTimedIndex
+      app.data.currVideoTimedIndex = null;
+
+      // stop the video and exit
+      if (exitPlayerView && this.playerView) {
+        this.playerView.trigger('exit');
+        alert('You have watched the maximum allowed time for this video. Please subscribe for full access.');
+        this.transitionFromAlertToOneD();
+      }
+    };
+
+    /**
      * Verifies video playability and calls appropriate method
      * @param {integer} the video's index
      * @param {boolean} if selected video was from the slider
@@ -1166,6 +1272,10 @@
             // Entitlement check
             deviceLinkingHandler.isEntitled(video.id, accessToken, function(result) {
               if (result === true) {
+                // Handle Time-Limited Videos
+                if (this.settingsParams.limit_videos_by_time && this.isTimeLimited(video) === true) {
+                  return this.doTimeLimit(index, fromSlider, accessToken, false);
+                }
                 return this.transitionToPlayer(index, fromSlider, accessToken);
               }
               else {
@@ -1190,6 +1300,10 @@
                 // Entitlement check
                 deviceLinkingHandler.isEntitled(video.id, accessToken, function(result) {
                   if (result === true) {
+                    // Handle Time-Limited Videos
+                    if (this.settingsParams.limit_videos_by_time && this.isTimeLimited(video) === true) {
+                      return this.doTimeLimit(index, fromSlider, accessToken, false);
+                    }
                     return this.transitionToPlayer(index, fromSlider, accessToken);
                   }
                   else {
@@ -1214,8 +1328,12 @@
         }
       }
       else {
+        // Handle Time-Limited Videos
+        if (this.settingsParams.limit_videos_by_time && this.isTimeLimited(video) === true) {
+          return this.doTimeLimit(index, fromSlider, accessToken, false);
+        }
         // canPlayVideo === true && device_linking === false - transitionToPlayer
-        this.transitionToPlayer(index, fromSlider, accessToken);
+        return this.transitionToPlayer(index, fromSlider, accessToken);
       }
     };
 
@@ -1249,6 +1367,11 @@
       this.showContentLoadingSpinner(true);
 
       playerView.on('exit', function() {
+        // Clear and reset video timer
+        if (app.data.videoTimerId) {
+          this.clearVideoTimer(app.data.videoTimerId, false);
+        }
+        
         this.hideContentLoadingSpinner();
         if (this.oneDView) {
           this.transitionFromPlayerToOneD();

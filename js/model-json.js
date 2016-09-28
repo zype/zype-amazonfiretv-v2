@@ -33,6 +33,9 @@
     this.sliderData = [];
     this.entitlementData = {};
 
+    this.currVideoTimedIndex = null; // current timed video's index
+    this.videoTimerId = null; // current timed video's timer reference
+
     /**
      * This function loads the initial data needed to start the app and calls the provided callback with the data when it is fully loaded
      * @param {function} the callback function to call with the loaded data

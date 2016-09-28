@@ -90,6 +90,7 @@
      */
     this.verifyNextVideo = function() {
       var video = this.items[this.currentIndex + 1];
+      var nextIndex = this.currentIndex + 1;
 
       if (this.$previewEl) {
         this.$previewEl.remove();
@@ -105,7 +106,11 @@
 
           deviceLinkingHandler.isEntitled(video.id, accessToken, function(result){
             if (result === true) {
-              this.transitionToNextVideo(video, accessToken);
+              // Handle Time-Limited Videos
+              if (app.settingsParams.limit_videos_by_time && app.isTimeLimited(video) === true) {
+                return app.doTimeLimit(nextIndex, false, accessToken, true);
+              }
+              return this.transitionToNextVideo(nextIndex, accessToken);
             }
             else {
               this.exit();
@@ -115,7 +120,7 @@
           }.bind(this));
         }
         else {
-          this.transitionToNextVideo(video, accessToken);
+          this.transitionToNextVideo(nextIndex, accessToken);
         }
       }
       else {
@@ -126,7 +131,8 @@
     /**
      * Handles showing the view to transition from playing one video to the next
      */
-    this.transitionToNextVideo = function(video, accessToken) {
+    this.transitionToNextVideo = function(index, accessToken) {
+      var video = this.items[index];
       var url_base = this.settings.player_endpoint + 'embed/' + video.id + '.json';
       var uri = new URI(url_base);
       uri.addSearch({
