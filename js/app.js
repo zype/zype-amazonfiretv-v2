@@ -1159,10 +1159,6 @@
         }
       }
       else {
-        // Handle Time-Limited Videos
-        if (this.settingsParams.limit_videos_by_time && this.isTimeLimited(video) === true) {
-          return this.doTimeLimit(index, fromSlider, accessToken, false);
-        }
         // canPlayVideo === true && device_linking === false - transitionToPlayer
         return this.transitionToPlayer(index, fromSlider, accessToken);
       }
