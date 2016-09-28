@@ -997,8 +997,13 @@
      */
     this.doTimeLimit = function(index, fromSlider, accessToken, playlistPlayer) {
       var _v = this.settingsParams.videos_time_limited[app.data.currVideoTimedIndex];
-      // if video has not been watched
+
       if (_v && _v.watched === false) {
+        // clear existing timers
+        if (app.data.videoTimerId) {
+          this.clearVideoTimer(app.data.videoTimerId, false);  
+        }
+        
         // start the timer
         this.startVideoTimer(_v);
 
@@ -1011,9 +1016,8 @@
         }
       }
       else {
-        // throw error
+        // Exit if called from playlistPlayer and already watched
         if (playlistPlayer && this.playerView) {
-          // Exit Playlist Player
           this.playerView.exit();
         }
         alert('You have watched the maximum allowed time for this video. Please subscribe for full access.');
@@ -1027,23 +1031,28 @@
      * @param {Object} the timed video object
      */
     this.startVideoTimer = function(videoTimed) {
-      app.data.videoTimerId = window.setInterval(timerCallback, 1000);
+      app.data.videoTimerId = window.setInterval(timerHandler, 1000);
 
-      function timerCallback() {
+      function timerHandler() {
         // update amount of time watched
         if (videoTimed.time_watched < videoTimed.time_limit) {
-          // increment by 1;
           videoTimed.time_watched++;
         }
         else {
           videoTimed.watched = true;
 
-          that.clearVideoTimer(app.data.videoTimerId);
+          that.clearVideoTimer(app.data.videoTimerId, true);
         }
       }
     };
 
-    this.clearVideoTimer = function(videoTimerId) {
+    /**
+     * Clear and reset the video timer. Optionally exit the current playerView
+     *
+     * @param {number}  Timer ID to remove
+     * @param {boolean} true to exit the current playerView
+     */
+    this.clearVideoTimer = function(videoTimerId, exitPlayerView) {
       // clear the current timer
       window.clearInterval(videoTimerId);
 
@@ -1054,7 +1063,7 @@
       app.data.currVideoTimedIndex = null;
 
       // stop the video and exit
-      if (this.playerView) {
+      if (exitPlayerView && this.playerView) {
         this.playerView.trigger('exit');
         alert('You have watched the maximum allowed time for this video. Please subscribe for full access.');
         this.transitionFromAlertToOneD();
@@ -1184,9 +1193,7 @@
       playerView.on('exit', function() {
         // Clear and reset video timer
         if (app.data.videoTimerId) {
-          window.clearInterval(app.data.videoTimerId);
-          app.data.videoTimerId = null;
-          app.data.currVideoTimedIndex = null;
+          this.clearVideoTimer(app.data.videoTimerId, false);
         }
         this.hideContentLoadingSpinner();
         this.transitionFromPlayerToOneD();
@@ -1195,7 +1202,6 @@
       playerView.on('indexChange', function(index) {
         this.oneDView.changeIndex(index);
       }, this);
-
 
       this.selectView(playerView);
 
