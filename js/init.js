@@ -2,18 +2,18 @@
   'use strict';
 
   var settings = {
-    Model: JSONMediaModel,
-    PlayerView: PlayerView,
-    PlaylistView: PlaylistPlayerView,
-    showSearch: true,
-    app_key: appConfig.app_key,
-    client_id: appConfig.client_id,
-    client_secret: appConfig.client_secret,
-    endpoint: appConfig.endpoint,
+    Model:           JSONMediaModel,
+    PlayerView:      PlayerView,
+    PlaylistView:    PlaylistPlayerView,
+    showSearch:      true,
+    app_key:         appConfig.app_key,
+    client_id:       appConfig.client_id,
+    client_secret:   appConfig.client_secret,
+    endpoint:        appConfig.endpoint,
     player_endpoint: appConfig.player_endpoint,
-    device_id: null,
-    linked: false,
-    browse: false
+    device_id:       null,
+    linked:          false,
+    browse:          false
   };
 
   var initApp = function(settings) {
