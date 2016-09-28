@@ -12,23 +12,22 @@
    */
   var PlaylistPlayerView = function(settings) {
     // mixin inheritance, initialize this as an event handler for these events:
-    Events.call(this, ['exit', 'videoStatus', 'indexChange']);
+    Events.call(this, ['exit', 'videoStatus', 'indexChange', 'videoError']);
 
-    this.currentPlayerView = null;
-    this.preloadedPlayerView = null;
-    this.currentIndex = null;
-    this.items = null;
-    this.$el = null;
-    this.settings = settings;
-    this.currentView = null;
-    this.PlayerView = settings.PlayerView;
-    this.previewShowing = false;
-    this.previewDismissed = false;
-    this.$previewEl = null;
-    this.$countdown_text = null;
-    this.previewTime = settings.previewTime;
-    this.timeTillPlay = null;
-
+    this.currentPlayerView    = null;
+    this.preloadedPlayerView  = null;
+    this.currentIndex         = null;
+    this.items                = null;
+    this.$el                  = null;
+    this.settings             = settings;
+    this.currentView          = null;
+    this.PlayerView           = settings.PlayerView;
+    this.previewShowing       = false;
+    this.previewDismissed     = false;
+    this.$previewEl           = null;
+    this.$countdown_text      = null;
+    this.previewTime          = settings.previewTime;
+    this.timeTillPlay         = null;
     this.PREVIEW_TIME_DEFAULT = 10;
 
     this.remove = function() {
@@ -51,20 +50,21 @@
       this.currentPlayerView = new this.PlayerView(this.settings);
       this.currentPlayerView.render($el, items, startIndex);
 
-      this.currentPlayerView.on('exit', this.exit, this);
-
       this.currentIndex = startIndex;
       this.items = items;
 
+      // Register for events (PlayerView)
+      this.currentPlayerView.on('exit',        this.exit,              this);
       this.currentPlayerView.on('videoStatus', this.handleVideoStatus, this);
+      this.currentPlayerView.on('videoError',  this.handleVideoError,  this);
 
       this.currentView = this.currentPlayerView;
 
-      //touch events
-      touches.registerTouchHandler("player-content-video", this.handleTouchPlayer);
+      // touch events
+      touches.registerTouchHandler("player-content-video",      this.handleTouchPlayer);
       touches.registerTouchHandler("player-controls-container", this.handleTouchPlayer);
-      touches.registerTouchHandler("player-back-button", this.handleTouchPlayer);
-      touches.registerTouchHandler("player-pause-indicator", this.handleTouchPlayer);
+      touches.registerTouchHandler("player-back-button",        this.handleTouchPlayer);
+      touches.registerTouchHandler("player-pause-indicator",    this.handleTouchPlayer);
     };
 
     /**
@@ -107,7 +107,7 @@
           deviceLinkingHandler.isEntitled(video.id, accessToken, function(result){
             if (result === true) {
               // Handle Time-Limited Videos
-              if (app.settingsParams.limit_videos_by_time && !this.settingsParams.subscribe_no_limit_videos_by_time && app.isTimeLimited(video) === true) {
+              if (app.settingsParams.limit_videos_by_time && !app.settingsParams.subscribe_no_limit_videos_by_time && app.isTimeLimited(video) === true) {
                 return app.doTimeLimit(nextIndex, false, accessToken, true);
               }
               return this.transitionToNextVideo(nextIndex, accessToken);
@@ -139,10 +139,10 @@
         autoplay: this.settings.autoplay
       });
 
-      if (!this.settingsParams.IAP && typeof accessToken !== 'undefined' && accessToken) {
+      if (!app.settingsParams.IAP && typeof accessToken !== 'undefined' && accessToken) {
         uri.addSearch({ access_token: accessToken });
       }
-      else if (this.settingsParams.IAP) {
+      else if (app.settingsParams.IAP) {
         var consumer = iapHandler.state.currentConsumer;
 
         if (typeof consumer !== 'undefined' && consumer && consumer.access_token) {
@@ -156,8 +156,8 @@
       }
 
       $.ajax({
-        context: this,
         url: uri.href(),
+        context: this,
         type: 'GET',
         dataType: 'json',
         success: function(player_json) {
@@ -190,7 +190,8 @@
           this.startNextVideo();
         },
         error: function() {
-          alert('Error: Unable to play next video.');
+          this.handleVideoError();
+          alert('Error: Unable to play next video. Please try again.');
           this.exit();
         }
       });
@@ -248,6 +249,13 @@
     }.bind(this);
 
     /**
+     * Handle video errors
+     */
+    this.handleVideoError = function() {
+      this.trigger('videoError');
+    };
+
+    /**
      * Cleanup and exit the playlist/player/next video view
      */
     this.exit = function() {
@@ -257,6 +265,7 @@
     this.playVideo = function() {
       this.currentPlayerView.playVideo();
     };
+
     /**
      * start the next video after the transition view is complete
      */

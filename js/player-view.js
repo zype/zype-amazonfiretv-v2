@@ -92,7 +92,7 @@
      */
     this.errorHandler = function(e) {
       var errorType;
-      if (e.target.error && e.target.error.code) {
+      if (e && e.target.error && e.target.error.code) {
         switch (e.target.error.code) {
           case e.target.error.MEDIA_ERR_ABORTED:
           case e.target.error.MEDIA_ERR_NETWORK:

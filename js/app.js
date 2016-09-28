@@ -94,6 +94,7 @@
       alert("There was an error playing the video.");
       this.exit();
     }, this);
+
     /**
      * Callback from XHR to load the data model, this really starts the app UX
      */
@@ -1202,6 +1203,13 @@
       this.selectView(playerView);
 
       playerView.on('videoStatus', this.handleVideoStatus, this);
+      
+      playerView.on('videoError', function() {
+        // Clear and reset video timer
+        if (app.data.videoTimerId) {
+          this.clearVideoTimer(app.data.videoTimerId, false);
+        }
+      }, this);
 
       // stream video first gets the stream and then renders the player
       if (fromSlider) {
@@ -1270,6 +1278,10 @@
         },
         error: function() {
           console.log('start_stream.error', arguments);
+          // Clear and reset video timer
+          if (app.data.videoTimerId) {
+            this.clearVideoTimer(app.data.videoTimerId, false);
+          }
           alert("There was an error playing this video, please try again");
           this.transitionFromPlayerToOneD();
           this.transitionFromAlertToOneD();
