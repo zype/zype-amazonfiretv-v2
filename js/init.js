@@ -69,6 +69,7 @@
 
       // Video Features
       settings.limit_videos_by_time = res.limit_videos_by_time;
+      settings.subscribe_no_limit_videos_by_time = res.subscribe_no_limit_videos_by_time;
       settings.videos_time_limited  = res.videos_time_limited; // array of objects
 
       // Theme and Images
@@ -94,6 +95,7 @@
       // settings.related_images = true;
       // settings.related_images_title = 'film-poster';
       // settings.limit_videos_by_time = true;
+      // settings.subscribe_no_time_limit = true;
       // settings.videos_time_limited = [
       //   {
       //     id : '',

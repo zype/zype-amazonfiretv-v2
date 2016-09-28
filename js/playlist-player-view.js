@@ -107,7 +107,7 @@
           deviceLinkingHandler.isEntitled(video.id, accessToken, function(result){
             if (result === true) {
               // Handle Time-Limited Videos
-              if (app.settingsParams.limit_videos_by_time && app.isTimeLimited(video) === true) {
+              if (app.settingsParams.limit_videos_by_time && !this.settingsParams.subscribe_no_limit_videos_by_time && app.isTimeLimited(video) === true) {
                 return app.doTimeLimit(nextIndex, false, accessToken, true);
               }
               return this.transitionToNextVideo(nextIndex, accessToken);
