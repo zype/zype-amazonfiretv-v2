@@ -205,15 +205,29 @@
     this.formatPlaylistChildren = function(jsonData) {
       var data = jsonData.response;
       var _playlistData = [];
+      var _imgURL = null;
 
       for (var i = 0; i < data.length; i++) {
+
+        _imgURL = (data[i].thumbnails && data[i].thumbnails.length > 0) ? data[i].thumbnails[0].url : '';
+
+        // Check for Related Images with specific title
+        if (data[i].images && data[i].images.length > 0) {
+          for (var j = 0; j < data[i].images.length; j++) {
+            if (data[i].images[j].title === "16x9-md") {
+               _imgURL = data[i].images[j].url;
+               break;
+            }
+          }
+        }
+
         var args = {
           id: data[i]._id,
           description: data[i].description,
           parent_id: data[i].parent_id,
           playlist_item_count: data[i].playlist_item_count,
           title: data[i].title,
-          imgURL: (data[i].thumbnails && data[i].thumbnails.length > 0) ? data[i].thumbnails[0].url : ''
+          imgURL: _imgURL
         };
         var formatted_playlist = new PlaylistChild(args);
         _playlistData.push(formatted_playlist);
