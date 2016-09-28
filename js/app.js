@@ -1273,7 +1273,7 @@
             deviceLinkingHandler.isEntitled(video.id, accessToken, function(result) {
               if (result === true) {
                 // Handle Time-Limited Videos
-                if (this.settingsParams.limit_videos_by_time && this.isTimeLimited(video) === true) {
+                if (this.settingsParams.limit_videos_by_time && !this.settingsParams.subscribe_no_limit_videos_by_time && this.isTimeLimited(video) === true) {
                   return this.doTimeLimit(index, fromSlider, accessToken, false);
                 }
                 return this.transitionToPlayer(index, fromSlider, accessToken);
@@ -1301,7 +1301,7 @@
                 deviceLinkingHandler.isEntitled(video.id, accessToken, function(result) {
                   if (result === true) {
                     // Handle Time-Limited Videos
-                    if (this.settingsParams.limit_videos_by_time && this.isTimeLimited(video) === true) {
+                    if (this.settingsParams.limit_videos_by_time && !this.settingsParams.subscribe_no_limit_videos_by_time && this.isTimeLimited(video) === true) {
                       return this.doTimeLimit(index, fromSlider, accessToken, false);
                     }
                     return this.transitionToPlayer(index, fromSlider, accessToken);
