@@ -65,6 +65,7 @@
       deviceLinkingHandler.getPin(app.settingsParams.device_id, function(pin) {
         // Build the main content template and add it
         var html = utils.buildTemplate($("#device-linking-view-template"), {
+          title: (app.settingsParams.subscribe_no_ads) ? 'Link your Fire TV to Watch Ad-Free' : 'Link Your Fire TV',
           link: app.settingsParams.device_link_url,
           pin: pin
         });
@@ -94,7 +95,7 @@
 
       buttonView.update = function() {
         var buttons = [{
-          "name": "Browse Content",
+          "name": (app.settingsParams.subscribe_no_ads) ? "Watch with Ads" : "Browse Content",
           "id": "browseBtn",
           "class": "btnBrowse"
         }];
