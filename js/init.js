@@ -66,6 +66,7 @@
       settings.device_linking       = res.device_linking;
       settings.device_link_url      = res.device_link_url;
       settings.entitlements         = res.entitlements;
+      settings.subscribe_no_ads     = res.subscribe_no_ads;
 
       // Video Features
       settings.limit_videos_by_time = res.limit_videos_by_time;
