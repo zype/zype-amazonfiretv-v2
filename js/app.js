@@ -1388,6 +1388,13 @@
 
       playerView.on('videoStatus', this.handleVideoStatus, this);
 
+      playerView.on('videoError', function() {
+        // Clear and reset video timer
+        if (app.data.videoTimerId) {
+          this.clearVideoTimer(app.data.videoTimerId, false);
+        }
+      }, this);
+
       // stream video first gets the stream and then renders the player
       if (fromSlider) {
         this.start_stream(playerView, this.$appContainer, app.data.sliderData, index, accessToken);
@@ -1452,6 +1459,10 @@
           }
         },
         error: function() {
+          // Clear and reset video timer
+          if (app.data.videoTimerId) {
+            this.clearVideoTimer(app.data.videoTimerId, false);
+          }
           alert("There was an error playing this video. Please try again.");
           this.hideContentLoadingSpinner();
           this.transitionFromPlayerToOneD();
