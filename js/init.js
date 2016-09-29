@@ -82,19 +82,15 @@
       settings.related_images_title = res.related_images_title;
       settings.default_image_url    = (res.default_image_url) ? res.default_image_url : './assets/default-image.png';
 
+
       //* For Testing
-      // settings.IAP = false;
-      // settings.device_linking = true;
-      // settings.theme = 'theme--dark';
-      // settings.theme = 'theme--light';
-      // settings.logoPosition = 'logo--center';
-      // settings.logoPosition = 'logo--right';
-      // settings.entitlements = true;
-      // settings.slider = true;
       // settings.nested_categories = true;
       // settings.playlists_only = true;
-      // settings.related_images = true;
-      // settings.related_images_title = 'film-poster';
+
+      // settings.IAP = false;
+      // settings.device_linking = true;
+      // settings.entitlements = true;
+
       // settings.limit_videos_by_time = true;
       // settings.subscribe_no_time_limit = true;
       // settings.videos_time_limited = [
@@ -105,6 +101,16 @@
       //     watched      : false
       //   }
       // ];
+
+      // settings.theme = 'theme--dark';
+      // settings.theme = 'theme--light';
+      // settings.logoPosition = 'logo--center';
+      // settings.logoPosition = 'logo--right';
+      // settings.slider = true;
+      // settings.related_images = true;
+      // settings.related_images_title = 'film-poster';
+      //* For Testing
+
 
       // Navigation
       settings.nav = {};
