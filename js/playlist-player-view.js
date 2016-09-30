@@ -99,8 +99,8 @@
       this.previewDismissed = true;
 
       if ((this.items.length > this.currentIndex + 1) && iapHandler.canPlayVideo(video) && deviceLinkingHandler.canPlayVideo()) {
-
-        if (this.settings.device_linking) {
+        // Device Linking. Bypass if watchAVOD === false.
+        if (this.settings.linked && this.settings.watchAVOD === false) {
           // if device linking, check entitlement
           var accessToken = deviceLinkingHandler.getAccessToken();
 
@@ -139,10 +139,10 @@
         autoplay: this.settings.autoplay
       });
 
-      if (!app.settingsParams.IAP && typeof accessToken !== 'undefined' && accessToken) {
+      if (!this.settings.IAP && typeof accessToken !== 'undefined' && accessToken) {
         uri.addSearch({ access_token: accessToken });
       }
-      else if (app.settingsParams.IAP) {
+      else if (this.settings.IAP) {
         var consumer = iapHandler.state.currentConsumer;
 
         if (typeof consumer !== 'undefined' && consumer && consumer.access_token) {
@@ -152,7 +152,7 @@
         }
       }
       else {
-        uri.addSearch({ app_key: this.settingsParams.app_key });
+        uri.addSearch({ app_key: this.settings.app_key });
       }
 
       $.ajax({

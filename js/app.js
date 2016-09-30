@@ -183,7 +183,8 @@
 
         this.data.loadData(function() {
 
-          if (app.settingsParams.browse === true) {
+          // SVOD Browse. SVOD / AVOD Hybrid watchAVOD
+          if (app.settingsParams.browse === true || app.settingsParams.watchAVOD === true) {
             if (app.settingsParams.nested_categories === true) {
               this.initializeNestedCategories();
               this.selectView(this.nestedCategoriesOneDView);
@@ -194,6 +195,7 @@
               this.leftNavView.collapse();
             }
           }
+          // Device Linked!
           else {
             deviceLinkingHandler.retrieveAccessToken(this.settingsParams.device_id, deviceLinkingHandler.getDevicePin(), function(result) {
               if (result) {
@@ -398,9 +400,18 @@
         alert("Please reload the app!");
       }, this);
 
+      // SVOD (Device Linking)
       deviceLinkingView.on('startBrowse', function() {
         this.showContentLoadingSpinner(true);
         this.settingsParams.browse = true;
+        this.build();
+      }, this);
+
+      // SVOD / AVOD Hybrid (Subscribe To Watch Ad-Free)
+      deviceLinkingView.on('watchAVOD', function() {
+        console.log('initializeDeviceLinkingView.watchAVOD');
+        this.showContentLoadingSpinner(true);
+        this.settingsParams.watchAVOD = true;
         this.build();
       }, this);
 
@@ -1084,9 +1095,10 @@
       if (iapHandler.canPlayVideo(video) === false) {
         return false;
       }
-      // Device Linking
-      else if (this.settingsParams.device_linking === true) {
+      // Device Linking. Bypass if watchAVOD === false.
+      else if (this.settingsParams.device_linking === true && this.settingsParams.watchAVOD === false) {
 
+        // SVOD Device Linking. Validate Entitlement.
         if (this.settingsParams.linked === true) {
 
           // Access Token check
@@ -1146,7 +1158,7 @@
           }
         }
         else {
-          // Device Linking is enabled, but device is not linked
+          // Device Linking is enabled, but device is not Linked (settings.linked set on `app.dataLoaded` callback)
           if (this.settingsParams.browse === false) {
             // Subscription has expired. Clear local storage and force re-link
             deviceLinkingHandler.clearLocalStorage();

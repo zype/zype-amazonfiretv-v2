@@ -407,7 +407,7 @@
 
 
         if (app.settingsParams.device_linking) {
-          if (app.settingsParams.linked === false) {
+          if (app.settingsParams.linked === false && app.settingsParams.subscribe_no_ads === false) {
             buttons.push({
               "name": "Link Device",
               "id": "linkBtn",

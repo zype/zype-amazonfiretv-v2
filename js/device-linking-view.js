@@ -15,7 +15,7 @@
    */
   var DeviceLinkingView = function() {
     // mixin inheritance
-    Events.call(this, ['exit', 'loadComplete', 'linkingSuccess', 'linkingFailure', 'browse', 'startBrowse']);
+    Events.call(this, ['exit', 'loadComplete', 'linkingSuccess', 'linkingFailure', 'browse', 'startBrowse', 'watchAVOD']);
 
     // global vars
     this.timer = null;
@@ -43,6 +43,10 @@
     };
 
     this.on("startBrowse", function() {
+      clearInterval(this.timer);
+    }, this);
+
+    this.on("watchAVOD", function() {
       clearInterval(this.timer);
     }, this);
 
@@ -93,11 +97,15 @@
         this.trigger("startBrowse");
       }, this);
 
+      buttonView.on('watchAVOD', function() {
+        this.trigger('watchAVOD');
+      }, this);
+
       buttonView.update = function() {
         var buttons = [{
-          "name": (app.settingsParams.subscribe_no_ads) ? "Watch with Ads" : "Browse Content",
-          "id": "browseBtn",
-          "class": "btnBrowse"
+          "name":  (app.settingsParams.subscribe_no_ads) ? "Watch with Ads" : "Browse Content",
+          "id":    (app.settingsParams.subscribe_no_ads) ? "avodBtn" : "browseBtn",
+          "class": (app.settingsParams.subscribe_no_ads) ? "btnAVOD" : "btnBrowse"
         }];
         this.buttonView.render(this.$buttonsContainer, buttons);
       }.bind(this);

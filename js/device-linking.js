@@ -195,6 +195,10 @@
       if (!this.settingsParams.device_linking) {
         return true;
       }
+      // Device Linking + Watch AVOD
+      if (this.settingsParams.linked === false && this.settingsParams.watchAVOD === true) {
+        return true;
+      }
       // Device Linking + Access Tokens
       if (this.settingsParams.linked === true && this.hasValidAccessToken() === true) {
         return true;

@@ -13,7 +13,8 @@
     player_endpoint: appConfig.player_endpoint,
     device_id:       null,
     linked:          false,
-    browse:          false
+    browse:          false,
+    watchAVOD:       false
   };
 
   var initApp = function(settings) {
