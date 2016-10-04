@@ -91,6 +91,7 @@
       // settings.IAP = false;
       // settings.device_linking = true;
       // settings.entitlements = true;
+      // settings.subscribe_no_ads = true;
 
       // settings.limit_videos_by_time = true;
       // settings.subscribe_no_time_limit = true;
