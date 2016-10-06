@@ -73,7 +73,7 @@
       settings.limit_videos_by_time = res.limit_videos_by_time;
       settings.subscribe_no_limit_videos_by_time = res.subscribe_no_limit_videos_by_time;
       settings.videos_time_limited  = res.videos_time_limited; // array of objects
-      settings.favorties            = res.favorites;
+      settings.video_favorties      = res.favorites;
 
       // Theme and Images
       settings.theme                = 'theme--' + res.theme; // 'light' or 'dark'
@@ -118,11 +118,12 @@
 
       // Navigation
       settings.nav = {};
-      settings.nav.home     = (settings.nested_categories) ? 0 : null;
-      settings.nav.search   = (settings.nested_categories) ? 1 : 0;
-      settings.nav.library  = null;
-      settings.nav.playlist = settings.nav.search + 1;
-      settings.nav.category = settings.nav.playlist + 1;
+      settings.nav.home      = (settings.nested_categories) ? 0 : null;
+      settings.nav.search    = (settings.nested_categories) ? 1 : 0;
+      settings.nav.favorites = null;
+      settings.nav.library   = null;
+      settings.nav.playlist  = settings.nav.search + 1;
+      settings.nav.category  = settings.nav.playlist + 1;
 
       //* Super User
 
