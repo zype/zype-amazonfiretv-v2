@@ -198,10 +198,13 @@
         }
       }
       else {
-        this.noItems = false;
         this.rowElements = args.rowData;
+        this.noItems = false;
+        
+        // reset currSelection since this.render is called directly externally
+        this.currSelection = 0; 
 
-        //gather widths of all the row elements
+        // gather widths of all the row elements
         this.$elementWidths = [];
 
         this.scrollingContainerEle = $(ID_ONED_VIEW_ELEMENTS)[0];
