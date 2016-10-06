@@ -418,9 +418,7 @@
         data: {
           'access_token' : accessToken,
           'dpt'          : true,
-          'order'        : 'desc',
-          'per_page'     : this.settingsParams.per_page,
-          'sort'         : 'created_at'
+          'per_page'     : this.settingsParams.per_page
         },
         success: function(result) {
           resp = result;
