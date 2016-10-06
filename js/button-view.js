@@ -8,7 +8,8 @@
 
   //constants
   var CLASS_BUTTON_STATIC   = "detail-item-button-static",
-      CLASS_BUTTON_SELECTED = "detail-item-button-selected";
+      CLASS_BUTTON_SELECTED = "detail-item-button-selected",
+      CLASS_BUTTON_FAVORITE = "btnFavorite";
 
   /**
    * @class ButtonView
@@ -85,6 +86,17 @@
     };
 
     /**
+     * Select the Favorite Button
+     */
+    this.selectFavoriteButton = function() {
+      var buttonElement = $('.' + CLASS_BUTTON_FAVORITE);
+      if (buttonElement) {
+        buttonElement.removeClass(CLASS_BUTTON_STATIC);
+        buttonElement.addClass(CLASS_BUTTON_SELECTED);
+      }
+    };
+
+    /**
      * Event handler for remote "select" button press
      */
     this.handleButtonEvent = function() {
@@ -115,7 +127,7 @@
       }
 
       if (this.$buttons[this.selectedButton].classList.contains('btnFavorite')) {
-        this.trigger('videoFavorite', visibleBtns[this.selectedButton]);
+        this.trigger('videoFavorite');
       }
     }.bind(this);
 
@@ -140,9 +152,12 @@
 
     /**
      * Creates the button view from the template and appends it to the given element
-     * @param {Element} $el the application container
+     *
+     * @param {Object}  $el        the button container
+     * @param {Array}   allButtons the button objects to render the buttons
+     * @param {Boolean} favorite   true to select the favorite button
      */
-    this.render = function($el, allButtons) {
+    this.render = function($el, allButtons, favorite) {
       // remove the previous buttons
       this.remove();
 
@@ -156,6 +171,11 @@
       this.$buttons = $el.find(".detail-item-button-static");
 
       touches.registerTouchHandler("detail-item-button-static", this.handleButtonTap);
+
+      // Select the Favorite button
+      if (favorite) {
+        this.selectFavoriteButton();
+      }
     };
 
     /**

@@ -146,10 +146,10 @@
     /**
      * Creates the one-d-view and attaches it to the application container
      * @param {Element} $el application container
-     * @param {Object} rowData data object for the row
+     * @param {Object}  rowData data object for the row
      */
     this.render = function(args) {
-      //Make sure we don't already have a full container
+      // Make sure we don't already have a full container
       this.remove();
 
       if (app.data.sliderData.length <= 0) {
@@ -401,16 +401,22 @@
         this.trigger('link');
       }, this);
 
-      buttonView.on('videoFavorite', function(item) {
+      buttonView.on('videoFavorite', function() {
         this.trigger('videoFavorite', this.currSelection);
       }, this);
 
-      // Called on `stopScroll` event
-      buttonView.update = function() {
+      /**
+       * Update the ButtonView
+       *
+       * @note  called on `stopScroll` event
+       * @param {Boolean} favorite true to select the Favorite button
+       */
+      buttonView.update = function(favorite) {
         var subscribeButtons = [];
         var purchaseButtons  = [];
         var buttons          = [];
         var currentVid       = this.currentVideo();
+        var favorite         = (favorite) ? favorite : false;
 
         // Device Linking
         if (app.settingsParams.device_linking) {
@@ -472,11 +478,11 @@
           buttons.push({
             "name" : (currentVid.video_favorite_id) ? "Remove Favorite" : "Add Favorite",
             "id"   : "favoriteBtn",
-            "class": (currentVid.video_favorite_id) ? "btnFavorite detail-item-button-favorite" : "btnFavorite"
+            "class": "btnFavorite"
           });  
         }
 
-        this.buttonView.render(this.$buttonsContainer, buttons);
+        this.buttonView.render(this.$buttonsContainer, buttons, favorite);
       }.bind(this);
 
       this.buttonView.update();

@@ -120,7 +120,7 @@
         deviceLinkingHandler.getPinStatus(app.settingsParams.device_id, function(result) {
           if (result !== false) {
             clearInterval(this.timer);
-            this.trigger("linkingSuccess", result.pin);
+            this.trigger("linkingSuccess", result);
           }
         }.bind(this));
 
