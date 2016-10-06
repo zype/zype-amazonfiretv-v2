@@ -44,7 +44,7 @@
    */
   var OneDView = function() {
     // mixin inheritance, initialize this as an event handler for these events:
-    Events.call(this, ['noContent', 'exit', 'startScroll', 'indexChange', 'stopScroll', 'select', 'bounce', 'loadComplete', 'makeIAP', 'link']);
+    Events.call(this, ['noContent', 'exit', 'startScroll', 'indexChange', 'stopScroll', 'select', 'bounce', 'loadComplete', 'makeIAP', 'link', 'videoFavorite']);
 
     //global variables
     this.currSelection = 0;
@@ -67,10 +67,11 @@
     this.sliderData = null;
     this.sliderLoadComplete = false;
     this.shovelerLoadComplete = false;
+    this.rowElements = null;
 
     //jquery global variables
-    this.$el = null;
-    this.el = null;
+    this.$el   = null;
+    this.el    = null;
     this.$body = $('body');
 
     this.onPurchaseSuccess = function() {
@@ -365,11 +366,9 @@
      * Create the buttons that will appear under the media content
      */
     this.createButtonView = function(displayButtonsParam, $el) {
-
       if (!displayButtonsParam) {
         return;
       }
-
 
       // create and set up the button
       this.$buttonsContainer = this.$el.children("#" + BUTTON_CONTAINER);
@@ -399,31 +398,36 @@
         this.trigger('link');
       }, this);
 
+      buttonView.on('videoFavorite', function(item) {
+        this.trigger('videoFavorite', this.currSelection);
+      }, this);
+
+      // Called on `stopScroll` event
       buttonView.update = function() {
         var subscribeButtons = [];
-        var purchaseButtons = [];
+        var purchaseButtons  = [];
+        var buttons          = [];
+        var currentVid       = this.currentVideo();
 
-        var buttons = [];
-
-
+        // Device Linking
         if (app.settingsParams.device_linking) {
           if (app.settingsParams.linked === false && app.settingsParams.subscribe_no_ads === false) {
             buttons.push({
-              "name": "Link Device",
-              "id": "linkBtn",
+              "name" : "Link Device",
+              "id"   : "linkBtn",
               "class": "btnLink"
             });
           } else {
             buttons.push({
-              "name": "Watch Now",
-              "id": "playBtn",
+              "name" : "Watch Now",
+              "id"   : "playBtn",
               "class": "btnPlay"
             });
           }
         }
 
+        // IAP
         if (app.settingsParams.IAP) {
-          var currentVid = this.currentVideo();
           if (!iapHandler.canPlayVideo(currentVid)) {
             subscribeButtons = iapHandler.getAvailableSubscriptionButtons();
             purchaseButtons = iapHandler.getAvailablePurchaseButtons();
@@ -437,27 +441,37 @@
             });
           } else {
             buttons.push({
-              "name": "Watch Now",
-              "id": "playBtn",
+              "name" : "Watch Now",
+              "id"   : "playBtn",
               "class": "btnPlay"
             });
           }
         }
 
+        // Free / AVOD
         if (app.settingsParams.device_linking === false && app.settingsParams.IAP === false) {
-          console.log("true");
           buttons.push({
-            "name": "Watch Now",
-            "id": "playBtn",
+            "name" : "Watch Now",
+            "id"   : "playBtn",
             "class": "btnPlay"
           });
         }
 
+        // Description
         buttons.push({
-          "name": "Full Description",
-          "id": "descBtn",
+          "name" : "Full Description",
+          "id"   : "descBtn",
           "class": "btnDesc"
         });
+
+        // Favorite (only display when device is linked)
+        if (app.settingsParams.video_favorites === true && app.settingsParams.linked === true) {
+          buttons.push({
+            "name" : (currentVid.video_favorite_id) ? "Remove Favorite" : "Add Favorite",
+            "id"   : "favoriteBtn",
+            "class": (currentVid.video_favorite_id) ? "btnFavorite detail-item-button-favorite" : "btnFavorite"
+          });  
+        }
 
         this.buttonView.render(this.$buttonsContainer, buttons);
       }.bind(this);
@@ -474,8 +488,8 @@
       this.shovelerView.trigger("stopScroll", this.shovelerView.currSelection);
     };
 
-    /** Make the slider the active view
-     *
+    /**
+     * Make the slider the active view
      */
     this.transitionToSliderView = function() {
       // change to shoveler view
@@ -488,7 +502,6 @@
       this.shovelerView.fadeSelected();
       this.shovelerView.shrinkSelected();
     };
-
 
     /**
      * Make the shoveler the active view

@@ -7,9 +7,8 @@
   "use strict";
 
   //constants
-  var CLASS_BUTTON_STATIC = "detail-item-button-static",
-
-    CLASS_BUTTON_SELECTED = "detail-item-button-selected";
+  var CLASS_BUTTON_STATIC   = "detail-item-button-static",
+      CLASS_BUTTON_SELECTED = "detail-item-button-selected";
 
   /**
    * @class ButtonView
@@ -18,7 +17,7 @@
   var ButtonView = function() {
 
     // mixin inheritance, initialize this as an event handler for these events:
-    Events.call(this, ['exit', 'revoke', 'select', 'makeIAP', 'showDesc', 'play', 'browse', 'link', 'watchAVOD']);
+    Events.call(this, ['exit', 'revoke', 'select', 'makeIAP', 'showDesc', 'play', 'browse', 'link', 'watchAVOD', 'videoFavorite']);
 
     //global variables
     this.selectedButton = -1;
@@ -92,7 +91,6 @@
       var visibleBtns = this.visibleButtons();
 
       if (this.$buttons[this.selectedButton].classList.contains('btnLink')) {
-        console.log('link.device.btn');
         this.trigger('link');
       }
 
@@ -114,6 +112,10 @@
 
       if (this.$buttons[this.selectedButton].classList.contains('btnPlay')) {
         this.trigger('play', visibleBtns[this.selectedButton].id);
+      }
+
+      if (this.$buttons[this.selectedButton].classList.contains('btnFavorite')) {
+        this.trigger('videoFavorite', visibleBtns[this.selectedButton]);
       }
     }.bind(this);
 

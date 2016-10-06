@@ -23,6 +23,7 @@
     this.zobjectData = [];
     this.sliderData = [];
     this.entitlementData = {};
+    this.videoFavoritesData = [];
     this.currVideoTimedIndex = null; // current timed video's index
     this.videoTimerId = null; // current timed video's timer reference
 
@@ -395,6 +396,105 @@
     };
 
     /**
+     * Load Video Favorites data
+     *
+     * @param {String}   a valid Access Token
+     * @param {Function} the callback function
+     */
+    this.loadVideoFavoritesData = function(accessToken, callback, counter, favoritesData) {
+      console.log('loadVideoFavoritesData');
+      var _consumerId = deviceLinkingHandler.getConsumerId();
+      var resp        = null;
+      // var j = counter || 0;
+      // var _favorites = favoritesData || [];
+
+      $.ajax({
+        url: this.settingsParams.endpoint + 'consumers/' + _consumerId + '/video_favorites',
+        type: 'GET',
+        crossDomain: true,
+        dataType: 'json',
+        context: this,
+        cache: false,
+        data: {
+          'access_token' : accessToken,
+          'dpt'          : true,
+          'order'        : 'desc',
+          'per_page'     : this.settingsParams.per_page,
+          'sort'         : 'created_at'
+        },
+        success: function(result) {
+          resp = result;
+        },
+        error: function() {
+          console.log('Error: loadVideoFavoritesData', arguments);
+        },
+        complete: function() {
+          callback(resp);
+        }
+      });
+    };
+
+    /**
+     * Create Video Favorite
+     *
+     * @param {String}   the video favorite to add
+     * @param {String}   a valid Access Token
+     * @param {Function} the callback function
+     */
+    this.createVideoFavorite = function(video, index, accessToken, callback) {
+      console.log('createVideoFavorite');
+      var _consumerId = deviceLinkingHandler.getConsumerId();
+      var _videoId    = video.id;
+      
+      $.ajax({
+        url: this.settingsParams.endpoint + 'consumers/' + _consumerId + '/video_favorites',
+        type: 'POST',
+        crossDomain: true,
+        dataType: 'json',
+        context: this,
+        cache: false,
+        data: {
+          'access_token' : accessToken,
+          'video_id'     : _videoId
+        },
+        success: callback,
+        error: function() {
+          console.log('Error: createVideoFavorite', arguments);
+        }
+      });
+    };
+
+    /**
+     * Delete Video Favorite
+     *
+     * @note uses POST with `data:{'_method' : 'delete'}` for Rails
+     *
+     * @param {String}   the ID of the video favorite to delete
+     * @param {String}   a valid Access Token
+     * @param {Function} the callback function
+     */
+    this.deleteVideoFavorite = function(videoFavoriteId, accessToken, callback) {
+      console.log('deleteVideoFavorite');
+      var _consumerId = deviceLinkingHandler.getConsumerId();
+
+      $.ajax({
+        url: this.settingsParams.endpoint + 'consumers/' + _consumerId + '/video_favorites/' + videoFavoriteId,
+        type: 'POST',
+        crossDomain: true,
+        context: this,
+        cache: false,
+        data: {
+          '_method' : 'delete',
+          'access_token' : accessToken
+        },
+        success: callback,
+        error: function() {
+          console.log('Error: deleteVideoFavorite', arguments);
+        }
+      });
+    };
+
+    /**
      * Get video by ID
      * @param {string}   Video ID
      * @param {boolean}  Make an async or sync call
@@ -702,6 +802,54 @@
       }
     };
 
+    /**
+     * Get Video Favorites data recursively
+     * 
+     * @param {array}    the video favorites data
+     * @param {function} the callback function
+     * @param {integer}  the starting index 
+     * @param {array}    the retrieved video data
+     */
+    this.getVideoFavoritesData = function(jsonData, callback, counter, videoData) {
+      console.log('getVideoFavoriteData');
+      // reset this.currData
+      this.currData = [];
+      var j         = counter || 0;
+      var videoData = videoData || [];
+      var video_id  = (jsonData.length > 0) ? jsonData[j].video_id : null;
+
+      if (video_id) {
+        // For each video, get video details and save them
+        $.ajax({
+          url: this.settingsParams.endpoint + "videos/" + video_id,
+          type: 'GET',
+          crossDomain: true,
+          dataType: 'json',
+          context: this,
+          cache: false,
+          data: {
+            "app_key" : this.settingsParams.app_key,
+            "dpt" : true
+          },
+          success: function(result) {
+            videoData.push(result.response);
+            if (j < (jsonData.length - 1)) {
+              j++;
+              return this.getVideoFavoritesData(jsonData, callback, j, videoData);
+            }
+            this.currData = this.formatVideos(videoData);
+            return callback(this.currData);
+          },
+          error: function(xhr) {
+            console.log('error', xhr);
+          }
+        });
+      }
+      else {
+        return callback(this.currData);
+      }
+    };
+
     //  Format Zype videos
     this.formatVideos = function(jsonData) {
       var videos = jsonData.response || jsonData;
@@ -723,7 +871,8 @@
           "subscription_required": videos[i].subscription_required,
           "rental_required": videos[i].rental_required,
           "purchase_required": videos[i].purchase_required,
-          "pass_required": videos[i].pass_required
+          "pass_required": videos[i].pass_required,
+          "video_favorite_id": (this.settingsParams.video_favorites) ? this.is_video_favorite(videos[i]) : null
         };
 
         var video = new Video(args);
@@ -752,6 +901,24 @@
       }
       // Default Image
       return this.settingsParams.default_image_url;
+    };
+
+    /**
+     * Determine if video is a favorite
+     *
+     * @param  {Object} the video object to check
+     * @return {String} the Video Favorite ID
+     */
+    this.is_video_favorite = function(video) {
+      var _id        = video._id;
+      var _favorites = this.videoFavoritesData;
+
+      for (var i = 0; i < _favorites.length; i++) {
+        if (_id === _favorites[i].video_id) {
+          return _favorites[i]._id; // return the Video Favorite ID (for deleting)
+        }
+      }
+      return null;
     };
 
     /**
