@@ -127,25 +127,56 @@
             // Device Linking Success
             this.settingsParams.linked = true;
 
+            // Set Consumer ID
+            deviceLinkingHandler.setConsumerId(result);
+
             // Retrieve new Access Token on launch
             deviceLinkingHandler.retrieveAccessToken(this.settingsParams.device_id, result.pin, function(result) {
 
               if (result) {
                 deviceLinkingHandler.setOauthData(result);
 
-                // Get Entitlements
-                app.data.loadEntitlementData(deviceLinkingHandler.getAccessToken(), function(result) {
-                  
-                  app.data.categoryData.unshift('My Library');
-
-                  if (result) {
-                    if (result.response.length > 0) {
+                // Entitlements / My Library
+                if (this.settingsParams.entitlements) {
+                  app.data.loadEntitlementData(deviceLinkingHandler.getAccessToken(), function(result) {
+                    // Save Entitlement Data
+                    if (result && result.response.length > 0) {
                       app.data.entitlementData = result;
                     }
-                  }
 
-                  this.build();
-                }.bind(this));
+                    // Video Favorites
+                    if (this.settingsParams.video_favorites) {
+                      app.data.loadVideoFavoritesData(deviceLinkingHandler.getAccessToken(), function(result){
+                        // Save Video Favorites Data
+                        if (result && result.response.length > 0) {
+                          app.data.videoFavoritesData = result.response;
+                        }
+                        // Build
+                        this.build();
+                      }.bind(this));
+                    }
+                    else {
+                      this.build();
+                    }
+                  }.bind(this));
+                }
+                // Normal Device Linking
+                else {
+                  // Video Favorites
+                  if (this.settingsParams.video_favorites) {
+                    app.data.loadVideoFavoritesData(deviceLinkingHandler.getAccessToken(), function(result){
+                      // Save Video Favorites Data
+                      if (result && result.response.length > 0) {
+                        app.data.videoFavoritesData = result.response;
+                      }
+                      // Build
+                      this.build();
+                    }.bind(this));
+                  }
+                  else {
+                    this.build();
+                  }
+                }
               }
               else {
                 console.log("Error - retrieveAccessToken failed");
@@ -191,34 +222,93 @@
               this.leftNavView.collapse();
             }
           }
+          // Device Linked
           else {
             deviceLinkingHandler.retrieveAccessToken(this.settingsParams.device_id, deviceLinkingHandler.getDevicePin(), function(result) {
               if (result) {
                 deviceLinkingHandler.setOauthData(result);
 
-                app.data.loadEntitlementData(deviceLinkingHandler.getAccessToken(), function(result) {
-                  
-                  app.data.categoryData.unshift('My Library');
-                  
-                  if (result) {
-                    if (result.response.length > 0) {
+                // Entitlements / My Library
+                if (this.settingsParams.entitlements) {
+                  app.data.loadEntitlementData(deviceLinkingHandler.getAccessToken(), function(result) {
+                    // Save Entitlement Data
+                    if (result && result.response.length > 0) {
                       app.data.entitlementData = result;
                     }
-                  }
 
-                  if (app.settingsParams.nested_categories === true) {
-                    this.initializeLeftNavView();
-                    this.leftNavView.collapse();
-                    this.initializeNestedCategories();
-                    this.selectView(this.nestedCategoriesOneDView);
-                  } else {
-                    this.initializeLeftNavView();
-                    this.initializeOneDView();
-                    this.selectView(this.oneDView);
-                    this.leftNavView.collapse();
+                    // Video Favorites
+                    if (this.settingsParams.video_favorites) {
+                      app.data.loadVideoFavoritesData(deviceLinkingHandler.getAccessToken(), function(result){
+                        // Save Video Favorites Data
+                        if (result && result.response.length > 0) {
+                          app.data.videoFavoritesData = result.response;
+                        }
+                        // Init Views
+                        if (app.settingsParams.nested_categories === true) {
+                          this.initializeLeftNavView();
+                          this.leftNavView.collapse();
+                          this.initializeNestedCategories();
+                          this.selectView(this.nestedCategoriesOneDView);
+                        } else {
+                          this.initializeLeftNavView();
+                          this.initializeOneDView();
+                          this.selectView(this.oneDView);
+                          this.leftNavView.collapse();
+                        }
+                      }.bind(this));
+                    }
+                    else {
+                      if (app.settingsParams.nested_categories === true) {
+                        this.initializeLeftNavView();
+                        this.leftNavView.collapse();
+                        this.initializeNestedCategories();
+                        this.selectView(this.nestedCategoriesOneDView);
+                      } else {
+                        this.initializeLeftNavView();
+                        this.initializeOneDView();
+                        this.selectView(this.oneDView);
+                        this.leftNavView.collapse();
+                      }
+                    }
+                  }.bind(this));
+                }
+                // Normal Device Linking
+                else {
+                  // Video Favorites
+                  if (this.settingsParams.video_favorites) {
+                    app.data.loadVideoFavoritesData(deviceLinkingHandler.getAccessToken(), function(result){
+                      // Save Video Favorites Data
+                      if (result && result.response.length > 0) {
+                        app.data.videoFavoritesData = result.response;
+                      }
+                      // Init Views
+                      if (app.settingsParams.nested_categories === true) {
+                        this.initializeLeftNavView();
+                        this.leftNavView.collapse();
+                        this.initializeNestedCategories();
+                        this.selectView(this.nestedCategoriesOneDView);
+                      } else {
+                        this.initializeLeftNavView();
+                        this.initializeOneDView();
+                        this.selectView(this.oneDView);
+                        this.leftNavView.collapse();
+                      }
+                    }.bind(this));
                   }
-
-                }.bind(this));
+                  else {
+                    if (app.settingsParams.nested_categories === true) {
+                      this.initializeLeftNavView();
+                      this.leftNavView.collapse();
+                      this.initializeNestedCategories();
+                      this.selectView(this.nestedCategoriesOneDView);
+                    } else {
+                      this.initializeLeftNavView();
+                      this.initializeOneDView();
+                      this.selectView(this.oneDView);
+                      this.leftNavView.collapse();
+                    }
+                  }
+                }
               }
               else {
                 console.log("Error - retrieveAccessToken failed");
@@ -368,10 +458,15 @@
         this.hideContentLoadingSpinner();
       }, this);
 
-      deviceLinkingView.on('linkingSuccess', function(pin) {
+      deviceLinkingView.on('linkingSuccess', function(result) {
         console.log('linking.success');
 
+        var pin = result.pin;
+
         this.settingsParams.linked = true;
+
+        // Set Consumer ID
+        deviceLinkingHandler.setConsumerId(result);
 
         // Store successfully linked PIN
         deviceLinkingHandler.setDevicePin(pin);
@@ -537,6 +632,16 @@
         // Since Categories and Playlists are not displayed in Left Nav, set "startIndex" to -1
         var startIndex = -1;
 
+        // Favorites
+        if (this.settingsParams.video_favorites && this.settingsParams.linked) {
+          leftNavData.unshift('Favorites');
+          this.settingsParams.nav.favorites = (this.settingsParams.entitlements) ? this.settingsParams.nav.search + 2 : this.settingsParams.nav.search + 1;
+        }
+        // Entitlements / My Library
+        if (this.settingsParams.entitlements && this.settingsParams.linked) {
+          leftNavData.unshift('My Library');
+          this.settingsParams.nav.library  = this.settingsParams.nav.search + 1;
+        }
         // Add Search
         if (this.showSearch) {
           leftNavData.unshift(this.searchInputView);
@@ -903,6 +1008,15 @@
         this.transitionToDeviceLinking();
       }, this);
 
+      /**
+       * Event Handler - Add / Delete Video Favorite
+       *
+       * @param {Number} the index of the selected item
+       */
+      oneDView.on('videoFavorite', function(index) {
+        this.handleFavorites(index);
+      }, this);
+
       this.transitionToDeviceLinking = function() {
         this.showContentLoadingSpinner(true);
         console.log('transition.to.device.linking.view');
@@ -992,19 +1106,92 @@
       }.bind(this);
 
       oneDView.updateCategory = function(searchTerm) {
-        if (this.settingsParams.nav.library && this.leftNavView.currSelectedIndex === this.settingsParams.nav.library) {
+        // Video Favorites
+        if (this.settingsParams.video_favorites && this.settingsParams.nav.favorites && this.leftNavView.currSelectedIndex === this.settingsParams.nav.favorites) {
+          // Load Video Favorites Data
+          app.data.loadVideoFavoritesData(deviceLinkingHandler.getAccessToken, function(result) {
+            app.data.videoFavoritesData = result.response;
+            // Load Video Favorites
+            app.data.getVideoFavoritesData(app.data.videoFavoritesData, successCallback);
+          });
+        }
+        // Entitlements / My Library
+        else if (this.settingsParams.nav.library && this.leftNavView.currSelectedIndex === this.settingsParams.nav.library) {
           app.data.getEntitlementData(app.data.entitlementData, successCallback);
         }
+        // Search
         else if (searchTerm && this.settingsParams.nav.search && this.leftNavView.currSelectedIndex === this.settingsParams.nav.search) {
           console.log('searchTerm && search curr selected - calling getDataFromSearch');
           app.data.getDataFromSearch(searchTerm, successCallback);
         }
+        // Playlist
         else {
           app.data.getPlaylistData(app.data.currentPlaylistId, successCallback);
         }
       }.bind(this);
 
       this.oneDView.updateCategory(searchTerm);
+    };
+
+    /**
+     * Handle Favorites — Create, Delete, Success, Errors
+     *
+     * @param {Number} index the current video's index
+     */
+    this.handleFavorites = function(index) {
+      var currVideo = that.categoryData[index];
+      var token     = deviceLinkingHandler.getAccessToken();
+
+      var createFavoriteCallback = function(result) {
+        // Add New Video from videoData (async)
+        app.data.loadVideoFavoritesData(token, loadVideoFavoritesDataCallback);
+
+        // Update current OneDView Video Item with Favorite ID
+        that.categoryData[index].video_favorite_id = result.response._id;
+
+        // Update OneDView reference to app.categoryData (reference OneDView.rowData created on render())
+        app.oneDView.rowData = that.categoryData;
+
+        // Update the ButtonView
+        app.oneDView.buttonView.update(true);
+      };
+
+      var deleteFavoriteCallback = function(result) {
+        // Update videoFavoritesData (async)
+        app.data.loadVideoFavoritesData(token, loadVideoFavoritesDataCallback);
+
+        // Update current OneDView Video Item
+        that.categoryData[index].video_favorite_id = null;
+
+        // Update OneDView reference to app.categoryData (reference OneDView.rowData created on render())
+        app.oneDView.rowData = that.categoryData;
+
+        // Update the ButtonView
+        app.oneDView.buttonView.update(true);
+      };
+
+      var errorCallback = function() {
+        console.log('create/delete video favorite', arguments);
+        alert('Error: Update Video Favorite status. Please try again.');
+        that.transitionFromAlertToOneD();
+      };
+
+      var loadVideoFavoritesDataCallback = function(result) {
+        // Save Updated Video Favorites Data
+        if (result && result.response) {
+          app.data.videoFavoritesData = result.response;
+        }
+      };
+
+      // Add to Favorites
+      if (currVideo.video_favorite_id === null) {
+        app.data.createVideoFavorite(currVideo, index, token, createFavoriteCallback, errorCallback);
+      }
+      // Remove from Favorites
+      else {
+        // Delete Video from videoData
+        app.data.deleteVideoFavorite(currVideo.video_favorite_id, token, deleteFavoriteCallback, errorCallback);
+      }
     };
 
 

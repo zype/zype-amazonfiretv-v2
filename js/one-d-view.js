@@ -42,7 +42,7 @@
    */
   var OneDView = function() {
     // mixin inheritance, initialize this as an event handler for these events:
-    Events.call(this, ['noContent', 'exit', 'startScroll', 'indexChange', 'stopScroll', 'select', 'bounce', 'loadComplete', 'makeIAP', 'link']);
+    Events.call(this, ['noContent', 'exit', 'startScroll', 'indexChange', 'stopScroll', 'select', 'bounce', 'loadComplete', 'makeIAP', 'link', 'videoFavorite']);
 
     //global variables
     this.currSelection = 0;
@@ -64,6 +64,7 @@
     this.sliderData = null;
     this.sliderLoadComplete = false;
     this.shovelerLoadComplete = false;
+    this.rowElements = null;
 
     //jquery global variables
     this.$el = null;
@@ -166,6 +167,9 @@
 
       this.noItems = false;
       this.rowElements = args.rowData;
+
+      // reset currSelection since this.render is called directly externally
+      this.currSelection = 0; 
 
       //gather widths of all the row elements
       this.$elementWidths = [];
@@ -362,11 +366,22 @@
         this.trigger('link');
       }, this);
 
-      buttonView.update = function() {
-        var subscribeButtons = [];
-        var purchaseButtons = [];
+      buttonView.on('videoFavorite', function() {
+        this.trigger('videoFavorite', this.currSelection);
+      }, this);
 
-        var buttons = [];
+      /**
+       * Update the ButtonView
+       *
+       * @note  called on `stopScroll` event
+       * @param {Boolean} favorite true to select the Favorite button
+       */
+      buttonView.update = function(favorite) {
+        var subscribeButtons = [];
+        var purchaseButtons  = [];
+        var buttons          = [];
+        var currentVid       = this.currentVideo();
+        var favorite         = (favorite) ? favorite : false;
 
 
         if (app.settingsParams.device_linking) {
@@ -422,7 +437,16 @@
           "class": "btnDesc"
         });
 
-        this.buttonView.render(this.$buttonsContainer, buttons);
+        // Favorite (only display when device is linked)
+        if (app.settingsParams.video_favorites === true && app.settingsParams.linked === true) {
+          buttons.push({
+            "name" : (currentVid.video_favorite_id) ? "Remove Favorite" : "Add Favorite",
+            "id"   : "favoriteBtn",
+            "class": "btnFavorite"
+          });  
+        }
+
+        this.buttonView.render(this.$buttonsContainer, buttons, favorite);
       }.bind(this);
 
       this.buttonView.update();
