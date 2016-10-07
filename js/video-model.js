@@ -16,6 +16,7 @@ var Video = function(args) {
   this.purchase_required = args.purchase_required;
   this.pass_required = args.pass_required;
   this.ad_schedule = [];
+  this.video_favorite_id = args.video_favorite_id || null;
 };
 
 Video.prototype = {
