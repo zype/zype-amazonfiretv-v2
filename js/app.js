@@ -979,49 +979,55 @@
       var currVideo = that.categoryData[index];
       var token     = deviceLinkingHandler.getAccessToken();
 
+      var createFavoriteCallback = function(result) {
+        // Add New Video from videoData (async)
+        app.data.loadVideoFavoritesData(token, loadVideoFavoritesDataCallback);
+
+        // Update current OneDView Video Item with Favorite ID
+        that.categoryData[index].video_favorite_id = result.response._id;
+
+        // Update OneDView reference to app.categoryData (reference OneDView.rowData created on render())
+        app.oneDView.rowData = that.categoryData;
+
+        // Update the ButtonView
+        app.oneDView.buttonView.update(true);
+      };
+
+      var deleteFavoriteCallback = function(result) {
+        // Update videoFavoritesData (async)
+        app.data.loadVideoFavoritesData(token, loadVideoFavoritesDataCallback);
+
+        // Update current OneDView Video Item
+        that.categoryData[index].video_favorite_id = null;
+
+        // Update OneDView reference to app.categoryData (reference OneDView.rowData created on render())
+        app.oneDView.rowData = that.categoryData;
+
+        // Update the ButtonView
+        app.oneDView.buttonView.update(true);
+      };
+
+      var errorCallback = function() {
+        console.log('create/delete video favorite', arguments);
+        alert('Error: Update Video Favorite status. Please try again.');
+        that.transitionFromAlertToOneD();
+      };
+
+      var loadVideoFavoritesDataCallback = function(result) {
+        // Save Updated Video Favorites Data
+        if (result && result.response) {
+          app.data.videoFavoritesData = result.response;
+        }
+      };
+
       // Add to Favorites
       if (currVideo.video_favorite_id === null) {
-        app.data.createVideoFavorite(currVideo, index, token, function(result) {
-          // Add New Video from videoData
-          app.data.loadVideoFavoritesData(token, function(result) {
-            // Save Updated Video Favorites Data
-            if (result && result.response.length > 0) {
-              app.data.videoFavoritesData = result.response;
-            }
-            else {
-              console.log('error updating data.videoFavoritesData');
-            }
-          });
-
-          // Update current OneDView Video Item with Favorite ID
-          that.categoryData[index].video_favorite_id = result.response._id;
-
-          // Update OneDView reference to app.categoryData (reference OneDView.rowData created on render)
-          app.oneDView.rowData = that.categoryData;
-
-          // Update the ButtonView
-          app.oneDView.buttonView.update(true); 
-        });
+        app.data.createVideoFavorite(currVideo, index, token, createFavoriteCallback, errorCallback);
       }
       // Remove from Favorites
       else {
         // Delete Video from videoData
-        app.data.deleteVideoFavorite(currVideo.video_favorite_id, token, function(result) {
-          
-          app.data.loadVideoFavoritesData(token, function(result) {
-            // Save Updated Video Favorites Data or Reset
-            app.data.videoFavoritesData = (result && result.response) ? result.response : [];
-          });
-
-          // Update current OneDView Video Item
-          that.categoryData[index].video_favorite_id = null;
-
-          // Update OneDView reference to app.categoryData (reference OneDView.rowData created on render)
-          app.oneDView.rowData = that.categoryData;
-
-          // Update the ButtonView
-          app.oneDView.buttonView.update(true);
-        });
+        app.data.deleteVideoFavorite(currVideo.video_favorite_id, token, deleteFavoriteCallback, errorCallback);
       }
     };
 

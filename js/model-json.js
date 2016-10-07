@@ -439,7 +439,7 @@
      * @param {String}   a valid Access Token
      * @param {Function} the callback function
      */
-    this.createVideoFavorite = function(video, index, accessToken, callback) {
+    this.createVideoFavorite = function(video, index, accessToken, callback, errorCallback) {
       console.log('createVideoFavorite');
       var _consumerId = deviceLinkingHandler.getConsumerId();
       var _videoId    = video.id;
@@ -456,9 +456,7 @@
           'video_id'     : _videoId
         },
         success: callback,
-        error: function() {
-          console.log('Error: createVideoFavorite', arguments);
-        }
+        error: errorCallback
       });
     };
 
@@ -471,7 +469,7 @@
      * @param {String}   a valid Access Token
      * @param {Function} the callback function
      */
-    this.deleteVideoFavorite = function(videoFavoriteId, accessToken, callback) {
+    this.deleteVideoFavorite = function(videoFavoriteId, accessToken, callback, errorCallback) {
       console.log('deleteVideoFavorite');
       var _consumerId = deviceLinkingHandler.getConsumerId();
 
@@ -486,9 +484,7 @@
           'access_token' : accessToken
         },
         success: callback,
-        error: function() {
-          console.log('Error: deleteVideoFavorite', arguments);
-        }
+        error: errorCallback
       });
     };
 
