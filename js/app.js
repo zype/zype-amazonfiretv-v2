@@ -424,13 +424,14 @@
           // set the current selected (left nav items)
           app.data.setCurrentCategory(index);
           
+          // if on OneDView (videos) update it with Search results
           if (this.oneDView) {
             this.oneDView.remove();
 
             this.oneDView.updateCategoryFromSearch(this.searchInputView.currentSearchQuery);
           }
-
-          if (this.nestedCategoriesOneDView) {
+          // if on NestedCategoriesOneDView, remove it and transition to OneDView
+          else if (this.nestedCategoriesOneDView) {
             this.nestedCategoriesOneDView.remove();
             // also set to null because we're transitioning to oneDView
             this.nestedCategoriesOneDView = null;
@@ -444,22 +445,32 @@
           // hide the leftNav
           this.leftNavView.collapse();
         }
-        // Library (Playlists only displayed in NestedCategories view)
+        // Library / Favorites (Playlists only displayed in NestedCategories view)
         else {
-          // remove the contents of the oneDView
-          if (this.oneDView.sliderView) {
-            this.oneDView.sliderView.remove();
-          }
-          this.oneDView.remove();
-
           // show the spinner
           this.showContentLoadingSpinner(true);
 
+          // if on OneDView (videos), update it with respective content
+          if (this.oneDView) {
+            if (this.oneDView.sliderView) {
+              this.oneDView.sliderView.remove();
+            }
+            this.oneDView.remove();
+
+            // update the content
+            this.oneDView.updateCategory();
+          }
+          // If on NestedCategoriesOneDView, remove it and transition to OneDView
+          else if (this.nestedCategoriesOneDView) {
+            this.nestedCategoriesOneDView.remove();
+            // also set to null because we're transitioning to oneDView
+            this.nestedCategoriesOneDView = null;
+
+            this.initializeOneDView();
+          }
+
           // @LEGACY
           app.data.setCurrentCategory(index);
-
-          // update the content
-          this.oneDView.updateCategory();
 
           // set the selected view
           this.selectView(this.oneDView);
