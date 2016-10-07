@@ -12,7 +12,8 @@
     endpoint: appConfig.endpoint,
     player_endpoint: appConfig.player_endpoint,
     device_id: null,
-    linked: false
+    linked: false,
+    browse: false
   };
 
   var initApp = function(settings) {

@@ -202,14 +202,14 @@
       }
     }.bind(this);
 
-    this.build = function(browse) {
+    this.build = function() {
       if (this.deviceLinkingView && this.currentView === this.deviceLinkingView) {
 
         this.deviceLinkingView.remove();
 
         this.data.loadData(function() {
 
-          if (browse === true) {
+          if (app.settingsParams.browse === true) {
             if (app.settingsParams.nested_categories === true) {
               this.initializeLeftNavView();
               this.leftNavView.collapse();
@@ -455,6 +455,7 @@
       }, this);
 
       deviceLinkingView.on('loadComplete', function() {
+        this.settingsParams.browse = false;
         this.hideContentLoadingSpinner();
       }, this);
 
@@ -464,6 +465,7 @@
         var pin = result.pin;
 
         this.settingsParams.linked = true;
+        this.settingsParams.browse = false;
 
         // Set Consumer ID
         deviceLinkingHandler.setConsumerId(result);
@@ -479,8 +481,9 @@
         alert("Please reload the app!");
       }, this);
 
-      deviceLinkingView.on('startBrowse', function(browse) {
-        this.build(browse);
+      deviceLinkingView.on('startBrowse', function() {
+        this.settingsParams.browse = true;
+        this.build();
       }, this);
 
       deviceLinkingView.render(this.$appContainer);
@@ -1519,8 +1522,15 @@
           }
         }
         else {
-          // Device Linking is enabled, but device is not linked
-          alert('Authentication Error: You are not authorized to access this content. Device is not linked.');
+          // Device Linking is enabled, but device is not Linked (settings.linked set on `app.dataLoaded` callback)
+          if (this.settingsParams.browse === false) {
+            // Subscription has expired. Clear local storage and force re-link
+            deviceLinkingHandler.clearLocalStorage();
+            alert('Authentication Error: You are not authorized to access this content. Device is not linked. Please relaunch and link again.');
+          }
+          else {
+            alert('Authentication Error: You are not authorized to access this content. Device is not linked.');
+          }
           this.transitionFromAlertToOneD();
           return false;
         }
