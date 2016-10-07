@@ -151,13 +151,11 @@
                         if (result && result.response.length > 0) {
                           app.data.videoFavoritesData = result.response;
                         }
-                        console.log('loadEntData.loadFavs build');
                         // Build
                         this.build();
                       }.bind(this));
                     }
                     else {
-                      console.log('loadEntData build');
                       this.build();
                     }
                   }.bind(this));
@@ -171,13 +169,11 @@
                       if (result && result.response.length > 0) {
                         app.data.videoFavoritesData = result.response;
                       }
-                      console.log('normal Device Linking.loadFavs build');
                       // Build
                       this.build();
                     }.bind(this));
                   }
                   else {
-                    console.log('normal Device Linking build');
                     this.build();
                   }
                 }
@@ -245,7 +241,6 @@
                         // Save Video Favorites Data
                         if (result && result.response.length > 0) {
                           app.data.videoFavoritesData = result.response;
-                          console.log('build.devicelinking.entitlements.favs', app.data.videoFavoritesData);
                         }
                         // Init Views
                         if (app.settingsParams.nested_categories === true) {
@@ -622,7 +617,7 @@
         var startIndex  = 0;
 
         // Favorites
-        if (this.settingsParams.video_favorites) {
+        if (this.settingsParams.video_favorites && this.settingsParams.linked) {
           leftNavData.unshift('Favorites');
           this.settingsParams.nav.favorites = (this.settingsParams.entitlements) ? this.settingsParams.nav.search + 2 : this.settingsParams.nav.search + 1;
           this.settingsParams.nav.playlist  = (this.settingsParams.entitlements) ? this.settingsParams.nav.search + 3 : this.settingsParams.nav.search + 2;
