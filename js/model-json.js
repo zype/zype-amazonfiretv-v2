@@ -438,6 +438,7 @@
      * @param {String}   the video favorite to add
      * @param {String}   a valid Access Token
      * @param {Function} the callback function
+     * @param {Function} the error callback function
      */
     this.createVideoFavorite = function(video, index, accessToken, callback, errorCallback) {
       console.log('createVideoFavorite');
@@ -468,6 +469,7 @@
      * @param {String}   the ID of the video favorite to delete
      * @param {String}   a valid Access Token
      * @param {Function} the callback function
+     * @param {Function} the error callback function
      */
     this.deleteVideoFavorite = function(videoFavoriteId, accessToken, callback, errorCallback) {
       console.log('deleteVideoFavorite');
