@@ -73,6 +73,7 @@
       settings.limit_videos_by_time = res.limit_videos_by_time;
       settings.subscribe_no_limit_videos_by_time = res.subscribe_no_limit_videos_by_time;
       settings.videos_time_limited  = res.videos_time_limited; // array of objects
+      settings.favorties            = res.favorites;
 
       // Theme and Images
       settings.theme                = 'theme--' + res.theme; // 'light' or 'dark'
@@ -99,6 +100,7 @@
       //     watched      : false
       //   }
       // ];
+      // settings.favorites = true;
 
       // settings.IAP = false;
       // settings.device_linking = true;
