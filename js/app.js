@@ -627,7 +627,7 @@
         if (this.settingsParams.entitlements) {
           leftNavData.unshift('My Library');
           this.settingsParams.nav.library  = this.settingsParams.nav.search + 1;
-          this.settingsParams.nav.playlist = (this.settingsParams.video_favorites) ? this.settingsParams.nav.search + 3 : this.settingsParams.nav.search + 2;
+          this.settingsParams.nav.playlist = (this.settingsParams.video_favorites && this.settingsParams.linked) ? this.settingsParams.nav.search + 3 : this.settingsParams.nav.search + 2;
           this.settingsParams.nav.category = this.settingsParams.nav.playlist + 1;
         }
         // Search
