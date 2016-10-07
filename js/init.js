@@ -102,6 +102,7 @@
       //   }
       // ];
       // settings.video_favorites = true;
+      // settings.subscribe_no_limit_videos_by_time = true;
 
       // settings.IAP = false;
       // settings.device_linking = true;
