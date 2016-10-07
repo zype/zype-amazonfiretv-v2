@@ -304,6 +304,16 @@
       return null;
     }
 
+    this.setConsumerId = function(pinData) {
+      var consumerId = pinData.consumer_id;
+      store.set('consumer_id', consumerId);
+    };
+ 
+    this.getConsumerId = function() {
+      var consumerId = store.get('consumer_id');
+      return (consumerId) ? consumerId : null;
+    };
+
     // Remove everything from Local Storage
     this.clearLocalStorage = function() {
       console.log('clearLocalStorage triggered');
