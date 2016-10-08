@@ -1540,7 +1540,7 @@
             return false;
           }
           // Enforce Time-Limited videos
-          else if (video.subscription_required === false && this.settingsParams.limit_videos_by_time && this.isTimeLimited(video) === true) {
+          if (this.settingsParams.limit_videos_by_time && this.isTimeLimited(video) === true) {
             return this.doTimeLimit(index, fromSlider, accessToken, false);
           }
           // AVOD / Free
