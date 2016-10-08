@@ -209,7 +209,8 @@
 
         this.data.loadData(function() {
 
-          if (app.settingsParams.browse === true) {
+          // SVOD Browse. SVOD / AVOD Hybrid watchAVOD
+          if (app.settingsParams.browse === true || app.settingsParams.watchAVOD === true) {
             if (app.settingsParams.nested_categories === true) {
               this.initializeLeftNavView();
               this.leftNavView.collapse();
@@ -481,8 +482,16 @@
         alert("Please reload the app!");
       }, this);
 
+      // SVOD (Device Linking)
       deviceLinkingView.on('startBrowse', function() {
         this.settingsParams.browse = true;
+        this.build();
+      }, this);
+
+      // SVOD / AVOD Hybrid (Subscribe To Watch Ad-Free)
+      deviceLinkingView.on('watchAVOD', function() {
+        this.showContentLoadingSpinner(true);
+        this.settingsParams.watchAVOD = true;
         this.build();
       }, this);
 
@@ -1463,7 +1472,8 @@
       // Device Linking
       else if (this.settingsParams.device_linking === true) {
 
-        if (this.settingsParams.linked === true) {
+        // SVOD Device Linking. Validate Entitlement.
+        if (this.settingsParams.linked === true && this.settingsParams.watchAVOD === false) {
 
           // Access Token check
           if (deviceLinkingHandler.hasValidAccessToken() === true) {
@@ -1520,6 +1530,21 @@
               }
             }.bind(this));  
           }
+        }
+        // Watch AVOD
+        else if (this.settingsParams.linked === false && this.settingsParams.watchAVOD === true) {
+          // Restrict SVOD videos (not time-limited)
+          if (video.subscription_required === true && (this.settingsParams.limit_videos_by_time === false || this.isTimeLimited(video) === false)) {
+            alert('You are not authorized to access this content. Device is not linked. Please subscribe for access.');
+            this.transitionFromAlertToOneD();
+            return false;
+          }
+          // Enforce Time-Limited videos
+          else if (video.subscription_required === false && this.settingsParams.limit_videos_by_time && this.isTimeLimited(video) === true) {
+            return this.doTimeLimit(index, fromSlider, accessToken, false);
+          }
+          // AVOD / Free
+          return this.transitionToPlayer(index, fromSlider, accessToken);
         }
         else {
           // Device Linking is enabled, but device is not Linked (settings.linked set on `app.dataLoaded` callback)

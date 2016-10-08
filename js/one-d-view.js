@@ -383,25 +383,34 @@
         var currentVid       = this.currentVideo();
         var favorite         = (favorite) ? favorite : false;
 
-
+        // Device Linking
         if (app.settingsParams.device_linking) {
-          if (app.settingsParams.linked === false) {
+          if (app.settingsParams.linked === false && currentVid.subscription_required === true) {
             buttons.push({
               "name": "Link Device",
               "id": "linkBtn",
               "class": "btnLink"
             });
-          } else {
+          }
+          else {
             buttons.push({
               "name": "Watch Now",
               "id": "playBtn",
               "class": "btnPlay"
             });
           }
+          
+          if (app.settingsParams.linked === false && app.settingsParams.limit_videos_by_time && app.isTimeLimited(currentVid)) {
+            buttons.push({
+              "name": "Preview",
+              "id": "playBtn",
+              "class": "btnPlay"
+            });
+          }
         }
 
+        // IAP
         if (app.settingsParams.IAP) {
-          var currentVid = this.currentVideo();
           if (!iapHandler.canPlayVideo(currentVid)) {
             subscribeButtons = iapHandler.getAvailableSubscriptionButtons();
             purchaseButtons = iapHandler.getAvailablePurchaseButtons();
@@ -431,11 +440,11 @@
           });
         }
 
-        buttons.push({
-          "name": "Full Description",
-          "id": "descBtn",
-          "class": "btnDesc"
-        });
+        // buttons.push({
+        //   "name": "Full Description",
+        //   "id": "descBtn",
+        //   "class": "btnDesc"
+        // });
 
         // Favorite (only display when device is linked)
         if (app.settingsParams.video_favorites === true && app.settingsParams.linked === true) {

@@ -99,8 +99,9 @@
       this.previewDismissed = true;
  
       if ((this.items.length > this.currentIndex + 1) && iapHandler.canPlayVideo(video) && deviceLinkingHandler.canPlayVideo()) {
- 
-        if (this.settings.device_linking) {
+        
+        // Device Linking. Enforce if watchAVOD === false.
+        if (this.settings.linked && this.settings.watchAVOD === false) {
           // if device linking, check entitlement
           var accessToken = deviceLinkingHandler.getAccessToken();
  
@@ -119,6 +120,7 @@
             }
           }.bind(this));
         }
+        // Free / Watch AVOD
         else {
           this.transitionToNextVideo(nextIndex, accessToken);
         }
@@ -152,7 +154,7 @@
         }
       }
       else {
-        uri.addSearch({ app_key: this.settingsParams.app_key });
+        uri.addSearch({ app_key: app.settingsParams.app_key });
       }
  
       $.ajax({
