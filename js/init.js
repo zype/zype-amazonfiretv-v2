@@ -13,7 +13,8 @@
     player_endpoint: appConfig.player_endpoint,
     device_id: null,
     linked: false,
-    browse: false
+    browse: false,
+    watchAVOD: false
   };
 
   var initApp = function(settings) {
@@ -67,12 +68,12 @@
       settings.device_linking           = res.device_linking;
       settings.device_link_url          = res.device_link_url;
       settings.entitlements             = res.entitlements;
-      settings.subscribe_ad_free        = res.subscribe_ad_free;
-      settings.subscribe_ad_free_silent = res.subscribe_ad_free_silent;
+      settings.subscribe_no_ads         = res.subscribe_no_ads;
+      settings.subscribe_no_ads_silent  = res.subscribe_no_ads_silent;
+      settings.subscribe_no_limit_videos_by_time = res.subscribe_no_limit_videos_by_time;
 
       // Video Features
       settings.limit_videos_by_time = res.limit_videos_by_time;
-      settings.subscribe_no_limit_videos_by_time = res.subscribe_no_limit_videos_by_time;
       settings.videos_time_limited  = res.videos_time_limited; // array of objects
       settings.video_favorties      = res.video_favorites;
 
@@ -84,6 +85,8 @@
       settings.related_images       = res.related_images; // use related images for video thumbnails
       settings.related_images_title = res.related_images_title;
       settings.default_image_url    = (res.default_image_url) ? res.default_image_url : './assets/default-image.png';
+      settings.device_linking_title = (res.device_linking_title) ? res.device_linking_title : 'Link Your Fire TV';
+      settings.device_linking_copy  = (res.device_linking_copy) ? res.device_linking_copy : '';
 
       //* For Testing
       // settings.nested_categories = true;
@@ -107,15 +110,16 @@
       // settings.IAP = false;
       // settings.device_linking = true;
       // settings.entitlements = true;
-      // settings.subscribe_ad_free = true;
-      // settings.subscribe_ad_free_silent = true;
+      // settings.subscribe_no_ads = true;
+      // settings.subscribe_no_ads_silent = true;
 
       // settings.slider = true;
       // settings.theme = 'theme--dark';
       // settings.theme = 'theme--light';
       // settings.logoPosition = 'logo--center';
       // settings.logoPosition = 'logo--right';
-      
+      // settings.device_linking_title = '';
+      // settings.device_linking_copy = '';
       
       // Navigation
       settings.nav = {};
