@@ -775,7 +775,7 @@
       this.currData = [];
       var j = counter || 0;
       var videoData = videoData || [];
-      var video_id = (jsonData) ? jsonData[j].video_id : null;
+      var video_id = (jsonData.length > 0) ? jsonData[j].video_id : null;
 
       if (video_id) {
         // For each video, get video details and save them
