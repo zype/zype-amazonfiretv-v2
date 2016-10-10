@@ -175,7 +175,7 @@
           'parent_id': playlist_id,
           'app_key'  : this.settingsParams.app_key,
           'per_page' : 100,
-          'order'    : 'desc',
+          'order'    : 'asc',
           'sort'     : 'priority'
         },
         type: 'GET',
@@ -231,7 +231,7 @@
           parent_id: data[i].parent_id,
           playlist_item_count: data[i].playlist_item_count,
           title: data[i].title,
-          imgURL: _imgURL
+          imgURL: utils.makeSSL(_imgURL)
         };
         var formatted_playlist = new PlaylistChild(args);
         _playlistData.push(formatted_playlist);
