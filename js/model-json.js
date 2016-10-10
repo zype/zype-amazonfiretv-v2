@@ -22,7 +22,7 @@
 
     this.zobjectData = [];
     this.sliderData = [];
-    this.entitlementData = {};
+    this.entitlementData = []; // videos user is entitled to via redemption code or purchase
     this.videoFavoritesData = [];
     this.currVideoTimedIndex = null; // current timed video's index
     this.videoTimerId = null; // current timed video's timer reference
@@ -365,9 +365,14 @@
      *
      * @param {string}   a valid Access Token
      * @param {function} the callback function
+     * @param {number}   the counter
+     * @param {number}   the page number to request
+     * @param {array}    the Entitlement Data returned from the request
      */
-    this.loadEntitlementData = function(accessToken, callback) {
-      var resp;
+    this.loadEntitlementData = function(accessToken, callback, counter, page, entitlements) {
+      var j             = counter || 0;
+      var page          = page || 1;
+      var _entitlements = entitlements || [];
 
       $.ajax({
         url: this.settingsParams.endpoint + "consumer/videos/",
@@ -381,16 +386,25 @@
           "dpt" : true,
           "order" : "desc",
           "per_page" : this.settingsParams.per_page,
-          "sort" : "created_at"
+          "sort" : "created_at",
+          "page" : page
         },
         success: function(result) {
-          resp = result;
+          for (var i = 0; i < result.response.length; i++) {
+            _entitlements.push(result.response[i]);  
+          }
+
+          if (result.pagination.next !== null) {
+            j++;
+            page++;
+            return this.loadEntitlementData(accessToken, callback, j, page, _entitlements);
+          }
+
+          return callback(_entitlements);
         },
         error: function(xhr) {
           console.log('Error: loadEntitlementData', xhr);
-        },
-        complete: function() {
-          callback(resp);
+          return callback(_entitlements);
         }
       });
     };
@@ -751,6 +765,7 @@
 
     /**
      * Get Entitlement video data recursively
+     *
      * @param {object}   the entitlement data
      * @param {function} the callback function
      * @param {integer}  the starting index 
@@ -760,7 +775,7 @@
       this.currData = [];
       var j = counter || 0;
       var videoData = videoData || [];
-      var video_id = (jsonData.response) ? jsonData.response[j].video_id : null;
+      var video_id = (jsonData) ? jsonData[j].video_id : null;
 
       if (video_id) {
         // For each video, get video details and save them
@@ -778,7 +793,7 @@
           success: function(result) {
             videoData.push(result.response);
 
-            if (j < (jsonData.response.length - 1)) {
+            if (j < (jsonData.length - 1)) {
               j++;
 
               return this.getEntitlementData(jsonData, callback, j, videoData);
