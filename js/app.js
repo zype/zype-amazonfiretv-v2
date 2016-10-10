@@ -1057,7 +1057,14 @@
         var playlistTitle = "";
         if (this.leftNavView.currSelectedIndex === this.settingsParams.nav.search) {
           playlistTitle = "Search";
-        } else {
+        }
+        else if (this.leftNavView.currSelectedIndex === this.settingsParams.nav.favorites) {
+          playlistTitle = "Favorites";
+        }
+        else if (this.leftNavView.currSelectedIndex === this.settingsParams.nav.library) {
+          playlistTitle = "My Library";
+        }
+        else {
           playlistTitle = app.data.playlistData[app.data.currentPlaylistIndex].title;
         }
 
