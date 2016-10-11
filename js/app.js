@@ -467,6 +467,7 @@
 
         this.settingsParams.linked = true;
         this.settingsParams.browse = false;
+        this.settingsParams.watchAVOD = false;
 
         // Set Consumer ID
         deviceLinkingHandler.setConsumerId(result);
