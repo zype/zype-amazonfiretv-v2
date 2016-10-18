@@ -185,18 +185,24 @@
     };
 
     /**
-     * Loads the Featured Category data specified in the API. 
+     * Loads the Featured Category data specified in the API.
+     * 
      * If none specified, createds a dummy category called "All Videos".
+     *
+     * @param {Function} the callback function
      */
     this.loadCategoryData = function(categoryDataLoadedCallback) {
       console.log('load.category.data');
       $.ajax({
-        url: this.settingsParams.endpoint + "categories/" + this.settingsParams.category_id + "/?app_key=" + this.settingsParams.app_key,
+        url: this.settingsParams.endpoint + "categories/" + this.settingsParams.category_id,
         type: 'GET',
         crossDomain: true,
         dataType: 'json',
         context: this,
         cache: true,
+        data: {
+          'app_key' : this.settingsParams.app_key
+        },
         success: function() {
           var contentData = arguments[0];
           this.getCategoryRowValues(contentData);
@@ -211,7 +217,13 @@
           this.getCategoryRowValues(contentData);
         },
         complete: function() {
-          this.loadAllPlaylistData(categoryDataLoadedCallback);
+          if (this.settingsParams.featured_playlist) {
+            return this.loadAllPlaylistData(categoryDataLoadedCallback);  
+          }
+          if (this.settingsParams.slider) {
+            return this.loadZObjectData(categoryDataLoadedCallback); 
+          }
+          return categoryDataLoadedCallback();
         }
       });
     };
@@ -235,15 +247,15 @@
     this.loadAllPlaylistData = function(categoryDataLoadedCallback) {
       console.log("load.playlist.data");
 
-      var data = {};
-      var url = this.settingsParams.endpoint + "playlists/";
+      var _data = {};
+      var url   = this.settingsParams.endpoint + "playlists/";
       url += (!this.settingsParams.playlists_only) ? this.settingsParams.playlist_id : '';
       
-      data['app_key']    = this.settingsParams.app_key;
+      _data['app_key']    = this.settingsParams.app_key;
       if (this.settingsParams.playlists_only) {
-        data['per_page'] = 100;
-        data['sort']     = 'priority';
-        data['order']    = 'asc';
+        _data['per_page'] = 100;
+        _data['sort']     = 'priority';
+        _data['order']    = 'asc';
       }
       
       $.ajax({
@@ -253,7 +265,7 @@
         dataType: 'json',
         context: this,
         cache: true,
-        data: data,
+        data: _data,
         success: function(result) {
           var contentData = result;
           this.getPlaylistRowValues(contentData);

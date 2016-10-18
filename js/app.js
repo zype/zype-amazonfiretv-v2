@@ -621,29 +621,55 @@
         if (this.settingsParams.video_favorites && this.settingsParams.linked) {
           leftNavData.unshift('Favorites');
           this.settingsParams.nav.favorites = (this.settingsParams.entitlements) ? this.settingsParams.nav.search + 2 : this.settingsParams.nav.search + 1;
-          this.settingsParams.nav.playlist  = (this.settingsParams.entitlements) ? this.settingsParams.nav.search + 3 : this.settingsParams.nav.search + 2;
-          this.settingsParams.nav.category  = this.settingsParams.nav.playlist + 1;
+
+          // Playlist
+          if (this.settingsParams.featured_playlist || this.settingsParams.playlists_only) {
+            this.settingsParams.nav.playlist = (this.settingsParams.entitlements) ? this.settingsParams.nav.search + 3 : this.settingsParams.nav.search + 2;
+          }
+
+          // Category
+          if (this.settingsParams.featured_playlist) {
+            this.settingsParams.nav.category = this.settingsParams.nav.playlist + 1;
+          }
+          else {
+            this.settingsParams.nav.category = (this.settingsParams.entitlements) ? this.settingsParams.nav.search + 3 : this.settingsParams.nav.search + 2;
+          }
         }
+
         // Entitlements / My Library
         if (this.settingsParams.entitlements) {
           leftNavData.unshift('My Library');
           this.settingsParams.nav.library  = this.settingsParams.nav.search + 1;
-          this.settingsParams.nav.playlist = (this.settingsParams.video_favorites && this.settingsParams.linked) ? this.settingsParams.nav.search + 3 : this.settingsParams.nav.search + 2;
-          this.settingsParams.nav.category = this.settingsParams.nav.playlist + 1;
+
+          // Playlist
+          if (this.settingsParams.featured_playlist || this.settingsParams.playlists_only) {
+            this.settingsParams.nav.playlist = (this.settingsParams.video_favorites && this.settingsParams.linked) ? this.settingsParams.nav.search + 3 : this.settingsParams.nav.search + 2;
+          }
+
+          // Category
+          if (this.settingsParams.featured_playlist) {
+            this.settingsParams.nav.category = this.settingsParams.nav.playlist + 1;
+          }
+          else {
+            this.settingsParams.nav.category = (this.settingsParams.video_favorites && this.settingsParams.linked) ? this.settingsParams.nav.search + 3 : this.settingsParams.nav.search + 2;
+          }
         }
+
         // Search
         if (this.showSearch) {
           leftNavData.unshift(this.searchInputView);
         }
+
         // Home
         if (this.settingsParams.nested_categories === true) {
           leftNavData.unshift('Home');
         }
 
-        // Start on Featured Playlist
-        startIndex = this.settingsParams.nav.playlist;
+        // Start on Featured Playlist, First Playlist, or First Category
+        startIndex = (this.settingsParams.featured_playlist || this.settingsParams.playlists_only) ? this.settingsParams.nav.playlist : this.settingsParams.nav.category;
         
         app.data.setCurrentCategory(startIndex);
+
         leftNavView.render(this.$appContainer, leftNavData, startIndex);
       }.bind(this);
 
@@ -958,7 +984,12 @@
           app.data.getEntitlementData(app.data.entitlementData, successCallback);
         }
         // Featured Playlist || Playlists only
-        else if ((!this.settingsParams.playlists_only && this.settingsParams.nav.playlist && this.leftNavView.currSelectedIndex === this.settingsParams.nav.playlist) || (this.settingsParams.playlists_only && this.leftNavView.currSelectedIndex >= this.settingsParams.nav.playlist)) {
+        else if ((!this.settingsParams.playlists_only && 
+                  this.settingsParams.featured_playlist && 
+                  this.settingsParams.nav.playlist && 
+                  this.leftNavView.currSelectedIndex === this.settingsParams.nav.playlist) || 
+                 (this.settingsParams.playlists_only && 
+                  this.leftNavView.currSelectedIndex >= this.settingsParams.nav.playlist)) {
           app.data.getPlaylistData(successCallback);
         }
         // Category

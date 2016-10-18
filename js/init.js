@@ -60,6 +60,7 @@
       settings.per_page             = res.per_page;
       settings.nested_categories    = res.nested;
       settings.playlists_only       = res.playlists_only; // use PLs, remove Categories. Includes PLs in place of "Nested Categories".
+      settings.featured_playlist    = (res.featured_playlist) ? res.featured_playlist : true;
       
       // Monetization
       settings.avod                 = res.avod;
@@ -88,6 +89,7 @@
       //* For Testing
       // settings.nested_categories = true;
       // settings.playlists_only = true;
+      // settings.featured_playlist = true;
 
       // settings.IAP = false;
       // settings.device_linking = true;
@@ -122,8 +124,8 @@
       settings.nav.search    = (settings.nested_categories) ? 1 : 0;
       settings.nav.favorites = null;
       settings.nav.library   = null;
-      settings.nav.playlist  = settings.nav.search + 1;
-      settings.nav.category  = settings.nav.playlist + 1;
+      settings.nav.playlist  = (settings.featured_playlist || settings.playlists_only) ? settings.nav.search + 1 : null;
+      settings.nav.category  = (settings.featured_playlist) ? settings.nav.playlist + 1 : settings.nav.search + 1;
 
       //* Super User
 
