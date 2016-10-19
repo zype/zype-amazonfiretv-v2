@@ -406,7 +406,7 @@
             _entitlements.push(result.response[i]);  
           }
 
-          if (result.pagination.next !== null) {
+          if (result.pagination.pages > 0 && result.pagination.next !== null) {
             j++;
             page++;
             return this.loadEntitlementData(accessToken, callback, j, page, _entitlements);
