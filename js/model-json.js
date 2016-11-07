@@ -200,31 +200,29 @@
      */
     this.loadPlaylistData = function(categoryDataLoadedCallback) {
       console.log("load.playlist.data");
-      if (this.settingsParams.playlist_id) {
-        $.ajax({
-          url: this.settingsParams.endpoint + "playlists/" + this.settingsParams.playlist_id + "/?app_key=" + this.settingsParams.app_key,
-          type: 'GET',
-          crossDomain: true,
-          dataType: 'json',
-          context: this,
-          cache: true,
-          success: function() {
-            var contentData = arguments[0];
-            this.getPlaylistRowValue(contentData);
-          },
-          error: function() {
-            var contentData = {
-              response: {
-                title: 'New Releases'
-              }
-            };
-            this.getPlaylistRowValue(contentData);
-          },
-          complete: function() {
-            this.loadZObjectData(categoryDataLoadedCallback);
-          }
-        });
-      }
+      $.ajax({
+        url: this.settingsParams.endpoint + "playlists/" + this.settingsParams.playlist_id + "/?app_key=" + this.settingsParams.app_key,
+        type: 'GET',
+        crossDomain: true,
+        dataType: 'json',
+        context: this,
+        cache: true,
+        success: function() {
+          var contentData = arguments[0];
+          this.getPlaylistRowValue(contentData);
+        },
+        error: function() {
+          var contentData = {
+            response: {
+              title: 'New Releases'
+            }
+          };
+          this.getPlaylistRowValue(contentData);
+        },
+        complete: function() {
+          this.loadZObjectData(categoryDataLoadedCallback);
+        }
+      });
     };
 
     this.getPlaylistRowValue = function(jsonData) {
