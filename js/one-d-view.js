@@ -439,16 +439,24 @@
         if (app.settingsParams.IAP) {
           if (!iapHandler.canPlayVideo(currentVid)) {
             subscribeButtons = iapHandler.getAvailableSubscriptionButtons();
-            purchaseButtons = iapHandler.getAvailablePurchaseButtons();
+            purchaseButtons  = iapHandler.getAvailablePurchaseButtons();
 
-            _.each(subscribeButtons, function(btn) {
-              buttons.push(btn);
-            });
-
-            _.each(purchaseButtons, function(btn) {
-              buttons.push(btn);
-            });
-          } else {
+            if (currentVid.subscription_required) {
+              _.each(subscribeButtons, function(btn) {
+                buttons.push(btn);
+              });  
+            }
+            
+            if (currentVid.purchase_required) {
+              _.each(purchaseButtons, function(btn) {
+                // Amazon IAP Item SKU must contain current video's ID
+                if (btn.id.indexOf(currentVid.id) != -1) {
+                  buttons.push(btn);
+                }
+              });
+            }
+          }
+          else {
             buttons.push({
               "name" : "Watch Now",
               "id"   : "playBtn",
