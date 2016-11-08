@@ -150,6 +150,8 @@
             access_token: consumer.access_token
           });
         }
+
+        uri.addSearch({ app_key: this.settings.app_key });
       }
       else {
         uri.addSearch({ app_key: this.settings.app_key });

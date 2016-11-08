@@ -1433,6 +1433,8 @@
             access_token: consumer.access_token
           });
         }
+
+        uri.addSearch({ app_key: this.settingsParams.app_key });
       }
       else {
         uri.addSearch({ app_key: this.settingsParams.app_key });
