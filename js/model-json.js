@@ -242,7 +242,7 @@
     /**
      * Load All Playlist Data
      * 
-     * Loads either the Featured Playlist data or all Active Playlists data
+     * Loads either the Featured Playlist data or all Active Playlists data (for Playlists-Only version)
      * 
      * @param {Function} the callback function
      */
@@ -639,40 +639,6 @@
 
     /***************************
      *
-     * Utilility Methods
-     *
-     ***************************/
-    /**
-     * Sort the data array alphabetically
-     * This method is just a simple sorting example - but the
-     * data can be sorted in any way that is optimal for your application
-     */
-    this.sortAlphabetically = function(arr) {
-      arr.sort();
-    };
-
-    /**
-     * Convert unix timestamp to date
-     * @param {Number} d unix timestamp
-     * @return {Date}
-     */
-    this.unixTimestampToDate = function(d) {
-
-      var unixTimestamp = new Date(d * 1000);
-
-      var year = unixTimestamp.getFullYear();
-      var months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
-      var month = months[unixTimestamp.getMonth()];
-      var date = unixTimestamp.getDate();
-      var hour = unixTimestamp.getHours();
-      var minute = unixTimestamp.getMinutes();
-      var second = unixTimestamp.getSeconds();
-
-      return date + ',' + month + ' ' + year + ' ' + hour + ':' + minute + ':' + second;
-    };
-
-    /***************************
-     *
      * Category Methods
      *
      ***************************/
@@ -983,6 +949,41 @@
     this.setCurrentItem = function(index) {
       this.currentItem = index;
       this.currentItemData = this.currData[index];
+    };
+
+
+    /***************************
+     *
+     * Utilility Methods
+     *
+     ***************************/
+    /**
+     * Sort the data array alphabetically
+     * This method is just a simple sorting example - but the
+     * data can be sorted in any way that is optimal for your application
+     */
+    this.sortAlphabetically = function(arr) {
+      arr.sort();
+    };
+
+    /**
+     * Convert unix timestamp to date
+     * @param {Number} d unix timestamp
+     * @return {Date}
+     */
+    this.unixTimestampToDate = function(d) {
+
+      var unixTimestamp = new Date(d * 1000);
+
+      var year = unixTimestamp.getFullYear();
+      var months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+      var month = months[unixTimestamp.getMonth()];
+      var date = unixTimestamp.getDate();
+      var hour = unixTimestamp.getHours();
+      var minute = unixTimestamp.getMinutes();
+      var second = unixTimestamp.getSeconds();
+
+      return date + ',' + month + ' ' + year + ' ' + hour + ':' + minute + ':' + second;
     };
 
   };
