@@ -664,35 +664,53 @@
     };
 
     /**
-     * Get and return data for a selected category
-     * @param {Function} categoryCallback method to call with returned requested data
+     * Get data for selected category recursively
+     * 
+     * @param {Function} callback  method to call with returned requested data
+     * @param {Number}   page      the page to request
      */
-    this.getCategoryData = function(categoryCallback) {
-      this.currData = [];
+    this.getCategoryData = function(callback, page) {
+      this.currData     = [];
+      var page          = page || 1;
       var categoryTitle = encodeURIComponent(this.categoryTitle);
       var categoryValue = encodeURIComponent(this.categoryData[this.currentCategory]);
-      //  we want to push all the videos with this category value into this.currData()
+      var _data = {
+        'app_key'  : this.settingsParams.app_key,
+        'per_page' : this.settingsParams.per_page,
+        'dpt'      : true,
+        'sort'     : (this.settingsParams.category_id) ? 'episode' : 'created_at',
+        'order'    : 'asc',
+        'page'     : page
+      };
 
-      var category_url = null;
       if (this.settingsParams.category_id) {
-        category_url = this.settingsParams.endpoint + "videos/?app_key=" + this.settingsParams.app_key + "&category[" + categoryTitle + "]=" + categoryValue + "&per_page=" + this.settingsParams.per_page + "&dpt=true&sort=episode&order=asc";
-      } else {
-        category_url = this.settingsParams.endpoint + "videos/?app_key=" + this.settingsParams.app_key + "&per_page=25&dpt=true&sort=created_at&order=asc";
+        _data['category['+ categoryTitle +']'] = categoryValue;
       }
 
       $.ajax({
-        url: category_url,
+        url: this.settingsParams.endpoint + 'videos',
         type: 'GET',
         crossDomain: true,
         dataType: 'json',
         context: this,
-        cache: false
-      }).fail(function(msg) {
-        console.log(msg);
-      }).done(function(msg) {
-        this.currData = this.formatVideos(msg);
-      }).always(function() {
-        categoryCallback(this.currData);
+        cache: false,
+        data: _data,
+        success: function(res) {
+          // if `page` argument is passed, add to this.currData
+          if (page > 1) {
+            this.currData.push(this.formatVideos(res)); 
+          }
+          else {
+            this.currData = this.formatVideos(res);
+          }
+          console.log('this.currData', this.currData);
+        },
+        error: function() {
+          console.log('getCategoryData.error', arguments);
+        },
+        complete: function() {
+          callback(this.currData);
+        }
       });
 
     };
@@ -700,17 +718,20 @@
     /**
      * Get data for a selected playlist
      * 
-     * @param {function} the callback function
+     * @param {Function} the callback function
+     * @param {Number}   the page to request
      */
-    this.getPlaylistData = function(categoryCallback) {
-      this.currData = [];
-      var _url = this.settingsParams.endpoint;
+    this.getPlaylistData = function(callback, page) {
+      this.currData    = [];
+      var page         = page || 1;
+      var _url         = this.settingsParams.endpoint;
       var _playlist_id = (this.settingsParams.playlists_only) ? this.categoryData[this.currentCategory].id : this.settingsParams.playlist_id;
       var _data = {
         'app_key'  : this.settingsParams.app_key,
         'per_page' : this.settingsParams.per_page,
-        'dpt'      : true
-      }
+        'dpt'      : true,
+        'page'     : page
+      };
       
       if (this.settingsParams.playlists_only || this.settingsParams.playlist_id) {
         _url += 'playlists/' + _playlist_id + '/videos/';
@@ -729,16 +750,20 @@
         context: this,
         cache: true,
         data: _data,
-        success: function() {
-          var contentData = arguments[0];
-          this.currData = this.formatVideos(contentData);
+        success: function(res) {
+          if (page > 1) {
+            this.currData.push(this.formatVideos(res));
+          }
+          else {
+            this.currData = this.formatVideos(res);  
+          }
         },
         error: function() {
           console.log(arguments);
           alert("There was an error configuring your Fire TV App. Please try again.");
         },
         complete: function() {
-          categoryCallback(this.currData);
+          callback(this.currData);
         }
       });
     };
