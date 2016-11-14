@@ -9,42 +9,45 @@
   // the model for the Media Sample Data
   // @param {Object} appSettings are the user-defined settings from the index page
   var JSONMediaModel = function(appSettings) {
-    this.settingsParams = appSettings;
-    this.categoryData = [];
-    this.categoryTitle = "";
-    this.currData = [];
-    this.currentCategory = 0;
-    this.currentItem = 0;
-    this.plans = [];
+    this.settingsParams      = appSettings;
+    this.categoryData        = [];
+    this.categoryTitle       = "";
+    this.currData            = [];
+    this.currentCategory     = 0;
+    this.currentItem         = 0;
+    this.currPage            = 1;
+    this.plans               = [];
 
-    this.channelsData = [];
-    this.currentChannel = 0;
+    this.channelsData        = [];
+    this.currentChannel      = 0;
 
-    this.zobjectData = [];
-    this.sliderData = [];
-    this.entitlementData = []; // videos user is entitled to via redemption code or purchase
-    this.videoFavoritesData = [];
+    this.zobjectData         = [];
+    this.sliderData          = [];
+    this.entitlementData     = []; // videos user is entitled to via redemption code or purchase
+    this.videoFavoritesData  = [];
     this.currVideoTimedIndex = null; // current timed video's index
-    this.videoTimerId = null; // current timed video's timer reference
+    this.videoTimerId        = null; // current timed video's timer reference
 
     /**
-     * This function loads the initial data needed to start the app and calls the provided callback with the data when it is fully loaded
+     * This function loads the initial data needed to start the app 
+     * and calls the provided callback with the data when it is fully loaded
+     * 
      * @param {function} the callback function to call with the loaded data
      */
-
     this.loadData = function(dataLoadedCallback) {
       // Important to load any plans as the IAP handler will need to have those available.
       var that = this;
 
-      that.categoryData = [];
-      that.categoryTitle = "";
-      that.currData = [];
+      that.categoryData    = [];
+      that.categoryTitle   = "";
+      that.currData        = [];
       that.currentCategory = 0;
-      that.currentItem = 0;
-      that.plans = [];
-      that.channelsData = [];
-      that.zobjectData = [];
-      that.sliderData = [];
+      that.currentItem     = 0;
+      that.currPage        = 1;
+      that.plans           = [];
+      that.channelsData    = [];
+      that.zobjectData     = [];
+      that.sliderData      = [];
 
       this.getPlans(function(plans) {
         that.plans = plans;
@@ -58,7 +61,6 @@
           that.loadCategoryData(dataLoadedCallback);  
         }
       });
-
     }.bind(this);
 
     /**
