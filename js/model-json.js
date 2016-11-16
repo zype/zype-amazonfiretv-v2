@@ -676,6 +676,7 @@
       var page          = page || 1;
       var categoryTitle = encodeURIComponent(this.categoryTitle);
       var categoryValue = encodeURIComponent(this.categoryData[this.currentCategory]);
+      var url           = this.settingsParams.endpoint + 'videos';
       var _data = {
         'app_key'  : this.settingsParams.app_key,
         'per_page' : this.settingsParams.per_page,
@@ -686,11 +687,12 @@
       };
 
       if (this.settingsParams.category_id) {
-        _data['category['+ categoryTitle +']'] = categoryValue;
+        // @NOTE jQuery URL-encodes square braces in the $.ajax `data` param
+        url += '?category['+ categoryTitle +']='+ categoryValue;
       }
 
       $.ajax({
-        url: this.settingsParams.endpoint + 'videos',
+        url: url,
         type: 'GET',
         crossDomain: true,
         dataType: 'json',
@@ -698,7 +700,6 @@
         cache: false,
         data: _data,
         success: function(res) {
-          // if `page` argument is passed, add to this.currData
           var videos = this.formatVideos(res);
 
           if (page > 1) {
@@ -719,7 +720,6 @@
           callback(this.currData);
         }
       });
-
     };
 
     /**
