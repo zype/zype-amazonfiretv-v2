@@ -11,32 +11,29 @@
   var JSONMediaModel = function(appSettings) {
     this.settingsParams = appSettings;
 
-    this.categoryData = []; // "Titles" for leftNav-view and old category-based OneDView
-    this.categoryTitle = "";
-    this.currData = [];
-    this.currentCategory = 0;
-    this.currentItem = 0;
-    this.plans = [];
-
+    this.categoryData         = []; // "Titles" for leftNav-view and old category-based OneDView
+    this.categoryTitle        = "";
+    this.currData             = [];
+    this.currentCategory      = 0;
+    this.currentItem          = 0;
+    this.plans                = [];
     // Enhanced Playlists
     this.currentPlaylistTitle = "";
-    this.currentPlaylistId = null; 
+    this.currentPlaylistId    = null; 
     this.ancestorPlaylistData = []; // current playlist's ancestor playlist data (old - new)
-    this.playlistData = []; // current playlists data (objects)
+    this.playlistData         = []; // current playlists data (objects)
     this.currentPlaylistIndex = 0; // current playlist's index in playlistData[]
-
     // @LEGACY
-    this.channelsData = [];
-    this.currentChannel = 0;
+    this.channelsData         = [];
+    this.currentChannel       = 0;
 
-    this.zobjectData = [];
-    this.sliderData = [];
-    this.entitlementData = {};
-    this.videoFavoritesData = [];
-
+    this.zobjectData          = [];
+    this.sliderData           = [];
+    this.entitlementData      = {};
+    this.videoFavoritesData   = [];
     // Limit Video By Time
-    this.currVideoTimedIndex = null; // current timed video's index
-    this.videoTimerId = null; // current timed video's timer reference
+    this.currVideoTimedIndex  = null; // current timed video's index
+    this.videoTimerId         = null; // current timed video's timer reference
 
     /**
      * This function loads the initial data needed to start the app and calls the provided callback with the data when it is fully loaded
@@ -46,15 +43,15 @@
       // Important to load any plans as the IAP handler will need to have those available.
       var that = this;
 
-      that.categoryData = [];
-      that.categoryTitle = "";
-      that.currData = [];
+      that.categoryData    = [];
+      that.categoryTitle   = "";
+      that.currData        = [];
       that.currentCategory = 0;
-      that.currentItem = 0;
-      that.plans = [];
-      that.channelsData = [];
-      that.zobjectData = [];
-      that.sliderData = [];
+      that.currentItem     = 0;
+      that.plans           = [];
+      that.channelsData    = [];
+      that.zobjectData     = [];
+      that.sliderData      = [];
 
       this.getPlans(function(plans) {
         that.plans = plans;
