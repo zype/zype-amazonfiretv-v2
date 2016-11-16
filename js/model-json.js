@@ -637,12 +637,16 @@
       var formattedVideos = [];
 
       for (var i = 0; i < videos.length; i++) {
+        var img = this.parse_thumbnails(videos[i]);
+
         var args = {
           "id": videos[i]._id,
           "title": videos[i].title,
           "pubDate": videos[i].published_at,
-          "thumbURL": this.parse_thumbnails(videos[i]),
-          "imgURL": this.parse_thumbnails(videos[i]),
+          "thumbURL": img.url,
+          "imgURL": img.url,
+          "imgWidth": img.width,
+          "imgHeight": img.height,
           // parse videoURL at playtime
           "description": videos[i].description,
           "seconds": videos[i].duration,
@@ -661,14 +665,35 @@
     };
 
     this.parse_thumbnails = function(video) {
+      // Custom Image
       if (video.images && this.settingsParams.related_images) {
-        return utils.makeSSL(video.images[0].url);
-      } else {
-        for (var i = 0; i < video.thumbnails.length; i++) {
-          if (video.thumbnails[i].width > 400) {
-            return utils.makeSSL(video.thumbnails[i].url);
+        for (var i = 0; i < video.images.length; i++) {
+          if (video.images[i].title && (video.images[i].title.toLowerCase() === this.settingsParams.related_images_title)) {
+            return {
+              url: utils.makeSSL(video.images[i].url),
+              width: null,
+              height: null
+            }
           }
         }
+      }
+      // Standard Thumbnails
+      else if (video.thumbnails.length > 0) {
+        for (var i = 0; i < video.thumbnails.length; i++) {
+          if (video.thumbnails[i].width > 400) {
+            return {
+              url: utils.makeSSL(video.thumbnails[i].url),
+              width: video.thumbnails[i].width,
+              height: video.thumbnails[i].height
+            }
+          }
+        }
+      }
+      // Default Image
+      return {
+        url: this.settingsParams.default_image_url,
+        width: 426,
+        height: 240
       }
     };
 
