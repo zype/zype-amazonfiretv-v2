@@ -44,7 +44,7 @@
    */
   var OneDView = function() {
     // mixin inheritance, initialize this as an event handler for these events:
-    Events.call(this, ['noContent', 'exit', 'startScroll', 'indexChange', 'stopScroll', 'select', 'bounce', 'loadComplete', 'makeIAP', 'link', 'videoFavorite']);
+    Events.call(this, ['noContent', 'exit', 'startScroll', 'indexChange', 'stopScroll', 'select', 'bounce', 'loadComplete', 'makeIAP', 'link', 'videoFavorite', 'loadNext']);
 
     //global variables
     this.currSelection = 0;
@@ -362,6 +362,11 @@
         } else {
           this.trigger("loadComplete");
         }
+      }, this);
+
+      shovelerView.on('loadNext', function() {
+        this.trigger('loadNext');
+        console.log('shovelerView trigger loadNext');
       }, this);
     };
 

@@ -666,11 +666,13 @@
     /**
      * Get data for selected category recursively
      * 
-     * @param {Function} callback  method to call with returned requested data
-     * @param {Number}   page      the page to request
+     * @param {Function} callback method to call with returned requested data
+     * @param {Array}    currData the existing currData
+     * @param {Number}   page     the page to request
      */
-    this.getCategoryData = function(callback, page) {
-      this.currData     = [];
+    this.getCategoryData = function(callback, currData, page) {
+      this.currData     = (currData && currData.length > 0) ? currData : [];
+      this.currPage     = (page) ? page : 1;
       var page          = page || 1;
       var categoryTitle = encodeURIComponent(this.categoryTitle);
       var categoryValue = encodeURIComponent(this.categoryData[this.currentCategory]);
@@ -697,13 +699,18 @@
         data: _data,
         success: function(res) {
           // if `page` argument is passed, add to this.currData
+          var videos = this.formatVideos(res);
+
           if (page > 1) {
-            this.currData.push(this.formatVideos(res)); 
+            for (var i = 0; i < videos.length; i++) {
+              this.currData.push(videos[i]);
+            }
           }
           else {
-            this.currData = this.formatVideos(res);
+            this.currData = this.formatVideos(res);  
           }
-          console.log('this.currData', this.currData);
+
+          this.currPage++;
         },
         error: function() {
           console.log('getCategoryData.error', arguments);
@@ -718,11 +725,13 @@
     /**
      * Get data for a selected playlist
      * 
-     * @param {Function} the callback function
-     * @param {Number}   the page to request
+     * @param {Function} callback the callback function
+     * @param {Array}    currData the existing currData
+     * @param {Number}   page     the page to request
      */
-    this.getPlaylistData = function(callback, page) {
-      this.currData    = [];
+    this.getPlaylistData = function(callback, currData, page) {
+      this.currData    = (currData && currData.length > 0) ? currData : [];
+      this.currPage    = (page) ? page : 1;
       var page         = page || 1;
       var _url         = this.settingsParams.endpoint;
       var _playlist_id = (this.settingsParams.playlists_only) ? this.categoryData[this.currentCategory].id : this.settingsParams.playlist_id;
@@ -751,12 +760,18 @@
         cache: true,
         data: _data,
         success: function(res) {
+          var videos = this.formatVideos(res);
+
           if (page > 1) {
-            this.currData.push(this.formatVideos(res));
+            for (var i = 0; i < videos.length; i++) {
+              this.currData.push(videos[i]);
+            }
           }
           else {
             this.currData = this.formatVideos(res);  
           }
+
+          this.currPage++;
         },
         error: function() {
           console.log(arguments);
@@ -875,12 +890,16 @@
       var formattedVideos = [];
 
       for (var i = 0; i < videos.length; i++) {
+        var img = this.parse_thumbnails(videos[i]);
+
         var args = {
           "id": videos[i]._id,
           "title": videos[i].title,
           "pubDate": videos[i].published_at,
-          "thumbURL": this.parse_thumbnails(videos[i]),
-          "imgURL": this.parse_thumbnails(videos[i]),
+          "thumbURL": img.url,
+          "imgURL": img.url,
+          "imgWidth": img.width,
+          "imgHeight": img.height,
           // parse videoURL at playtime
           "description": videos[i].description,
           "seconds": videos[i].duration,
@@ -903,7 +922,11 @@
       if (video.images && this.settingsParams.related_images) {
         for (var i = 0; i < video.images.length; i++) {
           if (video.images[i].title && (video.images[i].title.toLowerCase() === this.settingsParams.related_images_title)) {
-            return utils.makeSSL(video.images[i].url);
+            return {
+              url: utils.makeSSL(video.images[i].url),
+              width: null,
+              height: null
+            }
           }
         }
       }
@@ -911,12 +934,20 @@
       else if (video.thumbnails.length > 0) {
         for (var i = 0; i < video.thumbnails.length; i++) {
           if (video.thumbnails[i].width > 400) {
-            return utils.makeSSL(video.thumbnails[i].url);
+            return {
+              url: utils.makeSSL(video.thumbnails[i].url),
+              width: video.thumbnails[i].width,
+              height: video.thumbnails[i].height
+            }
           }
         }
       }
       // Default Image
-      return this.settingsParams.default_image_url;
+      return {
+        url: this.settingsParams.default_image_url,
+        width: 426,
+        height: 240
+      }
     };
 
     /**
