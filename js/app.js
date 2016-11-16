@@ -859,6 +859,14 @@
         this.transitionToDeviceLinking();
       }, this);
 
+      oneDView.on('loadNext', function() {
+        var callback = function(res) {
+          oneDView.shovelerView.update(res);
+        };
+
+        // app.data.getPlaylistData(cb, app.data.currData, app.data.currPage);
+      });
+
       /**
        * Event Handler - Add / Delete Video Favorite
        *
