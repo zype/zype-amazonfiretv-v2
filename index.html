@@ -125,12 +125,14 @@
 
   <!-- Shoveler View Template -->
   <script id="shoveler-template" type="text/x-handlebars-template">
-    <div id="shoveler-view" class="shoveler-row-container">
-      {{#each items}}
-      <div id="{{id}}" class="shoveler-rowitem-static">
-      </div>
-      {{/each}}
-    </div>
+    <div id="shoveler-view" class="shoveler-row-container"></div>
+  </script>
+
+  <!-- Shoveler View Items Template -->
+  <script id="shoveler-items-template" type="text/x-handlebars-template">
+    {{#each items}}
+    <div id="{{id}}" class="shoveler-rowitem-static"></div>
+    {{/each}}
   </script>
 
   <!-- Description View Template -->
