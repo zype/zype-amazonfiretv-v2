@@ -116,48 +116,57 @@
       var desc      = zobjectData[j].desc;
       var thumbnail = zobjectData[j].thumbnail;
 
-      $.ajax({
-        url: this.settingsParams.endpoint + "videos/" + video_id + "?app_key=" + this.settingsParams.app_key,
-        type: 'GET',
-        crossDomain: true,
-        dataType: 'json',
-        context: this,
-        cache: true,
-        success: function() {
-          var video = arguments[0].response;
-          var args = {
-            "id": video._id,
-            "title": title,
-            "pubDate": video.published_at,
-            "thumbURL": thumbnail,
-            "imgURL": thumbnail,
-            // parse videoURL at playtime
-            "description": desc,
-            "seconds": video.duration,
-            "subscription_required": video.subscription_required,
-            "rental_required": video.rental_required,
-            "purchase_required": video.purchase_required,
-            "pass_required": video.pass_required
-          };
+      if (video_id) {
+        $.ajax({
+          url: this.settingsParams.endpoint + "videos/" + video_id + "?app_key=" + this.settingsParams.app_key,
+          type: 'GET',
+          crossDomain: true,
+          dataType: 'json',
+          context: this,
+          cache: true,
+          success: function() {
+            var video = arguments[0].response;
+            var args = {
+              "id": video._id,
+              "title": title,
+              "pubDate": video.published_at,
+              "thumbURL": thumbnail,
+              "imgURL": thumbnail,
+              // parse videoURL at playtime
+              "description": desc,
+              "seconds": video.duration,
+              "subscription_required": video.subscription_required,
+              "rental_required": video.rental_required,
+              "purchase_required": video.purchase_required,
+              "pass_required": video.pass_required
+            };
 
-          var formatted_video = new Video(args);
+            var formatted_video = new Video(args);
 
-          this.sliderData.push(formatted_video);
+            this.sliderData.push(formatted_video);
 
-          if (j < (zobjectData.length - 1)) {
-            j++;
+            if (j < (zobjectData.length - 1)) {
+              j++;
 
-            return this.loadSliderVideoDetails(zobjectData, callback, j);
+              return this.loadSliderVideoDetails(zobjectData, callback, j);
+            }
+
+            return callback(this.playlistData);
+          },
+          error: function() {
+            console.log('loadVideoDetails.error');
+            alert("There was an error configuring your Fire TV App. Please exit.");
+            app.exit();
           }
-
-          return callback(this.playlistData);
-        },
-        error: function() {
-          console.log('loadVideoDetails.error');
-          alert("There was an error configuring your Fire TV App. Please exit.");
-          app.exit();
+        });
+      }
+      else {
+        if (j < (zobjectData.length - 1)) {
+          j++;
+          return this.loadSliderVideoDetails(zobjectData, callback, j);
         }
-      });
+        return callback(this.playlistData);
+      }
     };
 
     /**
