@@ -17,22 +17,23 @@
     // mixin inheritance, initialize this as an event handler for these events:
     Events.call(this, ['loadComplete', 'exit', 'bounce', 'startScroll', 'indexChange', 'stopScroll', 'select']);
 
-    //global variables
-    this.currSelection = 0;
-    this.elementWidths = [];
-    this.isScrolling = false;
+    var _this = this;
+
+    // global variables
+    this.currSelection       = 0;
+    this.elementWidths       = [];
+    this.isScrolling         = false;
     this.currScrollDirection = null;
-    this.loadingImages = 0;
+    this.loadingImages       = 0;
+    this.$parentEle          = null;
+    this.$el                 = null;
+    this.elHeight            = null;
+    this.$rowElements        = null;
+    this.rowsData            = null;
 
-    //global jquery variables
-    this.$parentEle = null;
-    this.$el = null;
-    this.$rowElements = null;
-    this.rowsData = null;
-
-    //constants
-    this.MARGIN_WIDTH = 40;
-    this.STARTING_SIZE = 216;
+    // constants
+    this.MARGIN_WIDTH   = 40;
+    this.STARTING_SIZE  = 216;
     this.transformStyle = utils.vendorPrefix('Transform');
 
     /**
@@ -78,67 +79,141 @@
 
     /**
      * Creates the shoveler view and appends it to the one-d-view shoveler container
-     * @param {Element} el one-d-view container
-     * @param {Object} row the the data for the row
+     * 
+     * @param {Element} el  one-d-view container
+     * @param {Object}  row the the data for the row
      */
     this.render = function(el, row) {
-      this.parentContainer = el;
-      // Build the main content template and add it
-      var html = utils.buildTemplate($("#shoveler-template"), {
+      // Save references
+      this.$parentEle = el; // @NOTE currently unused
+      this.rowsData   = row;
+
+      // Build the main content items
+      var wrapper = utils.buildTemplate($("#shoveler-template"));
+      var items   = utils.buildTemplate($("#shoveler-items-template"), {
         items: row
       });
 
-      this.rowsData = row;
-      el.append(html);
-      this.$el = el.children().last();
+      // Append `wrapper`
+      el.append(wrapper);
 
-      //hide the element until we are done with layout
+      // Save reference to newly appended wrapper
+      this.$el = el.children().last();
+      this.elHeight = this.$el.height();
+
+      // Append `items` to wrapper
+      this.$el.append(items);
+
+      // Hide the element until we are done with layout
       this.$el.css('opacity', 0);
 
-      // select the first element
+      // Save reference to children
       this.$rowElements = this.$el.children();
 
-      //gather widths of all the row elements
+      // Gather widths of all the row elements
       this.initialLayout();
 
-      //register touch handlers for items
+      // Register touch handlers for items
       touches.registerTouchHandler("shoveler-full-img", this.handleContentItemSelection);
+    };
+
+    this.update = function(row) {
+      // Build the main content items
+      var items = utils.buildTemplate($("#shoveler-items-template"), {
+        items: row
+      });
+
+      // Append `items` to wrapper
+      this.$el.append(items);
+
+      // Save reference to children
+      this.$rowElements = this.$el.children();
+
+      // Gather widths of all the row elements
+      this.initialLayout();
     };
 
     /**
      * Performs the initial layout of the elements of the row
+     *
+     * For videos with width and height data, the imagesLoaded callback is bypassed
      */
     this.initialLayout = function() {
       // compute all widths
       this.transformLimit = this.$el.width() + 300;
       this.limitTransforms = false;
 
-
-      //set a callback to make sure all images are loaded
-      var imagesLoaded = function(elt, currImage) {
-        currImage.on("load", function() {
+      // set a callback to make sure all images are loaded
+      var imagesLoaded = function(elt, currImage, done) {
+        if (currImage) {
+          currImage.on("load error", function() {
+            elt.children("img.shoveler-full-img")[0].style.visibility = "visible";
+            _this.relayoutOnLoadedImages(currImage, done);
+          });
+        }
+        else {
           elt.children("img.shoveler-full-img")[0].style.visibility = "visible";
-          this.relayoutOnLoadedImages();
-        }.bind(this));
-        // handle error case for loading screen
-        currImage.on("error", function() {
-          elt.children("img.shoveler-full-img")[0].style.visibility = "visible";
-          this.relayoutOnLoadedImages();
-        }.bind(this));
-      }.bind(this);
+          _this.relayoutOnLoadedImages(null, done);
+        }
+      };
 
       for (var i = 0; i < this.$rowElements.length; i++) {
-        var $currElt = $(this.$rowElements[i]);
+        var $currElt   = $(this.$rowElements[i]);
         var $currImage = $currElt.children("img.shoveler-full-img");
+        var o_width    = this.rowsData[i].imgWidth;
+        var o_height   = this.rowsData[i].imgHeight;
+        var done       = (i === this.$rowElements.length - 1) ? true : false;
+
+        // if $currImage doesn't already exist, create it
         if ($currImage.length === 0) {
-          var id = this.rowsData[i].id;
+          var id  = this.rowsData[i].id;
           var url = this.rowsData[i].imgURL || './assets/default-image.png';
-          $currElt.prepend('<img id="image-' + id + '" class="shoveler-full-img" src="' + url + '" style="visibility:hidden"/>');
+          
+          // create and prepend the <img>
+          $currElt.prepend('<img id="image-' + id + '" class="shoveler-full-img" src="' + url + '" style="visibility:hidden;"/>');
+
+          // set $currImage
           $currImage = $currElt.children("img.shoveler-full-img");
         }
 
-        imagesLoaded($currElt, $currImage);
-        this.loadingImages++;
+        // Calculate scaled width from dimension data, else load the image
+        if (o_width && o_height) {
+          var width;
+
+          if (o_height > this.elHeight) {
+            width = o_width / (o_height / this.elHeight);
+          }
+          else {
+            width = (this.elHeight / o_height) * o_width;
+          }
+
+          // Set the scaled width
+          $currElt.css('width', width + 'px');
+
+          imagesLoaded($currElt, null, done);
+        }
+        // Load the image and calculate width
+        else {
+          imagesLoaded($currElt, $currImage, done);
+          this.loadingImages++;
+        }
+      }
+    };
+
+    /**
+     * Callback Function to reposition the images from the placeholder positions once they load
+     *
+     * @param {Object}  currImage the current image
+     * @param {Boolean} done      true if current row items are finished looping
+     *
+     */
+    this.relayoutOnLoadedImages = function(currImage, done) {
+      if (currImage && --this.loadingImages === 0) {
+        this.layoutElements();
+      }
+      // if image loop complete and custom images are done loading
+      else if (done && this.loadingImages === 0) {
+        this.layoutElements();
       }
     };
 
@@ -146,14 +221,9 @@
      * Performs secondary layout of the elements of the row, after images load for the first time
      */
     this.layoutElements = function() {
-
       for (var i = 0; i < this.$rowElements.length; i++) {
         var $currElt = $(this.$rowElements[i]);
         this.elementWidths[i] = $currElt.width();
-
-        if ($currElt.children("img.shoveler-full-img").length > 0) {
-          $currElt.children("img.shoveler-full-img")[0].style.visibility = "visible";
-        }
       }
 
       this.setTransforms(0);
@@ -176,15 +246,6 @@
     };
 
     /**
-     * Callback Function to reposition the images from the placeholder positions once they load
-     */
-    this.relayoutOnLoadedImages = function() {
-      if (--this.loadingImages === 0) {
-        this.layoutElements();
-      }
-    };
-
-    /**
      * Move the shoveler in either left or right direction
      * @param {Number} dir the direction of the move
      */
@@ -195,11 +256,11 @@
     }.bind(this);
 
     /**
-     * Handles controls: LEFT: Move to main content if first element, otherwise select previous element
-     *                                RIGHT: Select next element
-     *                                UP: Return to main content view
-     *                                DOWN: Nothing at the moment
-     *                                BACK:Back to leftNav State
+     * Handles controls: LEFT:  Move to main content if first element, otherwise select previous element
+     *                   RIGHT: Select next element
+     *                   UP:    Return to main content view
+     *                   DOWN:  Nothing at the moment
+     *                   BACK:  Back to leftNav State
      * @param {event} the keydown event
      */
     this.handleControls = function(e) {
@@ -319,6 +380,7 @@
 
     /**
      * Set properties for the currently selected element
+     * 
      * @param {Element} selectedEle they currently selected element
      */
     this.manageSelectedElement = function(selectedEle) {
@@ -350,14 +412,12 @@
 
     /**
      * Set the positions of all elements to the right of the selected item
+     * 
      * @param {Number} start the starting index
      * @param {Number} currX the current X position
      */
     this.setRightItemPositions = function(start, currX) {
-      var i;
-
-      //this for loop handles elements to the right of the selected element
-      for (i = start; i < this.$rowElements.length; i++) {
+      for (var i = start; i < this.$rowElements.length; i++) {
         if (this.elementWidths[i] > 0) {
           this.$rowElements[i].style[this.transformStyle] = "translate3d(" + ( currX + this.MARGIN_WIDTH ) + "px,0,0px)";
           this.$rowElements[i].style.opacity = "0.5";
@@ -378,13 +438,12 @@
 
     /**
      * Set the positions of all elements to the left of the selected item
+     * 
      * @param {Number} start the starting index
      * @param {Number} currX the current X position
      */
     this.setLeftItemPositions = function(start, currX) {
-      var i;
-
-      for (i = start; i >= 0; i--) {
+      for (var i = start; i >= 0; i--) {
         var currPosition = (currX - this.elementWidths[i] - this.MARGIN_WIDTH );
         var itemTrans = "translate3d(" + currPosition + "px,0, 0px)";
 
@@ -409,13 +468,15 @@
 
     /**
      * This is the method that transitions the element in the row
+     * 
      * @param {Number} selected the index of the currently selected item
      */
     this.setTransforms = function(selected) {
       var currX = 0;
-      selected = selected || this.currSelection;
+      // selected = selected || this.currSelection;
+      var selected = selected || this.currSelection;
 
-      //set selected element properties
+      // set selected element properties
       this.manageSelectedElement(this.$rowElements[selected]);
 
       this.setLeftItemPositions(selected - 1, currX);
