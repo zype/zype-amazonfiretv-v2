@@ -140,7 +140,7 @@
                 if (this.settingsParams.entitlements) {
                   app.data.loadEntitlementData(deviceLinkingHandler.getAccessToken(), function(result) {
                     // Save Entitlement Data
-                    if (result && result.response.length > 0) {
+                    if (result && result.length > 0) {
                       app.data.entitlementData = result;
                     }
 
@@ -233,7 +233,7 @@
                 if (this.settingsParams.entitlements) {
                   app.data.loadEntitlementData(deviceLinkingHandler.getAccessToken(), function(result) {
                     // Save Entitlement Data
-                    if (result && result.response.length > 0) {
+                    if (result && result.length > 0) {
                       app.data.entitlementData = result;
                     }
 
