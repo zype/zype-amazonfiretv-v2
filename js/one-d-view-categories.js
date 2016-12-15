@@ -447,7 +447,6 @@
                 this.transitionToShovelerView();
                 break;
               case this.shovelerView:
-                this.transitionToButtonView();
                 break;
             }
             dirty = true;
