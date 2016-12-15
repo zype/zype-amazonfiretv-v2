@@ -140,7 +140,7 @@
                 if (this.settingsParams.entitlements) {
                   app.data.loadEntitlementData(deviceLinkingHandler.getAccessToken(), function(result) {
                     // Save Entitlement Data
-                    if (result && result.response.length > 0) {
+                    if (result && result.length > 0) {
                       app.data.entitlementData = result;
                     }
 
@@ -233,7 +233,7 @@
                 if (this.settingsParams.entitlements) {
                   app.data.loadEntitlementData(deviceLinkingHandler.getAccessToken(), function(result) {
                     // Save Entitlement Data
-                    if (result && result.response.length > 0) {
+                    if (result && result.length > 0) {
                       app.data.entitlementData = result;
                     }
 
@@ -1362,7 +1362,7 @@
      * @return {Boolean}
      */
     this.isTimeLimited = function(video) {
-      var _v = (this.settingsParams.videos_time_limited.length > 0) ? this.settingsParams.videos_time_limited : null;
+      var _v = (this.settingsParams.videos_time_limited && this.settingsParams.videos_time_limited.length > 0) ? this.settingsParams.videos_time_limited : null;
 
       if (_v) {
         for (var i = 0; i < _v.length; i++) {
