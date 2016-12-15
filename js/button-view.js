@@ -170,7 +170,6 @@
         switch (e.keyCode) {
           case buttons.UP:
             this.setStaticButton();
-            this.trigger('exit');
             break;
           case buttons.DOWN:
             break;
