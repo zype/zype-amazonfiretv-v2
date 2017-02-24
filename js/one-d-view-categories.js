@@ -396,6 +396,8 @@
     this.expand = function() {
       console.log("expand");
       switch (this.currentView) {
+        case null:
+          break;
         case this.sliderView:
           this.sliderView.setTransforms();
           break;
@@ -420,6 +422,7 @@
           case buttons.UP:
             switch (this.currentView) {
               case null:
+                this.trigger('bounce');
                 break;
               case this.sliderView:
                 this.trigger('bounce');
