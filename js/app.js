@@ -130,20 +130,40 @@
             // Set Consumer ID
             deviceLinkingHandler.setConsumerId(result);
 
-            // Retrieve new Access Token on launch
-            deviceLinkingHandler.retrieveAccessToken(this.settingsParams.device_id, result.pin, function(result) {
+            if (this.settingsParams.client_id && this.settingsParams.client_secret) {
 
-              if (result) {
-                deviceLinkingHandler.setOauthData(result);
+              // Retrieve new Access Token on launch
+              deviceLinkingHandler.retrieveAccessToken(this.settingsParams.device_id, result.pin, function(result) {
 
-                // Entitlements / My Library
-                if (this.settingsParams.entitlements) {
-                  app.data.loadEntitlementData(deviceLinkingHandler.getAccessToken(), function(result) {
-                    // Save Entitlement Data
-                    if (result && result.length > 0) {
-                      app.data.entitlementData = result;
-                    }
+                if (result) {
+                  deviceLinkingHandler.setOauthData(result);
 
+                  // Entitlements / My Library
+                  if (this.settingsParams.entitlements) {
+                    app.data.loadEntitlementData(deviceLinkingHandler.getAccessToken(), function(result) {
+                      // Save Entitlement Data
+                      if (result && result.length > 0) {
+                        app.data.entitlementData = result;
+                      }
+
+                      // Video Favorites
+                      if (this.settingsParams.video_favorites) {
+                        app.data.loadVideoFavoritesData(deviceLinkingHandler.getAccessToken(), function(result){
+                          // Save Video Favorites Data
+                          if (result && result.response.length > 0) {
+                            app.data.videoFavoritesData = result.response;
+                          }
+                          // Build
+                          this.build();
+                        }.bind(this));
+                      }
+                      else {
+                        this.build();
+                      }
+                    }.bind(this));
+                  }
+                  // Normal Device Linking
+                  else {
                     // Video Favorites
                     if (this.settingsParams.video_favorites) {
                       app.data.loadVideoFavoritesData(deviceLinkingHandler.getAccessToken(), function(result){
@@ -158,32 +178,19 @@
                     else {
                       this.build();
                     }
-                  }.bind(this));
+                  }
                 }
-                // Normal Device Linking
                 else {
-                  // Video Favorites
-                  if (this.settingsParams.video_favorites) {
-                    app.data.loadVideoFavoritesData(deviceLinkingHandler.getAccessToken(), function(result){
-                      // Save Video Favorites Data
-                      if (result && result.response.length > 0) {
-                        app.data.videoFavoritesData = result.response;
-                      }
-                      // Build
-                      this.build();
-                    }.bind(this));
-                  }
-                  else {
-                    this.build();
-                  }
+                  console.log("Error - retrieveAccessToken failed");
+                  alert("There was an error configuring your Fire TV App. Please relaunch and try again");
+                  app.exit();
                 }
-              }
-              else {
-                console.log("Error - retrieveAccessToken failed");
-                alert("There was an error configuring your Fire TV App. Please relaunch and try again");
-                app.exit();
-              }
-            }.bind(this));
+              }.bind(this));
+            }
+            // Legacy Device Linking (without Client ID and Client Secret)
+            else {
+              this.build();
+            }
           }
         }.bind(this));
       }
@@ -1287,8 +1294,8 @@
       if (iapHandler.canPlayVideo(video) === false) {
         return false;
       }
-      // Device Linking. Bypass if watchAVOD === false.
-      else if (this.settingsParams.device_linking === true && this.settingsParams.watchAVOD === false) {
+      // Device Linking. Bypass if watchAVOD === true.
+      else if (this.settingsParams.device_linking === true && this.settingsParams.watchAVOD === false && this.settingsParams.client_id && this.settingsParams.client_secret) {
 
         // SVOD Device Linking. Validate Entitlement.
         if (this.settingsParams.linked === true) {
