@@ -230,18 +230,54 @@
           }
           // Device Linked!
           else {
-            deviceLinkingHandler.retrieveAccessToken(this.settingsParams.device_id, deviceLinkingHandler.getDevicePin(), function(result) {
-              if (result) {
-                deviceLinkingHandler.setOauthData(result);
+            // Device Linking (new)
+            if (this.settingsParams.client_id && this.settingsParams.client_secret) {
+              deviceLinkingHandler.retrieveAccessToken(this.settingsParams.device_id, deviceLinkingHandler.getDevicePin(), function(result) {
+                if (result) {
+                  deviceLinkingHandler.setOauthData(result);
 
-                // Entitlements / My Library
-                if (this.settingsParams.entitlements) {
-                  app.data.loadEntitlementData(deviceLinkingHandler.getAccessToken(), function(result) {
-                    // Save Entitlement Data
-                    if (result && result.length > 0) {
-                      app.data.entitlementData = result;
-                    }
+                  // Entitlements / My Library
+                  if (this.settingsParams.entitlements) {
+                    app.data.loadEntitlementData(deviceLinkingHandler.getAccessToken(), function(result) {
+                      // Save Entitlement Data
+                      if (result && result.length > 0) {
+                        app.data.entitlementData = result;
+                      }
 
+                      // Video Favorites
+                      if (this.settingsParams.video_favorites) {
+                        app.data.loadVideoFavoritesData(deviceLinkingHandler.getAccessToken(), function(result){
+                          // Save Video Favorites Data
+                          if (result && result.response.length > 0) {
+                            app.data.videoFavoritesData = result.response;
+                          }
+                          // Init Views
+                          if (app.settingsParams.nested_categories === true) {
+                            this.initializeNestedCategories();
+                            this.selectView(this.nestedCategoriesOneDView);
+                          } else {
+                            this.initializeLeftNavView();
+                            this.initializeOneDView();
+                            this.selectView(this.oneDView);
+                            this.leftNavView.collapse();
+                          }
+                        }.bind(this));
+                      }
+                      else {
+                        if (app.settingsParams.nested_categories === true) {
+                          this.initializeNestedCategories();
+                          this.selectView(this.nestedCategoriesOneDView);
+                        } else {
+                          this.initializeLeftNavView();
+                          this.initializeOneDView();
+                          this.selectView(this.oneDView);
+                          this.leftNavView.collapse();
+                        }
+                      }
+                    }.bind(this));
+                  }
+                  // Normal Device Linking
+                  else {
                     // Video Favorites
                     if (this.settingsParams.video_favorites) {
                       app.data.loadVideoFavoritesData(deviceLinkingHandler.getAccessToken(), function(result){
@@ -272,50 +308,28 @@
                         this.leftNavView.collapse();
                       }
                     }
-                  }.bind(this));
+                  }
                 }
-                // Normal Device Linking
                 else {
-                  // Video Favorites
-                  if (this.settingsParams.video_favorites) {
-                    app.data.loadVideoFavoritesData(deviceLinkingHandler.getAccessToken(), function(result){
-                      // Save Video Favorites Data
-                      if (result && result.response.length > 0) {
-                        app.data.videoFavoritesData = result.response;
-                      }
-                      // Init Views
-                      if (app.settingsParams.nested_categories === true) {
-                        this.initializeNestedCategories();
-                        this.selectView(this.nestedCategoriesOneDView);
-                      } else {
-                        this.initializeLeftNavView();
-                        this.initializeOneDView();
-                        this.selectView(this.oneDView);
-                        this.leftNavView.collapse();
-                      }
-                    }.bind(this));
-                  }
-                  else {
-                    if (app.settingsParams.nested_categories === true) {
-                      this.initializeNestedCategories();
-                      this.selectView(this.nestedCategoriesOneDView);
-                    } else {
-                      this.initializeLeftNavView();
-                      this.initializeOneDView();
-                      this.selectView(this.oneDView);
-                      this.leftNavView.collapse();
-                    }
-                  }
+                  console.log("Error - retrieveAccessToken failed");
+                  alert("There was an error configuring your Fire TV App. Please relaunch and try again");
+                  app.exit();
                 }
+              }.bind(this));
+            }
+            // Device Linking (legacy)
+            else {
+              if (this.settingsParams.nested_categories === true) {
+                this.initializeNestedCategories();
+                this.selectView(this.nestedCategoriesOneDView);
+              } else {
+                this.initializeLeftNavView();
+                this.initializeOneDView();
+                this.selectView(this.oneDView);
+                this.leftNavView.collapse();
               }
-              else {
-                console.log("Error - retrieveAccessToken failed");
-                alert("There was an error configuring your Fire TV App. Please relaunch and try again");
-                app.exit();
-              }
-            }.bind(this));
+            }
           }
-          
         }.bind(this));
       } else {
         /**
