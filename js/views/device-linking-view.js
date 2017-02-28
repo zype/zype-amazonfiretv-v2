@@ -15,7 +15,7 @@
    */
   var DeviceLinkingView = function() {
     // mixin inheritance
-    Events.call(this, ['exit', 'loadComplete', 'linkingSuccess', 'linkingFailure', 'browse', 'startBrowse']);
+    Events.call(this, ['exit', 'loadComplete', 'linkingSuccess', 'linkingFailure', 'browse', 'startBrowse', 'watchAVOD']);
 
     // global vars
     this.timer = null;
@@ -46,6 +46,10 @@
       clearInterval(this.timer);
     }, this);
 
+    this.on("watchAVOD", function() {
+      clearInterval(this.timer);
+    }, this);
+
     /**
      * Maintain the current view for event handling
      */
@@ -65,6 +69,7 @@
       deviceLinkingHandler.getPin(app.settingsParams.device_id, function(pin) {
         // Build the main content template and add it
         var html = utils.buildTemplate($("#device-linking-view-template"), {
+          title: (app.settingsParams.subscribe_no_ads) ? 'Link your Fire TV to Watch Ad-Free' : 'Link Your Fire TV',
           link: app.settingsParams.device_link_url,
           pin: pin
         });
@@ -92,11 +97,15 @@
         this.trigger("startBrowse");
       }, this);
 
+      buttonView.on('watchAVOD', function() {
+        this.trigger('watchAVOD');
+      }, this);
+
       buttonView.update = function() {
         var buttons = [{
-          "name": "Browse Content",
-          "id": "browseBtn",
-          "class": "btnBrowse"
+          "name":  (app.settingsParams.subscribe_no_ads) ? "Watch with Ads" : "Browse Content",
+          "id":    (app.settingsParams.subscribe_no_ads) ? "avodBtn" : "browseBtn",
+          "class": (app.settingsParams.subscribe_no_ads) ? "btnAVOD" : "btnBrowse"
         }];
         this.buttonView.render(this.$buttonsContainer, buttons);
       }.bind(this);
@@ -109,9 +118,9 @@
       this.timer = setInterval(function() {
         console.log('pin.status.check');
         deviceLinkingHandler.getPinStatus(app.settingsParams.device_id, function(result) {
-          if (result === true) {
+          if (result !== false) {
             clearInterval(this.timer);
-            this.trigger("linkingSuccess");
+            this.trigger("linkingSuccess", result);
           }
         }.bind(this));
 

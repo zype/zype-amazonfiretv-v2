@@ -74,11 +74,13 @@
    *                 settingsParams.displayButtons {Boolean} flag that tells the app to display the buttons or not
    */
   var App = function(settingsParams) {
-    //hold onto the app settings
+    var that = this;
+
+    // hold onto the app settings
     this.settingsParams = settingsParams;
     this.showSearch = settingsParams.showSearch;
 
-    //main application container div
+    // main application container div
     this.$appContainer = $("#app-container");
 
     // mixin inheritance, initialize this as an event handler for these events:
@@ -92,6 +94,7 @@
       alert("There was an error playing the video.");
       this.exit();
     }, this);
+
     /**
      * Callback from XHR to load the data model, this really starts the app UX
      */
@@ -107,48 +110,225 @@
 
       this.$appContainer.append(html);
 
-
-      // Device Linking Checking Process
+      // DEVICE LINKING CHECKING PROCESS
       if (this.settingsParams.device_linking === true && this.settingsParams.IAP === false) {
+        // Check PIN Status
         deviceLinkingHandler.getPinStatus(this.settingsParams.device_id, function(result) {
-          if (result === false) {
+          if (result === false || result.linked === false) {
+            // Device not linked
+            this.settingsParams.linked = false;
+
             // Device Linking Acquiring PIN
             this.initializeDeviceLinkingView();
             this.selectView(this.deviceLinkingView);
-          } else {
-            this.settingsParams.linked = result;
-            this.build();
+          }
+          // Build App
+          else {
+            // Device Linking Success
+            this.settingsParams.linked = true;
+
+            // Set Consumer ID
+            deviceLinkingHandler.setConsumerId(result);
+
+            if (this.settingsParams.client_id && this.settingsParams.client_secret) {
+
+              // Retrieve new Access Token on launch
+              deviceLinkingHandler.retrieveAccessToken(this.settingsParams.device_id, result.pin, function(result) {
+
+                if (result) {
+                  deviceLinkingHandler.setOauthData(result);
+
+                  // Entitlements / My Library
+                  if (this.settingsParams.entitlements) {
+                    app.data.loadEntitlementData(deviceLinkingHandler.getAccessToken(), function(result) {
+                      // Save Entitlement Data
+                      if (result && result.length > 0) {
+                        app.data.entitlementData = result;
+                      }
+
+                      // Video Favorites
+                      if (this.settingsParams.video_favorites) {
+                        app.data.loadVideoFavoritesData(deviceLinkingHandler.getAccessToken(), function(result){
+                          // Save Video Favorites Data
+                          if (result && result.response.length > 0) {
+                            app.data.videoFavoritesData = result.response;
+                          }
+                          // Build
+                          this.build();
+                        }.bind(this));
+                      }
+                      else {
+                        this.build();
+                      }
+                    }.bind(this));
+                  }
+                  // Normal Device Linking
+                  else {
+                    // Video Favorites
+                    if (this.settingsParams.video_favorites) {
+                      app.data.loadVideoFavoritesData(deviceLinkingHandler.getAccessToken(), function(result){
+                        // Save Video Favorites Data
+                        if (result && result.response.length > 0) {
+                          app.data.videoFavoritesData = result.response;
+                        }
+                        // Build
+                        this.build();
+                      }.bind(this));
+                    }
+                    else {
+                      this.build();
+                    }
+                  }
+                }
+                else {
+                  console.log("Error - retrieveAccessToken failed");
+                  alert("There was an error configuring your Fire TV App. Please relaunch and try again");
+                  app.exit();
+                }
+              }.bind(this));
+            }
+            // Legacy Device Linking (without Client ID and Client Secret)
+            else {
+              this.build();
+            }
           }
         }.bind(this));
-        // IAP Checking Process
-      } else if (this.settingsParams.device_linking === false && this.settingsParams.IAP === true) {
+      }
+      // IAP Checking Process
+      else if (this.settingsParams.device_linking === false && this.settingsParams.IAP === true) {
         console.log("IAP");
         this.build();
-      } else if (this.settingsParams.device_linking === true && this.settingsParams.IAP === true) {
+      }
+      else if (this.settingsParams.device_linking === true && this.settingsParams.IAP === true) {
+        console.log("Device Linking and IAP both enabled. Only one may be enabled at a time.");
         alert("There was an error configuring your Fire TV App.");
         app.exit();
-        return;
-      } else {
+      }
+      else {
         this.build();
       }
     }.bind(this);
 
     this.build = function() {
-
       if (this.deviceLinkingView && this.currentView === this.deviceLinkingView) {
+
         this.deviceLinkingView.remove();
+
         this.data.loadData(function() {
-          /**
-           * Handles nested categories
-           */
-          if (app.settingsParams.nested_categories === true) {
-            this.initializeNestedCategories();
-            this.selectView(this.nestedCategoriesOneDView);
-          } else {
-            this.initializeLeftNavView();
-            this.initializeOneDView();
-            this.selectView(this.oneDView);
-            this.leftNavView.collapse();
+
+          // SVOD Browse. SVOD / AVOD Hybrid watchAVOD
+          if (app.settingsParams.browse === true || app.settingsParams.watchAVOD === true) {
+            if (app.settingsParams.nested_categories === true) {
+              this.initializeNestedCategories();
+              this.selectView(this.nestedCategoriesOneDView);
+            } else {
+              this.initializeLeftNavView();
+              this.initializeOneDView();
+              this.selectView(this.oneDView);
+              this.leftNavView.collapse();
+            }
+          }
+          // Device Linked!
+          else {
+            // Device Linking (new)
+            if (this.settingsParams.client_id && this.settingsParams.client_secret) {
+              deviceLinkingHandler.retrieveAccessToken(this.settingsParams.device_id, deviceLinkingHandler.getDevicePin(), function(result) {
+                if (result) {
+                  deviceLinkingHandler.setOauthData(result);
+
+                  // Entitlements / My Library
+                  if (this.settingsParams.entitlements) {
+                    app.data.loadEntitlementData(deviceLinkingHandler.getAccessToken(), function(result) {
+                      // Save Entitlement Data
+                      if (result && result.length > 0) {
+                        app.data.entitlementData = result;
+                      }
+
+                      // Video Favorites
+                      if (this.settingsParams.video_favorites) {
+                        app.data.loadVideoFavoritesData(deviceLinkingHandler.getAccessToken(), function(result){
+                          // Save Video Favorites Data
+                          if (result && result.response.length > 0) {
+                            app.data.videoFavoritesData = result.response;
+                          }
+                          // Init Views
+                          if (app.settingsParams.nested_categories === true) {
+                            this.initializeNestedCategories();
+                            this.selectView(this.nestedCategoriesOneDView);
+                          } else {
+                            this.initializeLeftNavView();
+                            this.initializeOneDView();
+                            this.selectView(this.oneDView);
+                            this.leftNavView.collapse();
+                          }
+                        }.bind(this));
+                      }
+                      else {
+                        if (app.settingsParams.nested_categories === true) {
+                          this.initializeNestedCategories();
+                          this.selectView(this.nestedCategoriesOneDView);
+                        } else {
+                          this.initializeLeftNavView();
+                          this.initializeOneDView();
+                          this.selectView(this.oneDView);
+                          this.leftNavView.collapse();
+                        }
+                      }
+                    }.bind(this));
+                  }
+                  // Normal Device Linking
+                  else {
+                    // Video Favorites
+                    if (this.settingsParams.video_favorites) {
+                      app.data.loadVideoFavoritesData(deviceLinkingHandler.getAccessToken(), function(result){
+                        // Save Video Favorites Data
+                        if (result && result.response.length > 0) {
+                          app.data.videoFavoritesData = result.response;
+                        }
+                        // Init Views
+                        if (app.settingsParams.nested_categories === true) {
+                          this.initializeNestedCategories();
+                          this.selectView(this.nestedCategoriesOneDView);
+                        } else {
+                          this.initializeLeftNavView();
+                          this.initializeOneDView();
+                          this.selectView(this.oneDView);
+                          this.leftNavView.collapse();
+                        }
+                      }.bind(this));
+                    }
+                    else {
+                      if (app.settingsParams.nested_categories === true) {
+                        this.initializeNestedCategories();
+                        this.selectView(this.nestedCategoriesOneDView);
+                      } else {
+                        this.initializeLeftNavView();
+                        this.initializeOneDView();
+                        this.selectView(this.oneDView);
+                        this.leftNavView.collapse();
+                      }
+                    }
+                  }
+                }
+                else {
+                  console.log("Error - retrieveAccessToken failed");
+                  alert("There was an error configuring your Fire TV App. Please relaunch and try again");
+                  app.exit();
+                }
+              }.bind(this));
+            }
+            // Device Linking (legacy)
+            else {
+              if (this.settingsParams.nested_categories === true) {
+                this.initializeNestedCategories();
+                this.selectView(this.nestedCategoriesOneDView);
+              } else {
+                this.initializeLeftNavView();
+                this.initializeOneDView();
+                this.selectView(this.oneDView);
+                this.leftNavView.collapse();
+              }
+            }
           }
         }.bind(this));
       } else {
@@ -276,7 +456,7 @@
      * Device Linking View Object
      *
      */
-    this.initializeDeviceLinkingView = function(pin) {
+    this.initializeDeviceLinkingView = function() {
       var deviceLinkingView = this.deviceLinkingView = new DeviceLinkingView();
 
       deviceLinkingView.on('exit', function() {
@@ -285,12 +465,25 @@
       }, this);
 
       deviceLinkingView.on('loadComplete', function() {
+        this.settingsParams.browse = false;
         this.hideContentLoadingSpinner();
       }, this);
 
-      deviceLinkingView.on('linkingSuccess', function() {
+      deviceLinkingView.on('linkingSuccess', function(result) {
         console.log('linking.success');
+
+        var pin = result.pin;
+
         this.settingsParams.linked = true;
+        this.settingsParams.browse = false;
+        this.settingsParams.watchAVOD = false;
+
+        // Set Consumer ID
+        deviceLinkingHandler.setConsumerId(result);
+
+        // Store successfully linked PIN
+        deviceLinkingHandler.setDevicePin(pin);
+
         this.build();
       }, this);
 
@@ -299,7 +492,18 @@
         alert("Please reload the app!");
       }, this);
 
+      // SVOD (Device Linking)
       deviceLinkingView.on('startBrowse', function() {
+        this.showContentLoadingSpinner(true);
+        this.settingsParams.browse = true;
+        this.build();
+      }, this);
+
+      // SVOD / AVOD Hybrid (Subscribe To Watch Ad-Free)
+      deviceLinkingView.on('watchAVOD', function() {
+        console.log('initializeDeviceLinkingView.watchAVOD');
+        this.showContentLoadingSpinner(true);
+        this.settingsParams.watchAVOD = true;
         this.build();
       }, this);
 
@@ -324,43 +528,17 @@
        * @param {Number} index the index of the selected item
        */
       leftNavView.on('select', function(index) {
-        if (!this.showSearch || index !== 0) {
-          //remove the contents of the oneDView
-          if (this.oneDView.sliderView) this.oneDView.sliderView.remove();
-          this.oneDView.remove();
-
-          //show the spinner
-          this.showContentLoadingSpinner(true);
-
-          //set the newly selected category index
-          // if (this.showSearch) {
-          //   index;
-          // }
-
-          app.data.setCurrentCategory(index);
-          console.log(app.data.currentCategory);
-
-          //update the content
-          this.oneDView.updateCategory();
-
-          //set the selected view
-          this.selectView(this.oneDView);
-
-
-          //hide the leftNav
-          this.leftNavView.collapse();
-
-          if (this.showSearch) {
-            this.leftNavView.searchUpdated = false;
-            this.searchInputView.reset();
-          }
-        } else {
+        // Home
+        if (index === this.settingsParams.nav.home) {
+          this.transitionToCategories();
+        }
+        // Search
+        else if (index === this.settingsParams.nav.search) {
           if (this.oneDView.sliderView) {
             this.oneDView.sliderView.remove();
           }
 
           if (this.oneDView) {
-            //remove the contents of the oneDView
             this.oneDView.remove();  
           }
 
@@ -368,7 +546,7 @@
           this.showContentLoadingSpinner(true);
 
           app.data.setCurrentCategory(index);
-          console.log(app.data.currentCategory);
+          console.log('app.data.currentCategory', app.data.currentCategory);
 
           this.oneDView.updateCategoryFromSearch(this.searchInputView.currentSearchQuery);
 
@@ -377,6 +555,36 @@
 
           //hide the leftNav
           this.leftNavView.collapse();
+        }
+        // Library, Playlist, Category
+        else {
+          if (this.oneDView.sliderView) {
+            this.oneDView.sliderView.remove();
+          }
+
+          if (this.oneDView) {
+            this.oneDView.remove();  
+          }
+
+          //show the spinner
+          this.showContentLoadingSpinner(true);
+
+          app.data.setCurrentCategory(index);
+          console.log('app.data.currentCategory: ', app.data.currentCategory);
+
+          //update the content
+          this.oneDView.updateCategory();
+
+          //set the selected view
+          this.selectView(this.oneDView);
+
+          //hide the leftNav
+          this.leftNavView.collapse();
+
+          if (this.showSearch) {
+            this.leftNavView.searchUpdated = false;
+            this.searchInputView.reset();
+          }
         }
       }, this);
 
@@ -394,9 +602,12 @@
         this.transitionFromLefNavToOneD();
       }, this);
 
+      /**
+       * Event Handler - search query
+       */
       if (this.showSearch) {
         this.searchInputView.on('searchQueryEntered', function() {
-          if (this.leftNavView.currSelectedIndex === 0) {
+          if (this.leftNavView.currSelectedIndex === this.settingsParams.nav.search) {
             this.leftNavView.searchUpdated = true;
             this.leftNavView.confirmNavSelection();
           }
@@ -413,26 +624,73 @@
        */
       leftNavView.on('indexChange', function(index) {
         //set the newly selected category index
-        if (this.showSearch && index === 0) {
+        if (index === this.settingsParams.nav.search) {
           this.searchInputView.select();
-        } else {
+        }
+        else {
           if (this.showSearch) {
             this.searchInputView.deselect();
           }
         }
-
       }, this);
 
       var successCallback = function(categoryItems) {
         var leftNavData = categoryItems;
+        var startIndex  = 0;
 
-        var startIndex = 0;
-        if (this.showSearch) {
-          leftNavData.unshift(this.searchInputView);
-          startIndex = 1;
+        // Favorites
+        if (this.settingsParams.video_favorites && this.settingsParams.linked) {
+          leftNavData.unshift('Favorites');
+          this.settingsParams.nav.favorites = (this.settingsParams.entitlements) ? this.settingsParams.nav.search + 2 : this.settingsParams.nav.search + 1;
+
+          // Playlist
+          if (this.settingsParams.featured_playlist || this.settingsParams.playlists_only) {
+            this.settingsParams.nav.playlist = (this.settingsParams.entitlements) ? this.settingsParams.nav.search + 3 : this.settingsParams.nav.search + 2;
+          }
+
+          // Category
+          if (this.settingsParams.featured_playlist) {
+            this.settingsParams.nav.category = this.settingsParams.nav.playlist + 1;
+          }
+          else {
+            this.settingsParams.nav.category = (this.settingsParams.entitlements) ? this.settingsParams.nav.search + 3 : this.settingsParams.nav.search + 2;
+          }
         }
 
+        // Entitlements / My Library
+        if (this.settingsParams.entitlements) {
+          leftNavData.unshift('My Library');
+          this.settingsParams.nav.library  = this.settingsParams.nav.search + 1;
+
+          // Playlist
+          if (this.settingsParams.featured_playlist || this.settingsParams.playlists_only) {
+            this.settingsParams.nav.playlist = (this.settingsParams.video_favorites && this.settingsParams.linked) ? this.settingsParams.nav.search + 3 : this.settingsParams.nav.search + 2;
+          }
+
+          // Category
+          if (this.settingsParams.featured_playlist) {
+            this.settingsParams.nav.category = this.settingsParams.nav.playlist + 1;
+          }
+          else {
+            this.settingsParams.nav.category = (this.settingsParams.video_favorites && this.settingsParams.linked) ? this.settingsParams.nav.search + 3 : this.settingsParams.nav.search + 2;
+          }
+        }
+
+        // Search
+        if (this.showSearch) {
+          leftNavData.unshift(this.searchInputView);
+        }
+
+        // Home
+        if (this.settingsParams.nested_categories === true) {
+          leftNavData.unshift('Home');
+        }
+
+        // Start on Featured Playlist, First Playlist, or First Category
+        startIndex = (this.settingsParams.featured_playlist || this.settingsParams.playlists_only) ? this.settingsParams.nav.playlist : this.settingsParams.nav.category;
+        
         app.data.setCurrentCategory(startIndex);
+
         leftNavView.render(this.$appContainer, leftNavData, startIndex);
       }.bind(this);
 
@@ -447,8 +705,6 @@
      * Nested Categories One D View
      */
     this.initializeNestedCategories = function() {
-      // since we are using the One D View to show categories, we pass true
-      // to identify that we are creating the object for the categories
       var nestedCategoriesOneDView = this.nestedCategoriesOneDView = new OneDViewCategories();
 
       /**
@@ -456,13 +712,15 @@
        * @param {number} index the index of the selected item
        */
       nestedCategoriesOneDView.on('select', function(index) {
-        console.log('on.select.event');
         app.data.setcurrentChannel(index);
 
         var data = this.channelsData[index];
         app.data.setCategoryId(data.category_id);
         app.data.setPlaylistId(data.playlist_id);
 
+        app.data.setPlaylistIds(data.playlist_ids);
+
+        // here, "Category" refers to the selected ZObject Category / Title of Playlists
         this.transitionToCategory();
       }, this);
 
@@ -562,10 +820,10 @@
        */
       oneDView.on('select', function(index, fromSlider) {
         if (fromSlider) {
-          this.transitionToPlayer(index, fromSlider);
+          this.verifyVideo(index, fromSlider);
         } else {
           app.data.setCurrentItem(index);
-          this.transitionToPlayer(index, fromSlider);
+          this.verifyVideo(index, fromSlider);
         }
       }, this);
 
@@ -622,6 +880,23 @@
         this.transitionToDeviceLinking();
       }, this);
 
+      oneDView.on('loadNext', function() {
+        var callback = function(res) {
+          oneDView.shovelerView.update(res);
+        };
+
+        // app.data.getPlaylistData(cb, app.data.currData, app.data.currPage);
+      });
+
+      /**
+       * Event Handler - Add / Delete Video Favorite
+       *
+       * @param {Number} the index of the selected item
+       */
+      oneDView.on('videoFavorite', function(index) {
+        this.handleFavorites(index);
+      }, this);
+
       this.transitionToDeviceLinking = function() {
         this.showContentLoadingSpinner(true);
         console.log('transition.to.device.linking.view');
@@ -646,11 +921,19 @@
         // these are the videos
         this.categoryData = categoryData;
 
+        // Set the OneDView Title
         var categoryTitle = "";
-        if (this.showSearch && this.leftNavView.currSelectedIndex === 0) {
+        // Search
+        if (this.leftNavView.currSelectedIndex === this.settingsParams.nav.search) {
           categoryTitle = "Search";
-        } else {
+        }
+        // Category (array), My Library (array)
+        else if (typeof app.data.categoryData[this.leftNavView.currSelectedIndex] === "string") {
           categoryTitle = app.data.categoryData[this.leftNavView.currSelectedIndex];
+        }
+        // Playlist (object)
+        else {
+          categoryTitle = app.data.categoryData[this.leftNavView.currSelectedIndex].title;
         }
 
         // reset searchUpdated
@@ -662,9 +945,8 @@
          * Actually that is not issue, we will add New Releases by default
          */
         var showSlider = function() {
-          if (this.showSearch && app.data.currentCategory === 1) {
-            return true;
-          } else if (!this.showSearch && app.data.currentCategory === 0) {
+          // Show Slider on Featured Playlist only
+          if (app.data.currentCategory === this.settingsParams.nav.playlist && !this.settingsParams.nested_categories) {
             return true;
           }
           return false;
@@ -717,31 +999,102 @@
       }.bind(this);
 
       oneDView.updateCategory = function() {
-
-        if (this.showSearch && this.leftNavView.currSelectedIndex > 1) {
-          // this is a category grab of videos
-          app.data.getCategoryData(successCallback);
-        } else if (!this.showSearch && this.leftNavView.currSelectedIndex > 0) {
-          app.data.getCategoryData(successCallback);
-        } else {
-          app.data.getPlaylistData(successCallback);
-          // this is the featured playlist grab of videos
+        // Video Favorites
+        if (this.settingsParams.video_favorites && this.settingsParams.nav.favorites && this.leftNavView.currSelectedIndex === this.settingsParams.nav.favorites) {
+          // Load Video Favorites Data
+          app.data.loadVideoFavoritesData(deviceLinkingHandler.getAccessToken, function(result) {
+            app.data.videoFavoritesData = result.response;
+            // Load Video Favorites
+            app.data.getVideoFavoritesData(app.data.videoFavoritesData, successCallback);
+          });
         }
-
+        // Entitlements / My Library
+        else if (this.settingsParams.entitlements && this.settingsParams.nav.library && this.leftNavView.currSelectedIndex === this.settingsParams.nav.library) {
+          app.data.getEntitlementData(app.data.entitlementData, successCallback);
+        }
+        // Featured Playlist || Playlists only
+        else if ((!this.settingsParams.playlists_only && 
+                  this.settingsParams.featured_playlist && 
+                  this.settingsParams.nav.playlist && 
+                  this.leftNavView.currSelectedIndex === this.settingsParams.nav.playlist) || 
+                 (this.settingsParams.playlists_only && 
+                  this.leftNavView.currSelectedIndex >= this.settingsParams.nav.playlist)) {
+          app.data.getPlaylistData(successCallback);
+        }
+        // Category
+        else {
+          app.data.getCategoryData(successCallback);
+        }
       }.bind(this);
 
-      //get the first video row right now when it loads
+      // Get first video row on load
       this.oneDView.updateCategory();
+    };
+
+    this.handleFavorites = function(index) {
+      var currVideo = that.categoryData[index];
+      var token     = deviceLinkingHandler.getAccessToken();
+
+      var createFavoriteCallback = function(result) {
+        // Add New Video from videoData (async)
+        app.data.loadVideoFavoritesData(token, loadVideoFavoritesDataCallback);
+
+        // Update current OneDView Video Item with Favorite ID
+        that.categoryData[index].video_favorite_id = result.response._id;
+
+        // Update OneDView reference to app.categoryData (reference OneDView.rowData created on render())
+        app.oneDView.rowData = that.categoryData;
+
+        // Update the ButtonView
+        app.oneDView.buttonView.update(true);
+      };
+
+      var deleteFavoriteCallback = function(result) {
+        // Update videoFavoritesData (async)
+        app.data.loadVideoFavoritesData(token, loadVideoFavoritesDataCallback);
+
+        // Update current OneDView Video Item
+        that.categoryData[index].video_favorite_id = null;
+
+        // Update OneDView reference to app.categoryData (reference OneDView.rowData created on render())
+        app.oneDView.rowData = that.categoryData;
+
+        // Update the ButtonView
+        app.oneDView.buttonView.update(true);
+      };
+
+      var errorCallback = function() {
+        console.log('create/delete video favorite', arguments);
+        alert('Error: Update Video Favorite status. Please try again.');
+        that.transitionFromAlertToOneD();
+      };
+
+      var loadVideoFavoritesDataCallback = function(result) {
+        // Save Updated Video Favorites Data
+        if (result && result.response) {
+          app.data.videoFavoritesData = result.response;
+        }
+      };
+
+      // Add to Favorites
+      if (currVideo.video_favorite_id === null) {
+        app.data.createVideoFavorite(currVideo, index, token, createFavoriteCallback, errorCallback);
+      }
+      // Remove from Favorites
+      else {
+        // Delete Video from videoData
+        app.data.deleteVideoFavorite(currVideo.video_favorite_id, token, deleteFavoriteCallback, errorCallback);
+      }
     };
 
     /**
      * Hide content loading spinner
      */
     this.hideContentLoadingSpinner = function() {
-      $('#app-loading-spinner').hide();
+      $('#app-loading-spinner').fadeOut();
 
       if ($('#app-overlay').css('display') !== 'none') {
-        $('#app-overlay').fadeOut(250);
+        $('#app-overlay').fadeOut();
       }
     };
 
@@ -750,7 +1103,6 @@
      * @param {Boolean} showOverlay if true show the app overlay
      */
     this.showContentLoadingSpinner = function(showOverlay) {
-
       $('#app-loading-spinner').show();
 
       if (showOverlay) {
@@ -821,6 +1173,7 @@
      * Transition from player view to one-D view
      */
     this.transitionFromPlayerToOneD = function() {
+      this.hideContentLoadingSpinner();
       this.selectView(this.oneDView);
       this.playerView.off('videoStatus', this.handleVideoStatus, this);
       this.playerView.remove();
@@ -833,28 +1186,216 @@
       this.showHeaderBar();
     };
 
+    this.transitionFromAlertToOneD = function() {
+      this.selectView(this.oneDView);
+      buttons.resync();
+    };
+
+    /**
+     * Check if a video is time-limited. Save its index.
+     *
+     * @param  {Object} the current video
+     * @return {Boolean}
+     */
+    this.isTimeLimited = function(video) {
+      var _v = (this.settingsParams.videos_time_limited.length > 0) ? this.settingsParams.videos_time_limited : null;
+
+      if (_v) {
+        for (var i = 0; i < _v.length; i++) {
+          if (video.id === _v[i].id) {
+            // save current videos_time_limited index
+            app.data.currVideoTimedIndex = i;
+            return true;  
+          }
+        }
+      }
+      return false;
+    };
+
+    /**
+     * Do Video Time Limit
+     *
+     * @param {integer} the video's index
+     * @param {boolean} if selected video was from the slider
+     * @param {string}  a valid access token
+     * @param {boolean} true if from Playlist Player
+     */
+    this.doTimeLimit = function(index, fromSlider, accessToken, playlistPlayer) {
+      var _v = this.settingsParams.videos_time_limited[app.data.currVideoTimedIndex];
+
+      if (_v && _v.watched === false) {
+        // clear existing timers
+        if (app.data.videoTimerId) {
+          this.clearVideoTimer(app.data.videoTimerId, false);  
+        }
+        
+        // start the timer
+        this.startVideoTimer(_v);
+
+        // play the video
+        if (playlistPlayer && this.playerView) {
+          this.playerView.transitionToNextVideo(index, accessToken);
+        }
+        else {
+          this.transitionToPlayer(index, fromSlider, accessToken);
+        }
+      }
+      else {
+        // Exit if called from playlistPlayer and already watched
+        if (playlistPlayer && this.playerView) {
+          this.playerView.exit();
+        }
+        alert('You have watched the maximum allowed time for this video. Please subscribe for full access.');
+        this.transitionFromAlertToOneD();  
+      }
+    };
+
+    /**
+     * Start Video Timer
+     *
+     * @param {Object} the timed video object
+     */
+    this.startVideoTimer = function(videoTimed) {
+      app.data.videoTimerId = window.setInterval(timerHandler, 1000);
+
+      function timerHandler() {
+        // update amount of time watched
+        if (videoTimed.time_watched < videoTimed.time_limit) {
+          videoTimed.time_watched++;
+        }
+        else {
+          videoTimed.watched = true;
+
+          that.clearVideoTimer(app.data.videoTimerId, true);
+        }
+      }
+    };
+
+    /**
+     * Clear and reset the video timer. Optionally exit the current playerView
+     *
+     * @param {number}  Timer ID to remove
+     * @param {boolean} true to exit the current playerView
+     */
+    this.clearVideoTimer = function(videoTimerId, exitPlayerView) {
+      // clear the current timer
+      window.clearInterval(videoTimerId);
+
+      // reset the timer var
+      app.data.videoTimerId = null;
+
+      // reset the currVideoTimedIndex
+      app.data.currVideoTimedIndex = null;
+
+      // stop the video and exit
+      if (exitPlayerView && this.playerView) {
+        this.playerView.trigger('exit');
+        alert('You have watched the maximum allowed time for this video. Please subscribe for full access.');
+        this.transitionFromAlertToOneD();
+      }
+    };
+
+    /**
+     * Verifies video playability and calls appropriate method
+     * 
+     * @param {integer} the video's index
+     * @param {boolean} if selected video was from the slider
+     */
+    this.verifyVideo = function(index, fromSlider) {
+      var video = (fromSlider) ? app.data.sliderData[index] : this.categoryData[index];
+
+      // IAP and Free
+      if (iapHandler.canPlayVideo(video) === false) {
+        return false;
+      }
+      // Device Linking. Bypass if watchAVOD === true.
+      else if (this.settingsParams.device_linking === true && this.settingsParams.watchAVOD === false && this.settingsParams.client_id && this.settingsParams.client_secret) {
+
+        // SVOD Device Linking. Validate Entitlement.
+        if (this.settingsParams.linked === true) {
+
+          // Access Token check
+          if (deviceLinkingHandler.hasValidAccessToken() === true) {
+
+            var accessToken = deviceLinkingHandler.getAccessToken();
+            
+            // Entitlement check
+            deviceLinkingHandler.isEntitled(video.id, accessToken, function(result) {
+              if (result === true) {
+                // Handle Time-Limited Videos
+                if (this.settingsParams.limit_videos_by_time && !this.settingsParams.subscribe_no_limit_videos_by_time && this.isTimeLimited(video) === true) {
+                  return this.doTimeLimit(index, fromSlider, accessToken, false);
+                }
+                return this.transitionToPlayer(index, fromSlider, accessToken);
+              }
+              else {
+                alert('You are not authorized to access this content.');
+                return this.transitionFromAlertToOneD();
+              }
+            }.bind(this));
+
+          }
+          else {
+            console.log('No valid access token, refreshing');
+
+            // Refresh Access Token
+            var oauth = deviceLinkingHandler.getOauthData();
+
+            deviceLinkingHandler.refreshAccessToken(this.settingsParams.client_id, this.settingsParams.client_secret, oauth.refresh_token, function(result) {
+              if (result !== false) {
+                deviceLinkingHandler.setOauthData(result);
+
+                var accessToken = deviceLinkingHandler.getAccessToken();
+
+                // Entitlement check
+                deviceLinkingHandler.isEntitled(video.id, accessToken, function(result) {
+                  if (result === true) {
+                    // Handle Time-Limited Videos
+                    if (this.settingsParams.limit_videos_by_time && !this.settingsParams.subscribe_no_limit_videos_by_time && this.isTimeLimited(video) === true) {
+                      return this.doTimeLimit(index, fromSlider, accessToken, false);
+                    }
+                    return this.transitionToPlayer(index, fromSlider, accessToken);
+                  }
+                  else {
+                    alert('You are not authorized to access this content.');
+                    return this.transitionFromAlertToOneD();
+                  }
+                }.bind(this));
+              }
+              else {
+                console.log('Error - refreshAccessToken');
+                alert('Authentication Error: Please try again.');
+                return this.transitionFromAlertToOneD();
+              }
+            }.bind(this));
+          }
+        }
+        else {
+          // Device Linking is enabled, but device is not Linked (settings.linked set on `app.dataLoaded` callback)
+          if (this.settingsParams.browse === false) {
+            // Subscription has expired. Clear local storage and force re-link
+            deviceLinkingHandler.clearLocalStorage();
+            alert('Authentication Error: You are not authorized to access this content. Device is not linked. Please relaunch and link again.');
+          }
+          else {
+            alert('Authentication Error: You are not authorized to access this content. Device is not linked.');
+          }
+          this.transitionFromAlertToOneD();
+          return false;
+        }
+      }
+      else {
+        // canPlayVideo === true && device_linking === false - transitionToPlayer
+        return this.transitionToPlayer(index, fromSlider, accessToken);
+      }
+    };
+
     /**
      * Opens a player view and starts video playing in it.
      * @param {Object} itemData data for currently selected item
      */
-    this.transitionToPlayer = function(index, fromSlider) {
-
-      var video = null;
-      if (fromSlider) {
-        video = app.data.sliderData[index];
-      } else {
-        video = this.categoryData[index];
-      }
-
-      // let's check if we can play this video
-      // console.log(video);
-      // console.log(iapHandler.canPlayVideo(video));
-      // console.log(deviceLinkingHandler.canPlayVideo());
-
-      if (!(iapHandler.canPlayVideo(video) && deviceLinkingHandler.canPlayVideo())) {
-        return false;
-      }
-
+    this.transitionToPlayer = function(index, fromSlider, accessToken) {
+      // Create the PlayerView
       var playerView;
       this.playerSpinnerHidden = false;
 
@@ -872,6 +1413,10 @@
       this.showContentLoadingSpinner(true);
 
       playerView.on('exit', function() {
+        // Clear and reset video timer
+        if (app.data.videoTimerId) {
+          this.clearVideoTimer(app.data.videoTimerId, false);
+        }
         this.hideContentLoadingSpinner();
         this.transitionFromPlayerToOneD();
       }, this);
@@ -880,42 +1425,56 @@
         this.oneDView.changeIndex(index);
       }, this);
 
-
       this.selectView(playerView);
 
       playerView.on('videoStatus', this.handleVideoStatus, this);
+      
+      playerView.on('videoError', function() {
+        // Clear and reset video timer
+        if (app.data.videoTimerId) {
+          this.clearVideoTimer(app.data.videoTimerId, false);
+        }
+      }, this);
 
       // stream video first gets the stream and then renders the player
       if (fromSlider) {
-        this.start_stream(playerView, this.$appContainer, app.data.sliderData, index);
+        this.start_stream(playerView, this.$appContainer, app.data.sliderData, index, accessToken);
       } else {
-        this.start_stream(playerView, this.$appContainer, this.categoryData, index);
+        this.start_stream(playerView, this.$appContainer, this.categoryData, index, accessToken);
       }
     };
 
-    this.start_stream = function(playerView, container, items, index) {
+    this.start_stream = function(playerView, container, items, index, accessToken) {
       var video = items[index];
       var url_base = this.settingsParams.player_endpoint + 'embed/' + video.id + '.json';
       var uri = new URI(url_base);
       uri.addSearch({
-        autoplay: this.settingsParams.autoplay,
-        app_key: this.settingsParams.app_key
+        autoplay: this.settingsParams.autoplay
       });
+      if (!this.settingsParams.IAP && typeof accessToken !== 'undefined' && accessToken) {
+        uri.addSearch({ access_token: accessToken });
+      }
+      else if (this.settingsParams.IAP) {
+        var consumer = iapHandler.state.currentConsumer;
 
-      var consumer = iapHandler.state.currentConsumer;
+        if (typeof consumer !== 'undefined' && consumer && consumer.access_token) {
+          uri.addSearch({
+            access_token: consumer.access_token
+          });
+        }
 
-      if (typeof consumer !== 'undefined' && consumer && consumer.access_token) {
-        uri.addSearch({
-          access_token: consumer.access_token
-        });
+        uri.addSearch({ app_key: this.settingsParams.app_key });
+      }
+      else {
+        uri.addSearch({ app_key: this.settingsParams.app_key });
       }
 
       $.ajax({
         url: uri.href(),
         type: 'GET',
         dataType: 'json',
+        context: this,
         success: function(player_json) {
-
           var outputs = player_json.response.body.outputs;
           for (var i = 0; i < outputs.length; i++) {
             var output = outputs[i];
@@ -930,7 +1489,7 @@
             if (player_json.response.body.advertising) {
               video.ad_schedule = [];
               var schedule = player_json.response.body.advertising.schedule;
-              for (i = 0; i < schedule.length; i++) {
+              for (var i = 0; i < schedule.length; i++) {
                 // add each ad tag in, make played be false
                 var seconds = schedule[i].offset / 1000;
                 video.ad_schedule.push({
@@ -945,9 +1504,14 @@
           }
         },
         error: function() {
-          console.log(arguments);
-          alert("There was an error configuring your Fire TV App.");
-          app.exit();
+          console.log('start_stream.error', arguments);
+          // Clear and reset video timer
+          if (app.data.videoTimerId) {
+            this.clearVideoTimer(app.data.videoTimerId, false);
+          }
+          alert("There was an error playing this video, please try again");
+          this.transitionFromPlayerToOneD();
+          this.transitionFromAlertToOneD();
         }
       });
     };

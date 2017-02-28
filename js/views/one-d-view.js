@@ -44,7 +44,7 @@
    */
   var OneDView = function() {
     // mixin inheritance, initialize this as an event handler for these events:
-    Events.call(this, ['noContent', 'exit', 'startScroll', 'indexChange', 'stopScroll', 'select', 'bounce', 'loadComplete', 'makeIAP', 'link']);
+    Events.call(this, ['noContent', 'exit', 'startScroll', 'indexChange', 'stopScroll', 'select', 'bounce', 'loadComplete', 'makeIAP', 'link', 'videoFavorite', 'loadNext']);
 
     //global variables
     this.currSelection = 0;
@@ -67,10 +67,11 @@
     this.sliderData = null;
     this.sliderLoadComplete = false;
     this.shovelerLoadComplete = false;
+    this.rowElements = null;
 
     //jquery global variables
-    this.$el = null;
-    this.el = null;
+    this.$el   = null;
+    this.el    = null;
     this.$body = $('body');
 
     this.onPurchaseSuccess = function() {
@@ -145,10 +146,10 @@
     /**
      * Creates the one-d-view and attaches it to the application container
      * @param {Element} $el application container
-     * @param {Object} rowData data object for the row
+     * @param {Object}  rowData data object for the row
      */
     this.render = function(args) {
-      //Make sure we don't already have a full container
+      // Make sure we don't already have a full container
       this.remove();
 
       if (app.data.sliderData.length <= 0) {
@@ -197,10 +198,13 @@
         }
       }
       else {
-        this.noItems = false;
         this.rowElements = args.rowData;
+        this.noItems = false;
+        
+        // reset currSelection since this.render is called directly externally
+        this.currSelection = 0; 
 
-        //gather widths of all the row elements
+        // gather widths of all the row elements
         this.$elementWidths = [];
 
         this.scrollingContainerEle = $(ID_ONED_VIEW_ELEMENTS)[0];
@@ -267,7 +271,8 @@
         this.showSliderExtraData();
         if (this.shovelerLoadComplete) {
           this.trigger('loadComplete');
-        } else {
+        }
+        else if (this.noItems) {
           this.trigger('loadComplete');
         }
       }, this);
@@ -358,17 +363,20 @@
           this.trigger("loadComplete");
         }
       }, this);
+
+      shovelerView.on('loadNext', function() {
+        this.trigger('loadNext');
+        console.log('shovelerView trigger loadNext');
+      }, this);
     };
 
     /**
      * Create the buttons that will appear under the media content
      */
     this.createButtonView = function(displayButtonsParam, $el) {
-
       if (!displayButtonsParam) {
         return;
       }
-
 
       // create and set up the button
       this.$buttonsContainer = this.$el.children("#" + BUTTON_CONTAINER);
@@ -398,34 +406,45 @@
         this.trigger('link');
       }, this);
 
-      buttonView.update = function() {
+      buttonView.on('videoFavorite', function() {
+        this.trigger('videoFavorite', this.currSelection);
+      }, this);
+
+      /**
+       * Update the ButtonView
+       *
+       * @note  called on `stopScroll` event
+       * @param {Boolean} favorite true to select the Favorite button
+       */
+      buttonView.update = function(favorite) {
         var subscribeButtons = [];
-        var purchaseButtons = [];
+        var purchaseButtons  = [];
+        var buttons          = [];
+        var currentVid       = this.currentVideo();
+        var favorite         = (favorite) ? favorite : false;
 
-        var buttons = [];
-
-
+        // Device Linking
         if (app.settingsParams.device_linking) {
-          if (app.settingsParams.linked === false) {
+          if (app.settingsParams.linked === false && currentVid.subscription_required === true) {
             buttons.push({
-              "name": "Link Device",
-              "id": "linkBtn",
+              "name" : "Link Device",
+              "id"   : "linkBtn",
               "class": "btnLink"
             });
           } else {
             buttons.push({
-              "name": "Watch Now",
-              "id": "playBtn",
+              "name" : "Watch Now",
+              "id"   : "playBtn",
               "class": "btnPlay"
             });
           }
         }
 
+        // IAP
         if (app.settingsParams.IAP) {
-          var currentVid = this.currentVideo();
           if (!iapHandler.canPlayVideo(currentVid)) {
             subscribeButtons = iapHandler.getAvailableSubscriptionButtons();
-            purchaseButtons = iapHandler.getAvailablePurchaseButtons();
+            purchaseButtons  = iapHandler.getAvailablePurchaseButtons();
 
             if (currentVid.subscription_required) {
               _.each(subscribeButtons, function(btn) {
@@ -441,31 +460,42 @@
                 }
               });
             }
-          } else {
+          }
+          else {
             buttons.push({
-              "name": "Watch Now",
-              "id": "playBtn",
+              "name" : "Watch Now",
+              "id"   : "playBtn",
               "class": "btnPlay"
             });
           }
         }
 
+        // Free / AVOD
         if (app.settingsParams.device_linking === false && app.settingsParams.IAP === false) {
-          console.log("true");
           buttons.push({
-            "name": "Watch Now",
-            "id": "playBtn",
+            "name" : "Watch Now",
+            "id"   : "playBtn",
             "class": "btnPlay"
           });
         }
 
+        // Description
         buttons.push({
-          "name": "Full Description",
-          "id": "descBtn",
+          "name" : "Full Description",
+          "id"   : "descBtn",
           "class": "btnDesc"
         });
 
-        this.buttonView.render(this.$buttonsContainer, buttons);
+        // Favorite (only display when device is linked)
+        if (app.settingsParams.video_favorites === true && app.settingsParams.linked === true) {
+          buttons.push({
+            "name" : (currentVid.video_favorite_id) ? "Remove Favorite" : "Add Favorite",
+            "id"   : "favoriteBtn",
+            "class": "btnFavorite"
+          });  
+        }
+
+        this.buttonView.render(this.$buttonsContainer, buttons, favorite);
       }.bind(this);
 
       this.buttonView.update();
@@ -480,8 +510,8 @@
       this.shovelerView.trigger("stopScroll", this.shovelerView.currSelection);
     };
 
-    /** Make the slider the active view
-     *
+    /**
+     * Make the slider the active view
      */
     this.transitionToSliderView = function() {
       // change to shoveler view
@@ -494,7 +524,6 @@
       this.shovelerView.fadeSelected();
       this.shovelerView.shrinkSelected();
     };
-
 
     /**
      * Make the shoveler the active view

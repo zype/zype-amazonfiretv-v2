@@ -85,7 +85,8 @@
 
       //set flag to false
       this.isDisplayed = false;
-      if (typeof this.leftNavItems[this.currSelectedIndex] === "object") {
+      // Deselect SearchInput if currently selected
+      if ((typeof this.leftNavItems[this.currSelectedIndex] === "object") && (this.currSelectedIndex === app.settingsParams.nav.search)) {
         this.leftNavItems[this.currSelectedIndex].deselect();
       }
     };
@@ -196,7 +197,7 @@
     /**
      * Creates the left nav view from the template and appends it to the given element
      * @param {Element} $el the application container
-     * @parma {Object} catData category data
+     * @param {Object}  catData category data
      */
     this.render = function($el, catData, startIndex) {
       this.leftNavItems = catData;
@@ -204,7 +205,11 @@
       for (var i = 0; i < catData.length; i++) {
         if (typeof catData[i] == "string") {
           leftNavStrings.push(catData[i]);
-        } else {
+        } 
+        else if (typeof catData[i] === "object") {
+          leftNavStrings.push(catData[i].title);
+        }
+        else {
           leftNavStrings.push("");
         }
       }
@@ -214,8 +219,9 @@
       $el.append(html);
       this.$el = $el.children().last();
       this.$menuItems = $(CONTAINER_SCROLLING_LIST).children();
-      for (i = 0; i < catData.length; i++) {
-        if (typeof catData[i] == "object") {
+      // find SearchInputView
+      for (var i = 0; i < catData.length; i++) {
+        if ((typeof catData[i] == "object") && (i === app.settingsParams.nav.search)) {
           catData[i].render(this.$menuItems.eq(i));
         }
       }
@@ -334,7 +340,7 @@
     this.confirmNavSelection = function() {
       if (this.confirmedSelection !== this.currSelectedIndex) {
         // switch the current view state to the main content view
-        if (typeof this.leftNavItems[this.currSelectedIndex] === "object" && (this.leftNavItems[this.currSelectedIndex].currentSearchQuery === null || this.leftNavItems[this.currSelectedIndex].currentSearchQuery.length === 0)) {
+        if (typeof this.leftNavItems[this.currSelectedIndex] === "object" && this.currSelectedIndex === app.settingsParams.nav.search && (this.leftNavItems[this.currSelectedIndex].currentSearchQuery === null || this.leftNavItems[this.currSelectedIndex].currentSearchQuery.length === 0)) {
           return;
         }
         this.confirmedSelection = this.currSelectedIndex;

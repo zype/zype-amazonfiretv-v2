@@ -12,23 +12,22 @@
    */
   var PlaylistPlayerView = function(settings) {
     // mixin inheritance, initialize this as an event handler for these events:
-    Events.call(this, ['exit', 'videoStatus', 'indexChange']);
+    Events.call(this, ['exit', 'videoStatus', 'indexChange', 'videoError']);
 
-    this.currentPlayerView = null;
-    this.preloadedPlayerView = null;
-    this.currentIndex = null;
-    this.items = null;
-    this.$el = null;
-    this.settings = settings;
-    this.currentView = null;
-    this.PlayerView = settings.PlayerView;
-    this.previewShowing = false;
-    this.previewDismissed = false;
-    this.$previewEl = null;
-    this.$countdown_text = null;
-    this.previewTime = settings.previewTime;
-    this.timeTillPlay = null;
-
+    this.currentPlayerView    = null;
+    this.preloadedPlayerView  = null;
+    this.currentIndex         = null;
+    this.items                = null;
+    this.$el                  = null;
+    this.settings             = settings;
+    this.currentView          = null;
+    this.PlayerView           = settings.PlayerView;
+    this.previewShowing       = false;
+    this.previewDismissed     = false;
+    this.$previewEl           = null;
+    this.$countdown_text      = null;
+    this.previewTime          = settings.previewTime;
+    this.timeTillPlay         = null;
     this.PREVIEW_TIME_DEFAULT = 10;
 
     this.remove = function() {
@@ -51,20 +50,21 @@
       this.currentPlayerView = new this.PlayerView(this.settings);
       this.currentPlayerView.render($el, items, startIndex);
 
-      this.currentPlayerView.on('exit', this.exit, this);
-
       this.currentIndex = startIndex;
       this.items = items;
 
+      // Register for events (PlayerView)
+      this.currentPlayerView.on('exit',        this.exit,              this);
       this.currentPlayerView.on('videoStatus', this.handleVideoStatus, this);
+      this.currentPlayerView.on('videoError',  this.handleVideoError,  this);
 
       this.currentView = this.currentPlayerView;
 
-      //touch events
-      touches.registerTouchHandler("player-content-video", this.handleTouchPlayer);
+      // touch events
+      touches.registerTouchHandler("player-content-video",      this.handleTouchPlayer);
       touches.registerTouchHandler("player-controls-container", this.handleTouchPlayer);
-      touches.registerTouchHandler("player-back-button", this.handleTouchPlayer);
-      touches.registerTouchHandler("player-pause-indicator", this.handleTouchPlayer);
+      touches.registerTouchHandler("player-back-button",        this.handleTouchPlayer);
+      touches.registerTouchHandler("player-pause-indicator",    this.handleTouchPlayer);
     };
 
     /**
@@ -86,9 +86,11 @@
     }.bind(this);
 
     /**
-     * Handles showing the view to transition from playing one video to the next
+     * Verifies the playability of the next video.
      */
-    this.transitionToNextVideo = function() {
+    this.verifyNextVideo = function() {
+      var video = this.items[this.currentIndex + 1];
+      var nextIndex = this.currentIndex + 1;
 
       if (this.$previewEl) {
         this.$previewEl.remove();
@@ -96,18 +98,51 @@
 
       this.previewDismissed = true;
 
-      var video = this.items[this.currentIndex + 1];
-
       if ((this.items.length > this.currentIndex + 1) && iapHandler.canPlayVideo(video) && deviceLinkingHandler.canPlayVideo()) {
-        console.log("transition to next video");
+        // Device Linking. Bypass if watchAVOD === false.
+        if (this.settings.linked && this.settings.watchAVOD === false) {
+          // if device linking, check entitlement
+          var accessToken = deviceLinkingHandler.getAccessToken();
 
-        var url_base = this.settings.player_endpoint + 'embed/' + video.id + '.json';
-        var uri = new URI(url_base);
-        uri.addSearch({
-          autoplay: this.settings.autoplay,
-          app_key: this.settings.app_key
-        });
+          deviceLinkingHandler.isEntitled(video.id, accessToken, function(result){
+            if (result === true) {
+              // Handle Time-Limited Videos
+              if (app.settingsParams.limit_videos_by_time && !app.settingsParams.subscribe_no_limit_videos_by_time && app.isTimeLimited(video) === true) {
+                return app.doTimeLimit(nextIndex, false, accessToken, true);
+              }
+              return this.transitionToNextVideo(nextIndex, accessToken);
+            }
+            else {
+              this.exit();
+              alert('You are not authorized to access this content.');
+              app.transitionFromAlertToOneD();
+            }
+          }.bind(this));
+        }
+        else {
+          this.transitionToNextVideo(nextIndex, accessToken);
+        }
+      }
+      else {
+        this.exit();
+      }
+    };
 
+    /**
+     * Handles showing the view to transition from playing one video to the next
+     */
+    this.transitionToNextVideo = function(index, accessToken) {
+      var video = this.items[index];
+      var url_base = this.settings.player_endpoint + 'embed/' + video.id + '.json';
+      var uri = new URI(url_base);
+      uri.addSearch({
+        autoplay: this.settings.autoplay
+      });
+
+      if (!this.settings.IAP && typeof accessToken !== 'undefined' && accessToken) {
+        uri.addSearch({ access_token: accessToken });
+      }
+      else if (this.settings.IAP) {
         var consumer = iapHandler.state.currentConsumer;
 
         if (typeof consumer !== 'undefined' && consumer && consumer.access_token) {
@@ -116,48 +151,52 @@
           });
         }
 
-        $.ajax({
-          context: this,
-          url: uri.href(),
-          type: 'GET',
-          dataType: 'json',
-          success: function(player_json) {
-            // set the url and format for the upcoming video
-            var outputs = player_json.response.body.outputs;
-            for (var i = 0; i < outputs.length; i++) {
-              var output = outputs[i];
-              video.url = utils.makeSSL(output.url);
-              if (output.name === 'hls' || output.name === 'm3u8') {
-                video.format = 'application/x-mpegURL';
-              } else if (output.name === 'mp4') {
-                video.format = 'video/mp4';
-              }
+        uri.addSearch({ app_key: this.settings.app_key });
+      }
+      else {
+        uri.addSearch({ app_key: this.settings.app_key });
+      }
 
-              // add ad schedule to video json
-              if (player_json.response.body.advertising) {
-                video.ad_schedule = [];
-                var schedule = player_json.response.body.advertising.schedule;
-                for (i = 0; i < schedule.length; i++) {
-                  // add each ad tag in, make played be false
-                  var seconds = schedule[i].offset / 1000;
-                  video.ad_schedule.push({
-                    offset: seconds,
-                    tag: schedule[i].tag,
-                    played: false
-                  });
-                }
+      $.ajax({
+        url: uri.href(),
+        context: this,
+        type: 'GET',
+        dataType: 'json',
+        success: function(player_json) {
+          // set the url and format for the upcoming video
+          var outputs = player_json.response.body.outputs;
+          for (var i = 0; i < outputs.length; i++) {
+            var output = outputs[i];
+            video.url = utils.makeSSL(output.url);
+            if (output.name === 'hls' || output.name === 'm3u8') {
+              video.format = 'application/x-mpegURL';
+            } else if (output.name === 'mp4') {
+              video.format = 'video/mp4';
+            }
+
+            // add ad schedule to video json
+            if (player_json.response.body.advertising) {
+              video.ad_schedule = [];
+              var schedule = player_json.response.body.advertising.schedule;
+              for (var i = 0; i < schedule.length; i++) {
+                // add each ad tag in, make played be false
+                var seconds = schedule[i].offset / 1000;
+                video.ad_schedule.push({
+                  offset: seconds,
+                  tag: schedule[i].tag,
+                  played: false
+                });
               }
             }
-            // issue is that this is the ajax response, not what I think it is outside the ajax block
-            this.startNextVideo();
-          },
-          error: function() {
-            console.log(arguments);
           }
-        });
-      } else {
-        this.exit();
-      }
+          this.startNextVideo();
+        },
+        error: function() {
+          this.handleVideoError();
+          alert('Error: Unable to play next video. Please try again.');
+          this.exit();
+        }
+      });
     };
 
     this.showTransitionView = function() {
@@ -205,11 +244,18 @@
       }
 
       if (type === "ended") {
-        this.transitionToNextVideo();
+        this.verifyNextVideo();
       } else {
         this.trigger('videoStatus', currentTime, duration, type);
       }
     }.bind(this);
+
+    /**
+     * Handle video errors
+     */
+    this.handleVideoError = function() {
+      this.trigger('videoError');
+    };
 
     /**
      * Cleanup and exit the playlist/player/next video view
@@ -221,6 +267,7 @@
     this.playVideo = function() {
       this.currentPlayerView.playVideo();
     };
+
     /**
      * start the next video after the transition view is complete
      */
@@ -264,7 +311,7 @@
               this.previewDismissed = true;
               break;
             case buttons.SELECT:
-              this.transitionToNextVideo();
+              this.verifyNextVideo();
               break;
             case buttons.PLAY_PAUSE:
               this.currentView.handleControls(e);

@@ -125,12 +125,14 @@
 
   <!-- Shoveler View Template -->
   <script id="shoveler-template" type="text/x-handlebars-template">
-    <div id="shoveler-view" class="shoveler-row-container">
-      {{#each items}}
-      <div id="{{id}}" class="shoveler-rowitem-static">
-      </div>
-      {{/each}}
-    </div>
+    <div id="shoveler-view" class="shoveler-row-container"></div>
+  </script>
+
+  <!-- Shoveler View Items Template -->
+  <script id="shoveler-items-template" type="text/x-handlebars-template">
+    {{#each items}}
+    <div id="{{id}}" class="shoveler-rowitem-static"></div>
+    {{/each}}
   </script>
 
   <!-- Description View Template -->
@@ -145,7 +147,7 @@
   <!-- Device Linking View Template -->
   <script id="device-linking-view-template" type="text/x-handlebars-template">
     <div class="device-linking-view">
-      <h1>Link your Fire TV</h1>
+      <h1>{{title}}</h1>
       <ol>
         <li>From your computer or mobile device, go to <strong>{{link}}</strong></li>
         <li>Enter Pin: <strong>{{pin}}</strong></li>
@@ -214,8 +216,8 @@
     </div>
   </script>
   <!-- Load third party libraries -->
-  <script src="js/jquery.js"></script>
-  <script src="js/handlebars.min.js"></script>
+  <script src="js/lib/jquery.js"></script>
+  <script src="js/lib/handlebars.min.js"></script>
   <script src="https://resources.amazonwebapps.com/v1/latest/Amazon-Web-App-API.min.js"></script>
 
   <!-- this file included for testing only -->
@@ -226,41 +228,41 @@
   <script src="js/lib/uuid.js"></script>
   <script src="js/lib/store.min.js"></script>
   <!-- Load videojs -->
-  <script src="js/video.js"></script>
-  <script src="js/videojs-media-sources.js"></script>
-  <script src="js/videojs.hls.js"></script>
-  <script src="js/videojs.ads.js"></script>
-  <script src="js/vast-client.js"></script>
-  <script src="js/videojs.vast.js"></script>
-  <script src="js/brightcove.ima.js"></script>
+  <script src="js/lib/videojs/video.js"></script>
+  <script src="js/lib/videojs/videojs-media-sources.js"></script>
+  <script src="js/lib/videojs/videojs.hls.js"></script>
+  <script src="js/lib/videojs/videojs.ads.js"></script>
+  <script src="js/lib/videojs/vast-client.js"></script>
+  <script src="js/lib/videojs/videojs.vast.js"></script>
+  <script src="js/lib/videojs/brightcove.ima.js"></script>
   <!-- Load Channel JS -->
   <script src="config/config.js"></script>
-  <script src="js/util.js"></script>
-  <script src="js/video-model.js"></script>
-  <script src="js/channel-model.js"></script>
-  <script src="js/consumer.js"></script>
-  <script src="js/plan.js"></script>
-  <script src="js/button-view.js"></script>
-  <script src="js/events.js"></script>
-  <script src="js/iap.js"></script>
-  <script src="js/device-linking.js"></script>
-  <script src="js/device-linking-view.js"></script>
-  <script src="js/buttons.js"></script>
-  <script src="js/touches.js"></script>
-  <script src="js/leftnav-view.js"></script>
-  <script src="js/one-d-view.js"></script>
-  <script src="js/one-d-view-categories.js"></script>
-  <script src="js/slider-view.js"></script>
-  <script src="js/description-view.js"></script>
-  <script src="js/shoveler-view.js"></script>
-  <script src="js/player-view.js"></script>
-  <script src="js/playlist-player-view.js"></script>
-  <script src="js/controls-view.js"></script>
-  <script src="js/search-input-view.js"></script>
-  <script src="js/model-json.js"></script>
+  <script src="js/lib/util.js"></script>
+  <script src="js/models/video-model.js"></script>
+  <script src="js/models/channel-model.js"></script>
+  <script src="js/models/consumer.js"></script>
+  <script src="js/models/plan.js"></script>
+  <script src="js/views/button-view.js"></script>
+  <script src="js/lib/events.js"></script>
+  <script src="js/lib/iap.js"></script>
+  <script src="js/lib/device-linking.js"></script>
+  <script src="js/views/device-linking-view.js"></script>
+  <script src="js/lib/buttons.js"></script>
+  <script src="js/lib/touches.js"></script>
+  <script src="js/views/leftnav-view.js"></script>
+  <script src="js/views/one-d-view.js"></script>
+  <script src="js/views/one-d-view-categories.js"></script>
+  <script src="js/views/slider-view.js"></script>
+  <script src="js/views/description-view.js"></script>
+  <script src="js/views/shoveler-view.js"></script>
+  <script src="js/views/player-view.js"></script>
+  <script src="js/views/playlist-player-view.js"></script>
+  <script src="js/views/controls-view.js"></script>
+  <script src="js/views/search-input-view.js"></script>
+  <script src="js/models/model-json.js"></script>
   <script src="js/app.js"></script>
   <script src="js/init.js"></script>
-  <script src="js/global.js"></script>
+  <script src="js/lib/global.js"></script>
 
   <script type="text/javascript">
     // for test mode only

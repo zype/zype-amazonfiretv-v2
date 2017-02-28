@@ -7,9 +7,9 @@
   "use strict";
 
   //constants
-  var CLASS_BUTTON_STATIC = "detail-item-button-static",
-
-    CLASS_BUTTON_SELECTED = "detail-item-button-selected";
+  var CLASS_BUTTON_STATIC   = "detail-item-button-static",
+      CLASS_BUTTON_SELECTED = "detail-item-button-selected",
+      CLASS_BUTTON_FAVORITE = "btnFavorite";
 
   /**
    * @class ButtonView
@@ -18,7 +18,7 @@
   var ButtonView = function() {
 
     // mixin inheritance, initialize this as an event handler for these events:
-    Events.call(this, ['exit', 'revoke', 'select', 'makeIAP', 'showDesc', 'play', 'browse', 'link']);
+    Events.call(this, ['exit', 'revoke', 'select', 'makeIAP', 'showDesc', 'play', 'browse', 'link', 'watchAVOD', 'videoFavorite']);
 
     //global variables
     this.selectedButton = -1;
@@ -86,19 +86,32 @@
     };
 
     /**
+     * Select the Favorite Button
+     */
+    this.selectFavoriteButton = function() {
+      var buttonElement = $('.' + CLASS_BUTTON_FAVORITE);
+      if (buttonElement) {
+        buttonElement.removeClass(CLASS_BUTTON_STATIC);
+        buttonElement.addClass(CLASS_BUTTON_SELECTED);
+      }
+    };
+
+    /**
      * Event handler for remote "select" button press
      */
     this.handleButtonEvent = function() {
       var visibleBtns = this.visibleButtons();
 
       if (this.$buttons[this.selectedButton].classList.contains('btnLink')) {
-        console.log('link.device.btn');
         this.trigger('link');
       }
 
       if (this.$buttons[this.selectedButton].classList.contains('btnBrowse')) {
-        console.log("btn.click");
         this.trigger('browse');
+      }
+
+      if (this.$buttons[this.selectedButton].classList.contains('btnAVOD')) {
+        this.trigger('watchAVOD');
       }
 
       if (this.$buttons[this.selectedButton].classList.contains('btnIAP')) {
@@ -111,6 +124,10 @@
 
       if (this.$buttons[this.selectedButton].classList.contains('btnPlay')) {
         this.trigger('play', visibleBtns[this.selectedButton].id);
+      }
+
+      if (this.$buttons[this.selectedButton].classList.contains('btnFavorite')) {
+        this.trigger('videoFavorite');
       }
     }.bind(this);
 
@@ -135,9 +152,12 @@
 
     /**
      * Creates the button view from the template and appends it to the given element
-     * @param {Element} $el the application container
+     *
+     * @param {Object}  $el        the button container
+     * @param {Array}   allButtons the button objects to render the buttons
+     * @param {Boolean} favorite   true to select the favorite button
      */
-    this.render = function($el, allButtons) {
+    this.render = function($el, allButtons, favorite) {
       // remove the previous buttons
       this.remove();
 
@@ -151,6 +171,11 @@
       this.$buttons = $el.find(".detail-item-button-static");
 
       touches.registerTouchHandler("detail-item-button-static", this.handleButtonTap);
+
+      // Select the Favorite button
+      if (favorite) {
+        this.selectFavoriteButton();
+      }
     };
 
     /**
