@@ -95,10 +95,6 @@
      * Callback from XHR to load the data model, this really starts the app UX
      */
     this.dataLoaded = function() {
-      // initialize custom styles
-      this.createStyleSheet();
-      this.setBodyClasses();
-
       var logo = this.settingsParams.icon;
       var html = utils.buildTemplate($("#app-header-template"), {
         img_logo: logo,
@@ -106,281 +102,174 @@
 
       this.$appContainer.append(html);
 
-      // DEVICE LINKING CHECKING PROCESS
+      /**
+       * Handle Monetization Variations
+       */
+
+      // Device Linking (U SVOD)
       if (this.settingsParams.device_linking === true && this.settingsParams.IAP === false) {
         // Check PIN Status
-        deviceLinkingHandler.getPinStatus(this.settingsParams.device_id, function(result) {
-          if (result === false || result.linked === false) {
-            // Device not linked
-            this.settingsParams.linked = false;
-
-            // Device Linking Acquiring PIN
-            this.initializeDeviceLinkingView();
-            this.selectView(this.deviceLinkingView);
-          }
-          // Build App
-          else {
-            // Device Linking Success
-            this.settingsParams.linked = true;
-
-            // Set Consumer ID
-            deviceLinkingHandler.setConsumerId(result);
-
-            // Retrieve new Access Token on launch
-            deviceLinkingHandler.retrieveAccessToken(this.settingsParams.device_id, result.pin, function(result) {
-
-              if (result) {
-                deviceLinkingHandler.setOauthData(result);
-
-                // Entitlements / My Library
-                if (this.settingsParams.entitlements) {
-                  app.data.loadEntitlementData(deviceLinkingHandler.getAccessToken(), function(result) {
-                    // Save Entitlement Data
-                    if (result && result.length > 0) {
-                      app.data.entitlementData = result;
-                    }
-
-                    // Video Favorites
-                    if (this.settingsParams.video_favorites) {
-                      app.data.loadVideoFavoritesData(deviceLinkingHandler.getAccessToken(), function(result){
-                        // Save Video Favorites Data
-                        if (result && result.response.length > 0) {
-                          app.data.videoFavoritesData = result.response;
-                        }
-                        // Build
-                        this.build();
-                      }.bind(this));
-                    }
-                    else {
-                      this.build();
-                    }
-                  }.bind(this));
-                }
-                // Normal Device Linking
-                else {
-                  // Video Favorites
-                  if (this.settingsParams.video_favorites) {
-                    app.data.loadVideoFavoritesData(deviceLinkingHandler.getAccessToken(), function(result){
-                      // Save Video Favorites Data
-                      if (result && result.response.length > 0) {
-                        app.data.videoFavoritesData = result.response;
-                      }
-                      // Build
-                      this.build();
-                    }.bind(this));
-                  }
-                  else {
-                    this.build();
-                  }
-                }
-              }
-              else {
-                console.log("Error - retrieveAccessToken failed");
-                alert("There was an error configuring your Fire TV App. Please relaunch and try again");
-                app.exit();
-              }
-            }.bind(this));
-          }
-        }.bind(this));
+        deviceLinkingHandler.getPinStatus(this.settingsParams.device_id, this.getPinStatusCallback);
       }
-      // IAP Checking Process
+      // IAP - In App Purchasing (N SVOD / N TVOD)
       else if (this.settingsParams.device_linking === false && this.settingsParams.IAP === true) {
-        console.log("IAP");
         this.build();
       }
+      // Force exit if both USVOD and IAP are enabled
       else if (this.settingsParams.device_linking === true && this.settingsParams.IAP === true) {
         console.log("Device Linking and IAP both enabled. Only one may be enabled at a time.");
         alert("There was an error configuring your Fire TV App.");
         app.exit();
+      }
+      // AVOD & Free
+      else {
+        this.build();
+      }
+    }.bind(this);
+
+    /**
+     * Build the app
+     */
+    this.build = function() {
+      // Device Linking
+      if (this.deviceLinkingView && this.currentView === this.deviceLinkingView) {
+        // Remove Device Linking view
+        this.deviceLinkingView.remove();
+        this.deviceLinkingView = null;
+        
+        // If browsing, use existing loaded data from initial app.data.loadData()
+        if (this.settingsParams.browse === true || this.settingsParams.watchAVOD === true) {
+          this.initializeViews();
+        }
+        else {
+          this.initLinkingSuccess();
+        }
+      }
+      else {
+        this.initializeViews();
+      }
+    };
+
+    /**
+     * Initialize App Views
+     */
+    this.initializeViews = function() {
+      if (app.settingsParams.nested_categories === true) {
+        this.initializeLeftNavView();
+        this.leftNavView.collapse();
+        this.initializeNestedCategories();
+        this.selectView(this.nestedCategoriesOneDView);
+      }
+      else {
+        this.initializeLeftNavView();
+        this.initializeOneDView();
+        this.selectView(this.oneDView);
+        this.leftNavView.collapse();
+      }
+    };
+
+    /**
+     * Initialize Device Linking Success
+     */
+    this.initLinkingSuccess = function() {      
+      deviceLinkingHandler.retrieveAccessToken(this.settingsParams.device_id, deviceLinkingHandler.getDevicePin(), this.retrieveAccessTokenCallback);
+    }.bind(this);
+
+    /**
+     * Get Pin Status callback
+     *
+     * @param {Object|Boolean} result the response from getPinStatus()
+     */
+    this.getPinStatusCallback = function(result) {      
+      if (result === false || result.linked === false) {
+        // Device not linked
+        this.settingsParams.linked = false;
+
+        // Device Linking. Acquire PIN.
+        this.initializeDeviceLinkingView();
+        this.selectView(this.deviceLinkingView);
+      }
+      // Build App
+      else {
+        // Device Linking Success
+        this.settingsParams.linked = true;
+
+        deviceLinkingHandler.retrieveAccessToken(this.settingsParams.device_id, result.pin, this.retrieveAccessTokenCallback);
+      }
+    }.bind(this);
+
+    /**
+     * Retrieve Access Token callback
+     * 
+     * @param {Object} result the response from retrieveAccessToken()
+     */
+    this.retrieveAccessTokenCallback = function(result) {
+      if (result) {
+        deviceLinkingHandler.setOauthData(result);
+
+        // Entitlements / My Library
+        if (this.settingsParams.entitlements) {
+          app.data.loadEntitlementData(deviceLinkingHandler.getAccessToken(), this.loadEntitlementDataCallback);
+        }
+        // Normal Device Linking
+        else {
+          // Video Favorites
+          if (this.settingsParams.video_favorites) {
+            app.data.loadVideoFavoritesData(deviceLinkingHandler.getAccessToken(), this.loadVideoFavoritesDataCallback);
+          }
+          else {
+            this.build();
+          }
+        }
+      }
+      else {
+        console.log("Error - retrieveAccessToken failed");
+        alert("There was an error configuring your Fire TV App. Please relaunch and try again");
+        app.exit();
+      }
+    }.bind(this);
+
+    /**
+     * Entitlement callback
+     * 
+     * @param {Object} result the response from loadEntitlementData()
+     */
+    this.loadEntitlementDataCallback = function(result) {
+      // Add My Library to categoryData for leftNavView
+      app.data.categoryData.unshift('My Library');
+
+      // Update settings.nav object
+      this.settingsParams.nav.library  = this.settingsParams.nav.search + 1;
+      this.settingsParams.nav.playlist = this.settingsParams.nav.search + 2;
+
+      // Save Entitlement Data
+      if (result && result.response.length > 0) {
+        app.data.entitlementData = result;
+      }
+
+      // Video Favorites
+      if (this.settingsParams.video_favorites) {
+        app.data.loadVideoFavoritesData(deviceLinkingHandler.getAccessToken(), this.loadVideoFavoritesDataCallback);
       }
       else {
         this.build();
       }
     }.bind(this);
 
-    this.build = function() {
-      if (this.deviceLinkingView && this.currentView === this.deviceLinkingView) {
-
-        this.deviceLinkingView.remove();
-
-        this.data.loadData(function() {
-
-          // SVOD Browse. SVOD / AVOD Hybrid watchAVOD
-          if (app.settingsParams.browse === true || app.settingsParams.watchAVOD === true) {
-            if (app.settingsParams.nested_categories === true) {
-              this.initializeLeftNavView();
-              this.leftNavView.collapse();
-              this.initializeNestedCategories();
-              this.selectView(this.nestedCategoriesOneDView);
-            } else {
-              this.initializeLeftNavView();
-              this.initializeOneDView();
-              this.selectView(this.oneDView);
-              this.leftNavView.collapse();
-            }
-          }
-          // Device Linked
-          else {
-            deviceLinkingHandler.retrieveAccessToken(this.settingsParams.device_id, deviceLinkingHandler.getDevicePin(), function(result) {
-              if (result) {
-                deviceLinkingHandler.setOauthData(result);
-
-                // Entitlements / My Library
-                if (this.settingsParams.entitlements) {
-                  app.data.loadEntitlementData(deviceLinkingHandler.getAccessToken(), function(result) {
-                    // Save Entitlement Data
-                    if (result && result.length > 0) {
-                      app.data.entitlementData = result;
-                    }
-
-                    // Video Favorites
-                    if (this.settingsParams.video_favorites) {
-                      app.data.loadVideoFavoritesData(deviceLinkingHandler.getAccessToken(), function(result){
-                        // Save Video Favorites Data
-                        if (result && result.response.length > 0) {
-                          app.data.videoFavoritesData = result.response;
-                        }
-                        // Init Views
-                        if (app.settingsParams.nested_categories === true) {
-                          this.initializeLeftNavView();
-                          this.leftNavView.collapse();
-                          this.initializeNestedCategories();
-                          this.selectView(this.nestedCategoriesOneDView);
-                        } else {
-                          this.initializeLeftNavView();
-                          this.initializeOneDView();
-                          this.selectView(this.oneDView);
-                          this.leftNavView.collapse();
-                        }
-                      }.bind(this));
-                    }
-                    else {
-                      if (app.settingsParams.nested_categories === true) {
-                        this.initializeLeftNavView();
-                        this.leftNavView.collapse();
-                        this.initializeNestedCategories();
-                        this.selectView(this.nestedCategoriesOneDView);
-                      } else {
-                        this.initializeLeftNavView();
-                        this.initializeOneDView();
-                        this.selectView(this.oneDView);
-                        this.leftNavView.collapse();
-                      }
-                    }
-                  }.bind(this));
-                }
-                // Normal Device Linking
-                else {
-                  // Video Favorites
-                  if (this.settingsParams.video_favorites) {
-                    app.data.loadVideoFavoritesData(deviceLinkingHandler.getAccessToken(), function(result){
-                      // Save Video Favorites Data
-                      if (result && result.response.length > 0) {
-                        app.data.videoFavoritesData = result.response;
-                      }
-                      // Init Views
-                      if (app.settingsParams.nested_categories === true) {
-                        this.initializeLeftNavView();
-                        this.leftNavView.collapse();
-                        this.initializeNestedCategories();
-                        this.selectView(this.nestedCategoriesOneDView);
-                      } else {
-                        this.initializeLeftNavView();
-                        this.initializeOneDView();
-                        this.selectView(this.oneDView);
-                        this.leftNavView.collapse();
-                      }
-                    }.bind(this));
-                  }
-                  else {
-                    if (app.settingsParams.nested_categories === true) {
-                      this.initializeLeftNavView();
-                      this.leftNavView.collapse();
-                      this.initializeNestedCategories();
-                      this.selectView(this.nestedCategoriesOneDView);
-                    } else {
-                      this.initializeLeftNavView();
-                      this.initializeOneDView();
-                      this.selectView(this.oneDView);
-                      this.leftNavView.collapse();
-                    }
-                  }
-                }
-              }
-              else {
-                console.log("Error - retrieveAccessToken failed");
-                alert("There was an error configuring your Fire TV App. Please relaunch and try again");
-                app.exit();
-              }
-            }.bind(this));
-          }
-          
-        }.bind(this));
-      } else {
-        /**
-         * Handles nested categories
-         */
-        if (this.settingsParams.nested_categories === true) {
-          this.initializeLeftNavView();
-          this.leftNavView.collapse();
-          this.initializeNestedCategories();
-          this.selectView(this.nestedCategoriesOneDView);
-        } else {
-          this.initializeLeftNavView();
-          this.initializeOneDView();
-          this.selectView(this.oneDView);
-          this.leftNavView.collapse();
-        }
-      }
-    };
-
-    // overrides css with configs
-    this.createStyleSheet = function() {
-      var style = document.createElement('style');
-      var rules = [
-        // Loading Indicator
-        '.content-load-spinner { border-right-color: ' + this.settingsParams.brandColor + '; }',
-        '.content-load-spinner { border-bottom-color: ' + this.settingsParams.brandColor + '; }',
-        '.content-load-spinner { border-left-color: ' + this.settingsParams.brandColor + '; }',
-        // Navigation
-        '#left-nav-menu-icon.leftnav-menu-icon-highlight .menu-line { background: ' + this.settingsParams.brandColor + '; }',
-        '.leftnav-menu-list { border-color: ' + this.settingsParams.brandColor + '; }',
-        '.leftnav-list-item-highlighted { color: ' + this.settingsParams.brandColor + '; }',
-        '.leftnav-list-item-static.leftnav-list-item-selected { color: ' + this.settingsParams.brandColor + '; }',
-        // Search
-        '.leftnav-search-box.leftnav-list-item-selected { color: ' + this.settingsParams.brandColor + '; }',
-        '.leftnav-search-box:focus::-webkit-input-placeholder { color: ' + this.settingsParams.brandColor + '; }',
-        '.leftnav-search-box:focus:-moz-placeholder { color: ' + this.settingsParams.brandColor + '; }',
-        '.leftnav-search-box:focus::-moz-placeholder { color: ' + this.settingsParams.brandColor + '; }',
-        '.leftnav-search-box:focus:-ms-input-placeholder { color: ' + this.settingsParams.brandColor +'; }',
-        // Buttons
-        '.detail-item-button.detail-item-button-static { border-color: ' + this.settingsParams.brandColor + '; }',
-        '.detail-item-button.detail-item-button-selected { background: ' + this.settingsParams.brandColor + '; border-color: ' + this.settingsParams.brandColor + '; }',
-        // Slider Pagination
-        '.circle-current { background: ' + this.settingsParams.brandColor + '; border-color: ' + this.settingsParams.brandColor + '; }',
-      ];
-
-      rules = rules.join('');
-
-      style.appendChild(document.createTextNode(rules));
-
-      document.getElementsByTagName('head')[0].appendChild(style);
-    };
-
     /**
-     * Set the body classes based on API configs
+     * Video Favorites callback
+     * 
+     * @param {Object} result the response from loadVideoFavoritesData()
      */
-    this.setBodyClasses = function() {
-      var body = document.getElementsByTagName('body')[0];
-      var bodyClasses = [];
-
-      bodyClasses.push(this.settingsParams.theme);
-      bodyClasses.push(this.settingsParams.logoPosition);
-
-      for (var i = 0; i < bodyClasses.length; i++) {
-        body.classList.add(bodyClasses[i]);
+    this.loadVideoFavoritesDataCallback = function(result) {
+      // Save Video Favorites Data
+      if (result && result.response.length > 0) {
+        app.data.videoFavoritesData = result.response;
       }
-    };
+      else {
+        this.build();
+      }
+    }.bind(this);
 
     /**
      * Set the application's current view
@@ -436,7 +325,6 @@
       }
       this.currentView.handleControls(e);
     };
-
 
     /**
      *

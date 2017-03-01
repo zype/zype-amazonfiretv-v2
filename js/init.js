@@ -2,22 +2,22 @@
   'use strict';
 
   var settings = {
-    Model: JSONMediaModel,
-    PlayerView: PlayerView,
-    PlaylistView: PlaylistPlayerView,
-    showSearch: true,
-    app_key: appConfig.app_key,
-    client_id: appConfig.client_id,
-    client_secret: appConfig.client_secret,
-    endpoint: appConfig.endpoint,
+    Model:           JSONMediaModel,
+    PlayerView:      PlayerView,
+    PlaylistView:    PlaylistPlayerView,
+    showSearch:      true,
+    app_key:         appConfig.app_key,
+    client_id:       appConfig.client_id,
+    client_secret:   appConfig.client_secret,
+    endpoint:        appConfig.endpoint,
     player_endpoint: appConfig.player_endpoint,
-    device_id: null,
-    linked: false,
-    browse: false,
-    watchAVOD: false
+    device_id:       null,
+    linked:          false,
+    browse:          false,
+    watchAVOD:       false
   };
 
-  var initApp = function(settings) {
+  function initApp(settings) {
     iapHandler.settingsParams = settings;
     deviceLinkingHandler.settingsParams = settings;
 
@@ -39,8 +39,60 @@
       }
     }
 
+    // Initialize Custom Styles
+    createStyleSheet();
+    setBodyClasses();
+
     var app = new App(settings);
     exports.app = app;
+  };
+
+  // overrides css with configs
+  function createStyleSheet() {
+    var style = document.createElement('style');
+    var rules = [
+      // Loading Indicator
+      '.content-load-spinner { border-right-color: ' + settings.brandColor + '; }',
+      '.content-load-spinner { border-bottom-color: ' + settings.brandColor + '; }',
+      '.content-load-spinner { border-left-color: ' + settings.brandColor + '; }',
+      // Navigation
+      '#left-nav-menu-icon.leftnav-menu-icon-highlight .menu-line { background: ' + settings.brandColor + '; }',
+      '.leftnav-menu-list { border-color: ' + settings.brandColor + '; }',
+      '.leftnav-list-item-highlighted { color: ' + settings.brandColor + '; }',
+      '.leftnav-list-item-static.leftnav-list-item-selected { color: ' + settings.brandColor + '; }',
+      // Search
+      '.leftnav-search-box.leftnav-list-item-selected { color: ' + settings.brandColor + '; }',
+      '.leftnav-search-box:focus::-webkit-input-placeholder { color: ' + settings.brandColor + '; }',
+      '.leftnav-search-box:focus:-moz-placeholder { color: ' + settings.brandColor + '; }',
+      '.leftnav-search-box:focus::-moz-placeholder { color: ' + settings.brandColor + '; }',
+      '.leftnav-search-box:focus:-ms-input-placeholder { color: ' + settings.brandColor +'; }',
+      // Buttons
+      '.detail-item-button.detail-item-button-static { border-color: ' + settings.brandColor + '; }',
+      '.detail-item-button.detail-item-button-selected { background: ' + settings.brandColor + '; border-color: ' + settings.brandColor + '; }',
+      // Slider Pagination
+      '.circle-current { background: ' + settings.brandColor + '; border-color: ' + settings.brandColor + '; }',
+    ];
+
+    rules = rules.join('');
+
+    style.appendChild(document.createTextNode(rules));
+
+    document.getElementsByTagName('head')[0].appendChild(style);
+  };
+
+  /**
+   * Set the body classes based on API configs
+   */
+  function setBodyClasses() {
+    var body = document.getElementsByTagName('body')[0];
+    var bodyClasses = [];
+
+    bodyClasses.push(settings.theme);
+    bodyClasses.push(settings.logoPosition);
+
+    for (var i = 0; i < bodyClasses.length; i++) {
+      body.classList.add(bodyClasses[i]);
+    }
   };
 
   // add the dynamic settings

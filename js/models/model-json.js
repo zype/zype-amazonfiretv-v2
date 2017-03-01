@@ -583,7 +583,6 @@
 
             if (j < (jsonData.length - 1)) {
               j++;
-
               return this.getEntitlementData(jsonData, callback, j, videoData);
             }
 
@@ -593,6 +592,11 @@
           },
           error: function(xhr) {
             console.log('error', xhr);
+            
+            if (j < (jsonData.length - 1)) {
+              j++;
+              return this.getEntitlementData(jsonData, callback, j, videoData);
+            }
           }
         });
       }
