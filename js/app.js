@@ -74,7 +74,7 @@
    *                 settingsParams.displayButtons {Boolean} flag that tells the app to display the buttons or not
    */
   var App = function(settingsParams) {
-    var that = this;
+    var _this = this;
 
     // hold onto the app settings
     this.settingsParams = settingsParams;
@@ -1159,7 +1159,7 @@
      * @param {Number} index the current video's index
      */
     this.handleFavorites = function(index) {
-      var currVideo = that.categoryData[index];
+      var currVideo = _this.categoryData[index];
       var token     = deviceLinkingHandler.getAccessToken();
 
       var createFavoriteCallback = function(result) {
@@ -1167,10 +1167,10 @@
         app.data.loadVideoFavoritesData(token, loadVideoFavoritesDataCallback);
 
         // Update current OneDView Video Item with Favorite ID
-        that.categoryData[index].video_favorite_id = result.response._id;
+        _this.categoryData[index].video_favorite_id = result.response._id;
 
         // Update OneDView reference to app.categoryData (reference OneDView.rowData created on render())
-        app.oneDView.rowData = that.categoryData;
+        app.oneDView.rowData = _this.categoryData;
 
         // Update the ButtonView
         app.oneDView.buttonView.update(true);
@@ -1181,10 +1181,10 @@
         app.data.loadVideoFavoritesData(token, loadVideoFavoritesDataCallback);
 
         // Update current OneDView Video Item
-        that.categoryData[index].video_favorite_id = null;
+        _this.categoryData[index].video_favorite_id = null;
 
         // Update OneDView reference to app.categoryData (reference OneDView.rowData created on render())
-        app.oneDView.rowData = that.categoryData;
+        app.oneDView.rowData = _this.categoryData;
 
         // Update the ButtonView
         app.oneDView.buttonView.update(true);
@@ -1193,7 +1193,7 @@
       var errorCallback = function() {
         console.log('create/delete video favorite', arguments);
         alert('Error: Update Video Favorite status. Please try again.');
-        that.transitionFromAlertToOneD();
+        _this.transitionFromAlertToOneD();
       };
 
       var loadVideoFavoritesDataCallback = function(result) {
@@ -1430,7 +1430,7 @@
         else {
           videoTimed.watched = true;
 
-          that.clearVideoTimer(app.data.videoTimerId, true);
+          _this.clearVideoTimer(app.data.videoTimerId, true);
         }
       }
     };
