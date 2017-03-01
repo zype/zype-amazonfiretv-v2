@@ -65,7 +65,6 @@
     }, 500);
   }
 
-
   /**
    * The app object : the controller for the app, it creates views, manages navigation between views
    *                  routes input to the currently focused view, giving data to the views, and otherwise stitching things together
@@ -76,12 +75,9 @@
   var App = function(settingsParams) {
     var _this = this;
 
-    // hold onto the app settings
     this.settingsParams = settingsParams;
-    this.showSearch = settingsParams.showSearch;
-
-    // main application container div
-    this.$appContainer = $("#app-container");
+    this.showSearch     = settingsParams.showSearch;
+    this.$appContainer  = $("#app-container");
 
     // mixin inheritance, initialize this as an event handler for these events:
     Events.call(this, ['purchased', 'videoError', 'link']);
