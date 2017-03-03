@@ -235,15 +235,8 @@
      * @param {Object} result the response from loadEntitlementData()
      */
     this.loadEntitlementDataCallback = function(result) {
-      // Add My Library to categoryData for leftNavView
-      app.data.categoryData.unshift('My Library');
-
-      // Update settings.nav object
-      this.settingsParams.nav.library  = this.settingsParams.nav.search + 1;
-      this.settingsParams.nav.playlist = this.settingsParams.nav.search + 2;
-
       // Save Entitlement Data
-      if (result && result.response.length > 0) {
+      if (result && result.length > 0) {
         app.data.entitlementData = result;
       }
 
@@ -266,9 +259,8 @@
       if (result && result.response.length > 0) {
         app.data.videoFavoritesData = result.response;
       }
-      else {
-        this.build();
-      }
+  
+      this.build();
     }.bind(this);
 
     /**
