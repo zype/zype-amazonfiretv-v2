@@ -6,7 +6,7 @@
 (function(exports) {
   "use strict";
 
-  //constants
+  // constants
   var CLASS_BUTTON_STATIC   = "detail-item-button-static",
       CLASS_BUTTON_SELECTED = "detail-item-button-selected",
       CLASS_BUTTON_FAVORITE = "btnFavorite";
@@ -18,7 +18,7 @@
   var ButtonView = function() {
 
     // mixin inheritance, initialize this as an event handler for these events:
-    Events.call(this, ['exit', 'revoke', 'select', 'makeIAP', 'showDesc', 'play', 'browse', 'link', 'watchAVOD', 'videoFavorite']);
+    Events.call(this, ['exit', 'revoke', 'select', 'makeIAP', 'showDesc', 'play', 'browse', 'link', 'videoFavorite', 'watchAVOD']);
 
     //global variables
     this.selectedButton = -1;

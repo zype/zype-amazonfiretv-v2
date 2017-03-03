@@ -7,8 +7,8 @@
     PlaylistView:    PlaylistPlayerView,
     showSearch:      true,
     app_key:         appConfig.app_key,
-    client_id:       (appConfig.client_id !== '<CLIENTID>') ? appConfig.client_id : null,
-    client_secret:   (appConfig.client_secret !== '<CLIENTSECRET>') ? appConfig.client_secret : null,
+    client_id:       appConfig.client_id,
+    client_secret:   appConfig.client_secret,
     endpoint:        appConfig.endpoint,
     player_endpoint: appConfig.player_endpoint,
     device_id:       null,
@@ -17,7 +17,7 @@
     watchAVOD:       false
   };
 
-  var initApp = function(settings) {
+  function initApp(settings) {
     iapHandler.settingsParams = settings;
     deviceLinkingHandler.settingsParams = settings;
 
@@ -39,8 +39,60 @@
       }
     }
 
+    // Initialize Custom Styles
+    createStyleSheet();
+    setBodyClasses();
+
     var app = new App(settings);
     exports.app = app;
+  };
+
+  // overrides css with configs
+  function createStyleSheet() {
+    var style = document.createElement('style');
+    var rules = [
+      // Loading Indicator
+      '.content-load-spinner { border-right-color: ' + settings.brandColor + '; }',
+      '.content-load-spinner { border-bottom-color: ' + settings.brandColor + '; }',
+      '.content-load-spinner { border-left-color: ' + settings.brandColor + '; }',
+      // Navigation
+      '#left-nav-menu-icon.leftnav-menu-icon-highlight .menu-line { background: ' + settings.brandColor + '; }',
+      '.leftnav-menu-list { border-color: ' + settings.brandColor + '; }',
+      '.leftnav-list-item-highlighted { color: ' + settings.brandColor + '; }',
+      '.leftnav-list-item-static.leftnav-list-item-selected { color: ' + settings.brandColor + '; }',
+      // Search
+      '.leftnav-search-box.leftnav-list-item-selected { color: ' + settings.brandColor + '; }',
+      '.leftnav-search-box:focus::-webkit-input-placeholder { color: ' + settings.brandColor + '; }',
+      '.leftnav-search-box:focus:-moz-placeholder { color: ' + settings.brandColor + '; }',
+      '.leftnav-search-box:focus::-moz-placeholder { color: ' + settings.brandColor + '; }',
+      '.leftnav-search-box:focus:-ms-input-placeholder { color: ' + settings.brandColor +'; }',
+      // Buttons
+      '.detail-item-button.detail-item-button-static { border-color: ' + settings.brandColor + '; }',
+      '.detail-item-button.detail-item-button-selected { background: ' + settings.brandColor + '; border-color: ' + settings.brandColor + '; }',
+      // Slider Pagination
+      '.circle-current { background: ' + settings.brandColor + '; border-color: ' + settings.brandColor + '; }',
+    ];
+
+    rules = rules.join('');
+
+    style.appendChild(document.createTextNode(rules));
+
+    document.getElementsByTagName('head')[0].appendChild(style);
+  };
+
+  /**
+   * Set the body classes based on API configs
+   */
+  function setBodyClasses() {
+    var body = document.getElementsByTagName('body')[0];
+    var bodyClasses = [];
+
+    bodyClasses.push(settings.theme);
+    bodyClasses.push(settings.logoPosition);
+
+    for (var i = 0; i < bodyClasses.length; i++) {
+      body.classList.add(bodyClasses[i]);
+    }
   };
 
   // add the dynamic settings
@@ -53,26 +105,27 @@
       var res = app_json.response;
 
       // Main
-      settings.category_id          = res.category_id;
-      settings.playlist_id          = res.featured_playlist_id;
-      settings.playlist_ids         = null;
-      settings.autoplay             = res.autoplay;
-      settings.per_page             = res.per_page;
-      settings.nested_categories    = res.nested;
-      settings.playlists_only       = res.playlists_only; // use PLs, remove Categories. Includes PLs in place of "Nested Categories".
-      settings.featured_playlist    = (res.featured_playlist) ? res.featured_playlist : true;
-      
+      settings.category_id       = res.category_id;
+      settings.playlist_id       = res.featured_playlist_id;
+      settings.playlist_ids      = null;
+      settings.root_playlist_id  = res.root_playlist_id;
+      settings.autoplay          = res.autoplay;
+      settings.per_page          = res.per_page;
+      settings.nested_categories = res.nested;
+      settings.playlists_only    = res.playlists_only; // Enhanced Playlists
+
       // Monetization
-      settings.avod                 = res.avod;
-      settings.IAP                  = res.in_app_purchase;
-      settings.device_linking       = res.device_linking;
-      settings.device_link_url      = res.device_link_url;
-      settings.entitlements         = res.entitlements;
-      settings.subscribe_no_ads     = res.subscribe_no_ads;
+      settings.avod                     = res.avod;
+      settings.IAP                      = res.in_app_purchase;
+      settings.device_linking           = res.device_linking;
+      settings.device_link_url          = res.device_link_url;
+      settings.entitlements             = res.entitlements;
+      settings.subscribe_no_ads         = res.subscribe_no_ads;
+      settings.subscribe_no_ads_silent  = res.subscribe_no_ads_silent;
+      settings.subscribe_no_limit_videos_by_time = res.subscribe_no_limit_videos_by_time;
 
       // Video Features
       settings.limit_videos_by_time = res.limit_videos_by_time;
-      settings.subscribe_no_limit_videos_by_time = res.subscribe_no_limit_videos_by_time;
       settings.videos_time_limited  = res.videos_time_limited; // array of objects
       settings.video_favorties      = res.video_favorites;
 
@@ -84,48 +137,50 @@
       settings.related_images       = res.related_images; // use related images for video thumbnails
       settings.related_images_title = res.related_images_title;
       settings.default_image_url    = (res.default_image_url) ? res.default_image_url : './assets/default-image.png';
-
+      settings.device_linking_title = (res.device_linking_title) ? res.device_linking_title : 'Link Your Fire TV';
+      settings.device_linking_copy  = (res.device_linking_copy) ? res.device_linking_copy : '';
 
       //* For Testing
       // settings.nested_categories = true;
       // settings.playlists_only = true;
-      // settings.featured_playlist = true;
-
-      // settings.IAP = false;
-      // settings.device_linking = true;
-      // settings.entitlements = true;
-      // settings.subscribe_no_ads = true;
-
+      // settings.root_playlist_id = '';
+      // settings.related_images = true;
+      // settings.related_images_title = 'film-poster';
       // settings.limit_videos_by_time = true;
       // settings.subscribe_no_time_limit = true;
       // settings.videos_time_limited = [
       //   {
       //     id : '',
-      //     time_limit   : 10, // seconds
+      //     time_limit   : 20, // seconds
       //     time_watched : 0,
       //     watched      : false
       //   }
       // ];
       // settings.video_favorites = true;
+      // settings.subscribe_no_limit_videos_by_time = true;
 
+      // settings.IAP = false;
+      // settings.device_linking = true;
+      // settings.entitlements = true;
+      // settings.subscribe_no_ads = true;
+      // settings.subscribe_no_ads_silent = true;
+
+      // settings.slider = true;
       // settings.theme = 'theme--dark';
       // settings.theme = 'theme--light';
       // settings.logoPosition = 'logo--center';
       // settings.logoPosition = 'logo--right';
-      // settings.slider = true;
-      // settings.related_images = true;
-      // settings.related_images_title = 'film-poster';
-      //* For Testing
-
-
+      // settings.device_linking_title = '';
+      // settings.device_linking_copy = '';
+      
       // Navigation
       settings.nav = {};
       settings.nav.home      = (settings.nested_categories) ? 0 : null;
       settings.nav.search    = (settings.nested_categories) ? 1 : 0;
       settings.nav.favorites = null;
       settings.nav.library   = null;
-      settings.nav.playlist  = (settings.featured_playlist || settings.playlists_only) ? settings.nav.search + 1 : null;
-      settings.nav.category  = (settings.featured_playlist) ? settings.nav.playlist + 1 : settings.nav.search + 1;
+      settings.nav.playlist  = settings.nav.search + 1;
+      settings.nav.category  = settings.nav.playlist + 1;
 
       //* Super User
 

@@ -69,9 +69,9 @@
       deviceLinkingHandler.getPin(app.settingsParams.device_id, function(pin) {
         // Build the main content template and add it
         var html = utils.buildTemplate($("#device-linking-view-template"), {
-          title: (app.settingsParams.subscribe_no_ads) ? 'Link your Fire TV to Watch Ad-Free' : 'Link Your Fire TV',
-          link: app.settingsParams.device_link_url,
-          pin: pin
+          title: app.settingsParams.device_linking_title,
+          link:  app.settingsParams.device_link_url,
+          pin:   pin
         });
 
         $el.append(html);

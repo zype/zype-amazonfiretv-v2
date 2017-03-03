@@ -15,7 +15,7 @@
    */
   var ShovelerView = function() {
     // mixin inheritance, initialize this as an event handler for these events:
-    Events.call(this, ['loadComplete', 'exit', 'bounce', 'startScroll', 'indexChange', 'stopScroll', 'select', 'loadNext']);
+    Events.call(this, ['loadComplete', 'exit', 'bounce', 'startScroll', 'indexChange', 'stopScroll', 'select']);
 
     var _this = this;
 
@@ -221,7 +221,6 @@
      * Performs secondary layout of the elements of the row, after images load for the first time
      */
     this.layoutElements = function() {
-      console.log('layoutElements');
       for (var i = 0; i < this.$rowElements.length; i++) {
         var $currElt = $(this.$rowElements[i]);
         this.elementWidths[i] = $currElt.width();
@@ -313,10 +312,6 @@
           case buttons.RIGHT:
             if (this.currSelection < this.rowsData.length) {
               this.shovelMove(1);
-              if (this.currSelection === this.rowsData.length - 2) {
-                this.trigger('loadNext');
-                console.log('loadNext triggered');
-              }
             } else {
               this.trigger('bounce', e.keyCode);
             }
@@ -477,7 +472,6 @@
      * @param {Number} selected the index of the currently selected item
      */
     this.setTransforms = function(selected) {
-      console.log('setTransforms');
       var currX = 0;
       // selected = selected || this.currSelection;
       var selected = selected || this.currSelection;

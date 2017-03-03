@@ -9,29 +9,34 @@
   // the model for the Media Sample Data
   // @param {Object} appSettings are the user-defined settings from the index page
   var JSONMediaModel = function(appSettings) {
-    this.settingsParams      = appSettings;
-    this.categoryData        = [];
-    this.categoryTitle       = "";
-    this.currData            = [];
-    this.currentCategory     = 0;
-    this.currentItem         = 0;
-    this.currPage            = 1;
-    this.plans               = [];
+    this.settingsParams = appSettings;
 
-    this.channelsData        = [];
-    this.currentChannel      = 0;
+    this.categoryData         = []; // "Titles" for leftNav-view and old category-based OneDView
+    this.categoryTitle        = "";
+    this.currData             = [];
+    this.currentCategory      = 0;
+    this.currentItem          = 0;
+    this.plans                = [];
+    // Enhanced Playlists
+    this.currentPlaylistTitle = "";
+    this.currentPlaylistId    = null; 
+    this.ancestorPlaylistData = []; // current playlist's ancestor playlist data (old - new)
+    this.playlistData         = []; // current playlists data (objects)
+    this.currentPlaylistIndex = 0; // current playlist's index in playlistData[]
+    // @LEGACY
+    this.channelsData         = [];
+    this.currentChannel       = 0;
 
-    this.zobjectData         = [];
-    this.sliderData          = [];
-    this.entitlementData     = []; // videos user is entitled to via redemption code or purchase
-    this.videoFavoritesData  = [];
-    this.currVideoTimedIndex = null; // current timed video's index
-    this.videoTimerId        = null; // current timed video's timer reference
+    this.zobjectData          = [];
+    this.sliderData           = [];
+    this.entitlementData      = [];
+    this.videoFavoritesData   = [];
+    // Limit Video By Time
+    this.currVideoTimedIndex  = null; // current timed video's index
+    this.videoTimerId         = null; // current timed video's timer reference
 
     /**
-     * This function loads the initial data needed to start the app 
-     * and calls the provided callback with the data when it is fully loaded
-     * 
+     * This function loads the initial data needed to start the app and calls the provided callback with the data when it is fully loaded
      * @param {function} the callback function to call with the loaded data
      */
     this.loadData = function(dataLoadedCallback) {
@@ -43,7 +48,6 @@
       that.currData        = [];
       that.currentCategory = 0;
       that.currentItem     = 0;
-      that.currPage        = 1;
       that.plans           = [];
       that.channelsData    = [];
       that.zobjectData     = [];
@@ -51,27 +55,20 @@
 
       this.getPlans(function(plans) {
         that.plans = plans;
-        if (that.settingsParams.playlists_only && !that.settingsParams.nested_categories) {
-          that.loadAllPlaylistData(dataLoadedCallback);
-        }
-        else if (that.settingsParams.playlists_only && that.settingsParams.nested_categories) {
-          that.loadPlaylistData(dataLoadedCallback, that.settingsParams.playlist_ids);
+        if (that.settingsParams.playlists_only) {
+          that.getPlaylistChildren(that.settingsParams.root_playlist_id, dataLoadedCallback);
         }
         else {
-          that.loadCategoryData(dataLoadedCallback);  
+          console.log('Enhanced Playlists are required for this app version');
         }
       });
     }.bind(this);
 
-    /**
-     * Load ZObject Data
-     *
-     * @param {Function} the callback function
-     * @param {Number}   the number of times the ajax request has failed
-     */
-    this.loadZObjectData = function(callback, fail) {
-      var fail  = fail || 0;
-      var retry = 1;
+    this.loadZObjectData = function(callback) {
+      console.log('load.zobject.data');
+
+      this.zobjectData = [];
+      this.sliderData = [];
 
       $.ajax({
         url: this.settingsParams.endpoint + "zobjects/?zobject_type=slider&app_key=" + this.settingsParams.app_key,
@@ -93,17 +90,11 @@
           }
 
           if (this.zobjectData.length > 0) {
-            return this.loadSliderVideoDetails(this.zobjectData, callback);
+            this.loadSliderVideoDetails(this.zobjectData, callback);
           }
-          return callback();
         },
         error: function() {
           console.log('loadZObjectData.error');
-          if (fail < retry) {
-            fail++;
-            return this.loadZObjectData(callback, fail);
-          }
-          return callback();
         }
       });
     };
@@ -114,18 +105,14 @@
      * @param {Array}    the ZObject Data
      * @param {Function} the callback function
      * @param {Number}   the starting index (optional)
-     * @param {Number}   the number of times the ajax request has failed
      */
-    this.loadSliderVideoDetails = function(zobjectData, callback, counter, fail) {
+    this.loadSliderVideoDetails = function(zobjectData, callback, counter) {
       var j         = counter || 0;
-      var fail      = fail || 0;
-      var retry     = 1;
-      var video_id  = (zobjectData[j].id) ? zobjectData[j].id : null;
+      var video_id  = zobjectData[j].id;
       var title     = zobjectData[j].title;
       var desc      = zobjectData[j].desc;
       var thumbnail = zobjectData[j].thumbnail;
 
-      // If Video ID exists, get video data
       if (video_id) {
         $.ajax({
           url: this.settingsParams.endpoint + "videos/" + video_id + "?app_key=" + this.settingsParams.app_key,
@@ -157,222 +144,150 @@
 
             if (j < (zobjectData.length - 1)) {
               j++;
-              return this.loadSliderVideoDetails(zobjectData, callback, j, 0);
+
+              return this.loadSliderVideoDetails(zobjectData, callback, j);
             }
-            return callback();
+
+            return callback(this.playlistData);
           },
-          error: function(xhr) {
-            console.log('loadVideoDetails.error', xhr);
-            // Retry current item
-            if (fail < retry) {
-              fail++;
-              return this.loadSliderVideoDetails(zobjectData, callback, j, fail);
-            }
-            // Retry failed. Try next item
-            else if (j < (zobjectData.length - 1)) {
-              j++;
-              return this.loadSliderVideoDetails(zobjectData, callback, j, 0);
-            }
-            return callback();
+          error: function() {
+            console.log('loadVideoDetails.error');
+            alert("There was an error configuring your Fire TV App. Please exit.");
+            app.exit();
           }
         });
       }
       else {
         if (j < (zobjectData.length - 1)) {
           j++;
-          return this.loadSliderVideoDetails(zobjectData, callback, j, 0);
+          return this.loadSliderVideoDetails(zobjectData, callback, j);
         }
-        return callback();
+        return callback(this.playlistData);
       }
     };
 
     /**
-     * Loads the Featured Category data specified in the API.
-     * 
-     * If none specified, createds a dummy category called "All Videos".
+     * Get Playlist Children
      *
-     * @param {Function} the callback function
+     * @param {string}   the ID of the Playlist to get
+     * @param {function} the callback function
      */
-    this.loadCategoryData = function(categoryDataLoadedCallback) {
-      console.log('load.category.data');
+    this.getPlaylistChildren = function(playlist_id, callback) {
+      console.log('getPlaylistChildren');
+
       $.ajax({
-        url: this.settingsParams.endpoint + "categories/" + this.settingsParams.category_id,
-        type: 'GET',
-        crossDomain: true,
-        dataType: 'json',
-        context: this,
-        cache: true,
+        url: this.settingsParams.endpoint + 'playlists',
         data: {
-          'app_key' : this.settingsParams.app_key
+          'parent_id': playlist_id,
+          'app_key'  : this.settingsParams.app_key,
+          'per_page' : 100,
+          'order'    : 'asc',
+          'sort'     : 'priority'
         },
-        success: function() {
-          var contentData = arguments[0];
-          this.getCategoryRowValues(contentData);
-        },
-        error: function() {
-          var contentData = {
-            response: {
-              title: 'Videos',
-              values: ['All Videos']
-            }
-          };
-          this.getCategoryRowValues(contentData);
-        },
-        complete: function() {
-          if (this.settingsParams.featured_playlist) {
-            return this.loadAllPlaylistData(categoryDataLoadedCallback);  
-          }
-          if (this.settingsParams.slider) {
-            return this.loadZObjectData(categoryDataLoadedCallback); 
-          }
-          return categoryDataLoadedCallback();
-        }
-      });
-    };
-
-    /**
-     * Handles requests that contain json data
-     * @param {Object} jsonData data returned from request
-     */
-    this.getCategoryRowValues = function(jsonData) {
-      this.categoryData = jsonData.response.values;
-      this.categoryTitle = jsonData.response.title;
-    }.bind(this);
-
-    /**
-     * Load All Playlist Data
-     * 
-     * Loads either the Featured Playlist data or all Active Playlists data (for Playlists-Only version)
-     * 
-     * @param {Function} the callback function
-     */
-    this.loadAllPlaylistData = function(categoryDataLoadedCallback) {
-      console.log("load.playlist.data");
-
-      var _data = {};
-      var url   = this.settingsParams.endpoint + "playlists/";
-      url += (!this.settingsParams.playlists_only) ? this.settingsParams.playlist_id : '';
-      
-      _data['app_key']    = this.settingsParams.app_key;
-      if (this.settingsParams.playlists_only) {
-        _data['per_page'] = 100;
-        _data['sort']     = 'priority';
-        _data['order']    = 'asc';
-      }
-      
-      $.ajax({
-        url: url,
         type: 'GET',
         crossDomain: true,
         dataType: 'json',
         context: this,
-        cache: true,
-        data: _data,
-        success: function(result) {
-          var contentData = result;
-          this.getPlaylistRowValues(contentData);
+        cache: false,
+        success: function(res) {
+          // format playlist children
+          this.formatPlaylistChildren(res);
         },
         error: function() {
-          var contentData = {
-            response: {
-              title: 'New Releases'
-            }
-          };
-          this.getPlaylistRowValues(contentData);
+          console.log('getPlaylistChildren.error', arguments);
         },
         complete: function() {
-          if (this.settingsParams.slider) {
-            return this.loadZObjectData(categoryDataLoadedCallback);  
+          // call loadZObjectData if on Home screen
+          if (this.settingsParams.slider && playlist_id === this.settingsParams.root_playlist_id) {
+            return this.loadZObjectData(callback);
+          } else {
+            return callback(this.playlistData);  
           }
-          return categoryDataLoadedCallback();
         }
       });
     };
 
     /**
-     * Load Playlist data for the leftNavView recursively
+     * Format Playlist Children
      *
-     * @param {Function} the callback function
-     * @param {Array}    array of playlistIds from the selected ZObject
-     * @param {Number}   the starting index
-     * @param {Array}    the retrieved playlist data
+     * @param {object} playlist data
      */
-    this.loadPlaylistData = function(callback, playlistIds, counter, playlistData) {
-      var j = counter || 0;
-      var playlist_id = (playlistIds) ? playlistIds[j] : null;
-      var playlistData = playlistData || [];
+    this.formatPlaylistChildren = function(jsonData) {
+      var data = jsonData.response;
+      var _playlistData = [];
+      var _imgURL = null;
 
-      // If an array of Playlist IDs is passed, get respective data recursively
-      if (playlist_id) {
-        $.ajax({
-          url: this.settingsParams.endpoint + 'playlists/' + playlist_id,
-          type: 'GET',
-          crossDomain: true,
-          dataType: 'json',
-          context: this,
-          cache: false,
-          data: {
-            'app_key' : this.settingsParams.app_key
-          },
-          success: function(result) {
-            playlistData.push(result.response);
+      for (var i = 0; i < data.length; i++) {
 
-            if (j < (playlistIds.length - 1)) {
-              j++;
+        _imgURL = (data[i].thumbnails && data[i].thumbnails.length > 0) ? data[i].thumbnails[0].url : '';
 
-              return this.loadPlaylistData(callback, playlistIds, j, playlistData);
+        // Check for Related Images with specific title
+        if (data[i].images && data[i].images.length > 0) {
+          for (var j = 0; j < data[i].images.length; j++) {
+            if (data[i].images[j].title === "16x9-md") {
+               _imgURL = data[i].images[j].url;
+               break;
             }
-
-            // save the current playlist data in app.data.categoryData for leftNavView
-            this.getPlaylistRowValues(playlistData);
-
-            return (this.settingsParams.slider) ? this.loadZObjectData(callback) : callback();
-          },
-          error: function(xhr) {
-            console.log('loadPlaylistData.error', xhr);
-
-            // skip the failed playlist and load the next one
-            if (j < (playlistIds.length - 1)) {
-              j++;
-              return this.loadPlaylistData(callback, playlistIds, j, playlistData);
-            }
-            
-            // if error on last Playlist ID
-            // save the current playlist data in app.data.categoryData for leftNavView
-            this.getPlaylistRowValues(playlistData);
-
-            return (this.settingsParams.slider) ? this.loadZObjectData(callback) : callback();
           }
-        });
+        }
+
+        var args = {
+          id: data[i]._id,
+          description: data[i].description,
+          parent_id: data[i].parent_id,
+          playlist_item_count: data[i].playlist_item_count,
+          title: data[i].title,
+          imgURL: utils.makeSSL(_imgURL)
+        };
+        var formatted_playlist = new PlaylistChild(args);
+        _playlistData.push(formatted_playlist);
       }
-      else {
-        return (this.settingsParams.slider) ? this.loadZObjectData(callback) : callback();
-      }
+      this.playlistData = _playlistData;
     };
 
     /**
-     * Store Playlist data
+     * Set Current Playlist Parent ID
      *
-     * @param {object|array} jsonData data returned from request || array of Playlist objects
+     * @param {string} ID of current playlist parent 
      */
-    this.getPlaylistRowValues = function(jsonData) {
-      if (this.settingsParams.playlists_only) {
-        var playlists = jsonData.response || jsonData;
-        var playlistData = [];
+    this.setCurrentPlaylistParentData = function(playlist_parent_id, playlist_title) {
+      console.log('setCurrentPlaylistParentData');
 
-        for (var i = 0; i < playlists.length; i++) {
-          playlistData.push({
-            "title" : playlists[i].title,
-            "id"    : playlists[i]._id
-          });
-        }
-        this.categoryData = playlistData;
-      }
-      else {
-        var playlistTitle = jsonData.response.title;
-        this.categoryData.unshift(playlistTitle);
-      }
-    }.bind(this);
+      this.ancestorPlaylistData.push({
+        "playlist_parent_id" : playlist_parent_id,
+        "playlist_title"     : playlist_title
+      });
+    };
+
+    /**
+     * Set Current Playlist ID
+     *
+     * @param {string} the current playlist id
+     */
+    this.setCurrentPlaylistId = function(id) {
+      console.log('setCurrentPlaylistId', id);
+      this.currentPlaylistId = id;
+    };
+
+    /**
+     * Set Current Playlist Title
+     *
+     * @param {string} the current playlist title
+     */
+    this.setCurrentPlaylistTitle = function(title) {
+      console.log('setCurrentPlaylistTitle');
+      this.currentPlaylistTitle = title;
+    };
+
+    /**
+     * Set Current Playlist Index
+     *
+     * @param {number} the current playlist
+     */
+    this.setCurrentPlaylistIndex = function(index) {
+      console.log('setCurrentPlaylistIndex', index);
+      this.currentPlaylistIndex = index;
+    };
 
     /**
      * Load Entitlement data
@@ -552,70 +467,7 @@
       Plan.getPlans(this.settingsParams, callback);
     };
 
-    /**
-     * Get the nested categories data
-     * @param {function} the callback function
-     */
-    this.getCategories = function(callback) {
-      $.ajax({
-        url: this.settingsParams.endpoint + "zobjects/?app_key=" + this.settingsParams.app_key + "&zobject_type=channels&per_page=100&sort=priority&order=asc",
-        type: 'GET',
-        crossDomain: true,
-        dataType: 'json',
-        context: this,
-        cache: true,
-        success: function() {
-          var contentData = arguments[0];
-          this.formatCategories(contentData);
-        },
-        error: function() {
-          console.log(arguments);
-          alert("There was an error configuring your Fire TV App. Please exit.");
-          app.exit();
-        },
-        complete: function() {
-          console.log('loadData.complete');
-          callback(this.channelsData);
-        }
-      });
-    };
-
-    this.formatCategories = function(jsonData) {
-      var data = jsonData.response;
-      var formattedChannel = [];
-      for (var i = 0; i < data.length; i++) {
-        var pl_ids = data[i].playlist_id;
-
-        // parse comma-separated playlist IDs into an array
-        if (this.settingsParams.playlists_only && this.settingsParams.nested_categories && pl_ids.indexOf(',' > -1)) {
-          pl_ids = pl_ids.split(',');
-
-          // trim whitespace of each item in the array
-          for (var j = 0; j < pl_ids.length; j++) {
-            pl_ids[j] = pl_ids[j].trim();
-          }
-        }
-        
-        var args = {
-          id: data[i]._id,
-          title: data[i].title,
-          playlist_id: data[i].playlist_id,
-          category_id: data[i].category_id,
-          description: data[i].description,
-          playlist_ids: pl_ids
-        };
-        if (data[i].pictures && data[i].pictures.length > 0) {
-          args.imgUrl = utils.makeSSL(data[i].pictures[0].url);
-        }
-        // Channel (Channels) is a ZObject based item
-        var formatted_channel = new Channel(args);
-        formattedChannel.push(formatted_channel);
-      }
-      // this push the channels to the channelsData and currData
-      // (Channel model is almost the same as Video)
-      this.channelsData = formattedChannel;
-    };
-
+    // @LEGACY
     this.setcurrentChannel = function(index) {
       this.currentChannel = index;
     };
@@ -628,27 +480,24 @@
       this.settingsParams.playlist_id = id;
     };
 
-    /**
-     * Set the Playlist IDs of the currently selected Nested Category
-     *
-     * @param {Array} the IDs of the currently selected Playlist
-     */
-    this.setPlaylistIds = function(ids) {
-      this.settingsParams.playlist_ids = ids;
-    };
+    
 
     /***************************
      *
      * Category Methods
      *
      ***************************/
+
     /**
      * Hang onto the index of the currently selected category
+     * Used for leftNavView
      * @param {Number} index the index into the categories array
      */
     this.setCurrentCategory = function(index) {
       this.currentCategory = index;
     };
+
+
 
     /***************************
      *
@@ -663,126 +512,45 @@
       callback(this.categoryData);
     };
 
-    /**
-     * Get data for selected category recursively
-     * 
-     * @param {Function} callback method to call with returned requested data
-     * @param {Array}    currData the existing currData
-     * @param {Number}   page     the page to request
-     */
-    this.getCategoryData = function(callback, currData, page) {
-      this.currData     = (currData && currData.length > 0) ? currData : [];
-      this.currPage     = (page) ? page : 1;
-      var page          = page || 1;
-      var categoryTitle = encodeURIComponent(this.categoryTitle);
-      var categoryValue = encodeURIComponent(this.categoryData[this.currentCategory]);
-      var url           = this.settingsParams.endpoint + 'videos';
-      var _data = {
-        'app_key'  : this.settingsParams.app_key,
-        'per_page' : this.settingsParams.per_page,
-        'dpt'      : true,
-        'sort'     : (this.settingsParams.category_id) ? 'episode' : 'created_at',
-        'order'    : 'asc',
-        'page'     : page
-      };
 
-      if (this.settingsParams.category_id) {
-        // @NOTE jQuery URL-encodes square braces in the $.ajax `data` param
-        url += '?category['+ categoryTitle +']='+ categoryValue;
-      }
+    /**
+     * Get Playlist data
+     *  
+     * @param {string}   playlist id
+     * @param {function} the callback function
+     */
+    this.getPlaylistData = function(playlist_id, callback) {
+      this.currData = [];
 
       $.ajax({
-        url: url,
+        url: this.settingsParams.endpoint + 'playlists/'+ playlist_id +'/videos',
+        data: {
+          app_key: this.settingsParams.app_key,
+          per_page: 100,
+          dpt: true,
+          sort: 'priority',
+          order: 'desc'
+        },
         type: 'GET',
         crossDomain: true,
         dataType: 'json',
         context: this,
         cache: false,
-        data: _data,
         success: function(res) {
-          var videos = this.formatVideos(res);
-
-          if (page > 1) {
-            for (var i = 0; i < videos.length; i++) {
-              this.currData.push(videos[i]);
-            }
-          }
-          else {
-            this.currData = this.formatVideos(res);  
-          }
-
-          this.currPage++;
+          console.log('getPlaylistData', res);
+          var contentData = res;
+          this.currData = this.formatVideos(contentData);
         },
         error: function() {
-          console.log('getCategoryData.error', arguments);
+          console.log('getPlaylistData.error', arguments);
         },
         complete: function() {
+          console.log('getPlaylistData.complete currData', this.currData);
           callback(this.currData);
         }
       });
     };
-
-    /**
-     * Get data for a selected playlist
-     * 
-     * @param {Function} callback the callback function
-     * @param {Array}    currData the existing currData
-     * @param {Number}   page     the page to request
-     */
-    this.getPlaylistData = function(callback, currData, page) {
-      this.currData    = (currData && currData.length > 0) ? currData : [];
-      this.currPage    = (page) ? page : 1;
-      var page         = page || 1;
-      var _url         = this.settingsParams.endpoint;
-      var _playlist_id = (this.settingsParams.playlists_only) ? this.categoryData[this.currentCategory].id : this.settingsParams.playlist_id;
-      var _data = {
-        'app_key'  : this.settingsParams.app_key,
-        'per_page' : this.settingsParams.per_page,
-        'dpt'      : true,
-        'page'     : page
-      };
-      
-      if (this.settingsParams.playlists_only || this.settingsParams.playlist_id) {
-        _url += 'playlists/' + _playlist_id + '/videos/';
-      }
-      else {
-        _url += 'videos/';
-        _data['sort'] = 'created_at';
-        _data['order'] = 'desc';
-      }
-
-      $.ajax({
-        url: _url,
-        type: 'GET',
-        crossDomain: true,
-        dataType: 'json',
-        context: this,
-        cache: true,
-        data: _data,
-        success: function(res) {
-          var videos = this.formatVideos(res);
-
-          if (page > 1) {
-            for (var i = 0; i < videos.length; i++) {
-              this.currData.push(videos[i]);
-            }
-          }
-          else {
-            this.currData = this.formatVideos(res);  
-          }
-
-          this.currPage++;
-        },
-        error: function() {
-          console.log(arguments);
-          alert("There was an error configuring your Fire TV App. Please try again.");
-        },
-        complete: function() {
-          callback(this.currData);
-        }
-      });
-    };
-
+    
     /**
      * Get Entitlement video data recursively
      *
@@ -815,7 +583,6 @@
 
             if (j < (jsonData.length - 1)) {
               j++;
-
               return this.getEntitlementData(jsonData, callback, j, videoData);
             }
 
@@ -825,6 +592,11 @@
           },
           error: function(xhr) {
             console.log('error', xhr);
+            
+            if (j < (jsonData.length - 1)) {
+              j++;
+              return this.getEntitlementData(jsonData, callback, j, videoData);
+            }
           }
         });
       }
@@ -989,8 +761,7 @@
         },
         error: function() {
           console.log(arguments);
-          alert("There was an error configuring your Fire TV App. Please exit.");
-          app.exit();
+          alert("There was a search error. Please try again.");
         },
         complete: function() {
           searchCallback(this.currData);
@@ -1003,9 +774,12 @@
      * @param {Number} index the index of the selected item
      */
     this.setCurrentItem = function(index) {
+      console.log('setCurrentItem', index);
       this.currentItem = index;
       this.currentItemData = this.currData[index];
     };
+
+
 
 
     /***************************
@@ -1042,7 +816,7 @@
       return date + ',' + month + ' ' + year + ' ' + hour + ':' + minute + ':' + second;
     };
 
-  };
+  }; // JSONMediaModel
 
   exports.JSONMediaModel = JSONMediaModel;
 
