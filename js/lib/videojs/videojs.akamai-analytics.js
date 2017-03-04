@@ -49,10 +49,9 @@
       //Initializing Configuration XML for akamai (requires variable for sola)
       AKAMAI_MEDIA_ANALYTICS_CONFIG_FILE_PATH = player.akamaiAnalytics.getConfigPath();
       player.on("loadedmetadata", function(e){
-        //Handling Custom Data calls on your own:
-        // akaPlugin.setData("title", "Testing-Title");
-        // akaPlugin.setData("playerId", "videojs");
-        // akaPlugin.setData('viewerId', 'SampleViewer');
+        akaPlugin.setData("title", player.videoData.title);
+        akaPlugin.setData("videoId", player.videoData.id);
+        akaPlugin.setData("playerId", "videojs");
         //Initiating Session:
         akaPlugin.handleSessionInit();
       });

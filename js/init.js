@@ -11,6 +11,7 @@
     client_secret:   appConfig.client_secret,
     endpoint:        appConfig.endpoint,
     player_endpoint: appConfig.player_endpoint,
+    akamai_beacon:   appConfig.akamai_beacon,
     device_id:       null,
     linked:          false,
     browse:          false,

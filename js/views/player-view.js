@@ -182,6 +182,18 @@
       this.videoElement.appendChild(source);
 
       this.$el.append(this.videoElement);
+
+      // add Akamai analytics
+      var vid = videojs('zype_' + video.id.toString() + '-' + seconds);
+      vid.akamaiAnalytics({
+        config: settings.akamai_beacon
+      });
+      // add custom videoData
+      vid.videoData = {
+        id : video.id,
+        title : video.title
+      }
+
       // add the script to load the preroll ad
       // if ((settings.avod && !settings.subscribe_no_ads_silent) || (settings.avod && settings.subscribe_no_ads_silent && settings.device_linking === true && settings.linked === false)) {
       if ((settings.avod) && 
