@@ -411,7 +411,7 @@
       leftNavView.on('select', function(index) {
         // Home
         if (index === this.settingsParams.nav.home) {
-          this.transitionToPlaylistChild(app.data.root_playlist_id, null, false);
+          this.transitionToPlaylistView(app.data.root_playlist_id, null, false);
           // Reset ancestorPlaylistData
           app.data.ancestorPlaylistData = [];
         }
@@ -648,7 +648,7 @@
             this.transitionToVideos(app.data.currentPlaylistId);
           }
           else {
-            this.transitionToPlaylistChild(app.data.currentPlaylistId, app.data.currentPlaylistTitle, false);
+            this.transitionToPlaylistView(app.data.currentPlaylistId, app.data.currentPlaylistTitle, false);
           }
         }
       }, this);
@@ -667,7 +667,7 @@
       nestedCategoriesOneDView.on('exit', function() {
         // If there is ancestorsPlaylistData
         if (app.data.ancestorPlaylistData.length !== 0) {
-          this.transitionToPlaylistChild(null, null, true);  
+          this.transitionToPlaylistView(null, null, true);  
         }
         else {
           this.exitApp();
@@ -731,14 +731,14 @@
     };
 
 
-    /** @TODO refactor name
-     * Transition To Playlist Child
+    /**
+     * Transition To Playlist View
      *
      * @param {string}  the playlist id
      * @param {string}  the playlist title
      * @param {boolean} true if called from `exit` event. handles ancestorPlaylistData.
      */
-    this.transitionToPlaylistChild = function(playlist_id, playlist_title, exit) {
+    this.transitionToPlaylistView = function(playlist_id, playlist_title, exit) {
       console.log('transitionToPlaylistView');
 
       this.transitionFromLefNavToOneD();
@@ -904,7 +904,7 @@
        */
       oneDView.on('exit', function() {
         if (this.settingsParams.playlists_only === true) {
-          this.transitionToPlaylistChild(null, null, true);
+          this.transitionToPlaylistView(null, null, true);
         } else {
           this.exitApp();
         }
