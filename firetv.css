@@ -164,7 +164,8 @@ h1 {
 /* Description View
    ========================================================================== */
 
-.description-view-container {
+.description-view-container,
+.about-view-container {
   position: fixed;
   top: 0;
   left: 0;
@@ -181,7 +182,8 @@ h1 {
   line-height: 1.7;
 }
 
-.theme--dark .description-view-container {
+.theme--dark .description-view-container,
+.theme--dark .about-view-container {
   background: rgb(50,47,47);
   background: rgba(50,47,47,0.95);
   color: #f0f0f0;
@@ -202,7 +204,8 @@ h1 {
   color: #858990;
 }
 
-.description-view .description-text {
+.description-view .description-text,
+.about-view .about-text {
   font-size: 1em;
 }
 
@@ -570,7 +573,7 @@ h1 {
 .one-d-no-items-container {
   position: relative;
   display: none;
-  top: 10px;
+  top: 380px;
   left: 150px;
   color: #878b98;
   font-size: 1.7em;

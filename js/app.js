@@ -154,18 +154,11 @@
      * Initialize App Views
      */
     this.initializeViews = function() {
-      if (app.settingsParams.nested_categories === true) {
-        this.initializeLeftNavView();
-        this.leftNavView.collapse();
-        this.initializeNestedCategories();
-        this.selectView(this.nestedCategoriesOneDView);
-      }
-      else {
-        this.initializeLeftNavView();
-        this.initializeOneDView();
-        this.selectView(this.oneDView);
-        this.leftNavView.collapse();
-      }
+      this.intializeAboutView();
+      this.initializeLeftNavView();
+      this.leftNavView.collapse();
+      this.initializeNestedCategories();
+      this.selectView(this.nestedCategoriesOneDView);
     };
 
     /**
@@ -259,7 +252,7 @@
       if (result && result.response.length > 0) {
         app.data.videoFavoritesData = result.response;
       }
-  
+      
       this.build();
     }.bind(this);
 
@@ -375,6 +368,29 @@
       deviceLinkingView.render(this.$appContainer);
     };
 
+    /**************************
+     *
+     * About View Object
+     *
+     **************************/
+    this.intializeAboutView = function() {
+      var aboutView = this.aboutView = new AboutView();
+
+      // Events
+      aboutView.on('bounce', function() {
+        this.aboutView.hide();
+        this.transitionToLeftNavView();
+      }, this);
+
+      aboutView.render(this.$appContainer, this.settingsParams.about);
+    };
+
+    this.transitionToAboutView = function() {
+      this.selectView(this.aboutView);
+      this.aboutView.show();
+      this.leftNavView.collapse();
+    };
+
     /***************************
      *
      * Left Nav View Object
@@ -428,6 +444,10 @@
 
           // hide the leftNav
           this.leftNavView.collapse();
+        }
+        // About
+        else if (this.settingsParams.about && (index === this.settingsParams.nav.about)) {
+          this.transitionToAboutView();
         }
         // Library / Favorites (Playlists only displayed in NestedCategories view)
         else {
@@ -521,6 +541,21 @@
         // Since Categories and Playlists are not displayed in Left Nav, set "startIndex" to -1
         var startIndex = -1;
 
+        // About
+        if (this.settingsParams.about) {
+          var aboutIndex = this.settingsParams.nav.search + 1;
+
+          leftNavData.unshift('About');
+
+          if (this.settingsParams.linked && this.settingsParams.entitlements && this.settingsParams.video_favorites) {
+            aboutIndex = this.settingsParams.nav.search + 3;
+          }
+          else if (this.settingsParams.linked && (this.settingsParams.entitlements || this.settingsParams.video_favorites)) {
+            aboutIndex = this.settingsParams.nav.search + 2;        
+          }
+
+          this.settingsParams.nav.about = aboutIndex;
+        }
         // Favorites
         if (this.settingsParams.video_favorites && this.settingsParams.linked) {
           leftNavData.unshift('Favorites');
@@ -536,14 +571,14 @@
           leftNavData.unshift(this.searchInputView);
         }
         // Add Home
-        if (this.settingsParams.nested_categories === true) {
+        if (this.settingsParams.playlists_only === true) {
           leftNavData.unshift('Home');
         }
         
         // @LEGACY
         app.data.setCurrentCategory(startIndex);
 
-        leftNavView.render(this.$appContainer, leftNavData, startIndex);
+        leftNavView.render(this.$appContainer, leftNavData, startIndex, this.settingsParams.nav);
       }.bind(this);
 
       leftNavView.updateCategoryItems = function() {
@@ -868,7 +903,7 @@
        * Go back to the Parent Playlist if the user presses back
        */
       oneDView.on('exit', function() {
-        if (this.settingsParams.nested_categories === true) {
+        if (this.settingsParams.playlists_only === true) {
           this.transitionToPlaylistChild(null, null, true);
         } else {
           this.exitApp();

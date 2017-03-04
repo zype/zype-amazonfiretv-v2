@@ -26,7 +26,8 @@
     // mixin inheritance, initialize this as an event handler for these events:
     Events.call(this, ['exit', 'deselect', 'indexChange', 'select', 'makeActive']);
 
-    //global variables
+    // global variables
+    this.settings = null;
     this.scrollingContainerEle = null;
     this.leftNavContainerEle = null;
     this.currentSelectionEle = null;
@@ -198,8 +199,9 @@
      * @param {Element} $el the application container
      * @param {Object} catData category data
      */
-    this.render = function($el, catData, startIndex) {
+    this.render = function($el, catData, startIndex, settings) {
       this.leftNavItems = catData;
+      this.settings = settings;
       var leftNavStrings = [];
       for (var i = 0; i < catData.length; i++) {
         if (typeof catData[i] == "string") {
@@ -341,7 +343,7 @@
      * otherwise just deselect the left-nav menu
      */
     this.confirmNavSelection = function() {
-      if (this.confirmedSelection !== this.currSelectedIndex) {
+      if (this.confirmedSelection !== this.currSelectedIndex || this.confirmedSelection === this.settings.about || this.currSelectedIndex === this.settings.about) {
         // switch the current view state to the main content view
         if (typeof this.leftNavItems[this.currSelectedIndex] === "object" && (this.leftNavItems[this.currSelectedIndex].currentSearchQuery === null || this.leftNavItems[this.currSelectedIndex].currentSearchQuery.length === 0)) {
           return;
@@ -361,13 +363,13 @@
     this.selectLeftNavItem = function() {
       // update the left nav to the current selection and run the selection animation
       $(this.currentSelectionEle).removeClass(CLASS_MENU_ITEM_SELECTED);
-
+    
       this.currentSelectionEle = this.$menuItems.eq(this.currSelectedIndex).children()[0];
-      this.setSelectedElement(this.currentSelectionEle);
+      this.setSelectedElement(this.currentSelectionEle);  
 
       this.shiftNavScrollContainer();
 
-      //shade the elements farther away from the selection
+      // shade the elements farther away from the selection
       this.trigger('indexChange', this.currSelectedIndex);
     };
 

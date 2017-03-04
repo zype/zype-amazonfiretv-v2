@@ -111,8 +111,9 @@
       settings.root_playlist_id  = res.root_playlist_id;
       settings.autoplay          = res.autoplay;
       settings.per_page          = res.per_page;
-      settings.nested_categories = res.nested;
+      // settings.nested_categories = res.nested;
       settings.playlists_only    = res.playlists_only; // Enhanced Playlists
+      settings.about             = res.about;
 
       // Monetization
       settings.avod                     = res.avod;
@@ -144,6 +145,7 @@
       // settings.nested_categories = true;
       // settings.playlists_only = true;
       // settings.root_playlist_id = '';
+      // settings.about = 'About Page Text';
       // settings.related_images = true;
       // settings.related_images_title = 'film-poster';
       // settings.limit_videos_by_time = true;
@@ -175,10 +177,11 @@
       
       // Navigation
       settings.nav = {};
-      settings.nav.home      = (settings.nested_categories) ? 0 : null;
-      settings.nav.search    = (settings.nested_categories) ? 1 : 0;
+      settings.nav.home      = (settings.playlists_only) ? 0 : null;
+      settings.nav.search    = (settings.playlists_only) ? 1 : 0;
       settings.nav.favorites = null;
       settings.nav.library   = null;
+      settings.nav.about     = null;
       settings.nav.playlist  = settings.nav.search + 1;
       settings.nav.category  = settings.nav.playlist + 1;
 
