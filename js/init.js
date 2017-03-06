@@ -108,11 +108,11 @@
       settings.category_id       = res.category_id;
       settings.playlist_id       = res.featured_playlist_id;
       settings.playlist_ids      = null;
-      settings.root_playlist_id  = res.root_playlist_id;
+      settings.root_playlist_id  = res.featured_playlist_id;
       settings.autoplay          = res.autoplay;
       settings.per_page          = res.per_page;
       // settings.nested_categories = res.nested;
-      settings.playlists_only    = res.playlists_only; // Enhanced Playlists
+      settings.playlists_only    = true; // Enhanced Playlists
       settings.about             = res.about;
 
       // Monetization
