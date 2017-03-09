@@ -136,7 +136,7 @@
       settings.related_images       = res.related_images; // use related images for video thumbnails
       settings.related_images_title = res.related_images_title;
       settings.default_image_url    = (res.default_image_url) ? res.default_image_url : './assets/default-image.png';
-      settings.device_linking_title = (res.device_linking_title) ? res.device_linking_title : 'Link Your Fire TV';
+      settings.device_linking_title = (res.device_linking_header) ? res.device_linking_header : 'Link Your Fire TV';
       settings.device_linking_copy  = (res.device_linking_copy) ? res.device_linking_copy : '';
 
       //* For Testing
