@@ -111,12 +111,10 @@
       settings.root_playlist_id  = res.featured_playlist_id;
       settings.autoplay          = res.autoplay;
       settings.per_page          = res.per_page;
-      // settings.nested_categories = res.nested;
       settings.playlists_only    = true; // Enhanced Playlists
       settings.about             = res.about_page;
 
       // Monetization
-      settings.avod                     = res.avod;
       settings.IAP                      = res.in_app_purchase;
       settings.device_linking           = res.device_linking;
       settings.device_link_url          = res.device_link_url;
@@ -142,7 +140,6 @@
       settings.device_linking_copy  = (res.device_linking_copy) ? res.device_linking_copy : '';
 
       //* For Testing
-      // settings.nested_categories = true;
       // settings.playlists_only = true;
       // settings.root_playlist_id = '';
       // settings.about = 'About Page Text';
