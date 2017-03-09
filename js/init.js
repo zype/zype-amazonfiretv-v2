@@ -113,7 +113,7 @@
       settings.per_page          = res.per_page;
       // settings.nested_categories = res.nested;
       settings.playlists_only    = true; // Enhanced Playlists
-      settings.about             = res.about;
+      settings.about             = res.about_page;
 
       // Monetization
       settings.avod                     = res.avod;
@@ -128,13 +128,13 @@
       // Video Features
       settings.limit_videos_by_time = res.limit_videos_by_time;
       settings.videos_time_limited  = res.videos_time_limited; // array of objects
-      settings.video_favorties      = res.video_favorites;
+      settings.video_favorties      = res.favoriting;
 
       // Theme and Images
       settings.theme                = 'theme--' + res.theme; // 'light' or 'dark'
       settings.logoPosition         = 'logo--' + res.logo_position; // 'center' or 'right'
       settings.displayButtons       = true; // this should be true
-      settings.slider               = res.slider;
+      settings.slider               = res.slider_images_enabled;
       settings.related_images       = res.related_images; // use related images for video thumbnails
       settings.related_images_title = res.related_images_title;
       settings.default_image_url    = (res.default_image_url) ? res.default_image_url : './assets/default-image.png';
