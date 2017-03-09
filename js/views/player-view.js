@@ -182,11 +182,14 @@
       this.videoElement.appendChild(source);
 
       this.$el.append(this.videoElement);
-      // add the script to load the preroll ad
-      // if ((settings.avod && !settings.subscribe_no_ads_silent) || (settings.avod && settings.subscribe_no_ads_silent && settings.device_linking === true && settings.linked === false)) {
-      if ((settings.avod) && 
-         ((settings.device_linking === false && settings.IAP === false) ||
-         (settings.subscribe_no_ads && settings.device_linking && settings.linked === false && settings.watchAVOD))) {
+      
+      // VideoJS
+      var vid = videojs('zype_' + video.id.toString() + '-' + seconds);
+
+      if (video.ad_schedule.length === 0 || (settings.subscribe_no_ads && settings.device_linking && settings.linked === true)) {
+        playedAd = true;
+      }
+      else {
         /**
          * Here we provide an ad tag, but we want to be sure that
          * we do not have an empty XML response.
@@ -194,18 +197,17 @@
         console.log('getting ad');
         playedAd = false;
         var ad_tag = null;
-        if (video.ad_schedule.length > 0 && video.ad_schedule[0].hasOwnProperty("tag")) {
+
+        if (video.ad_schedule[0].hasOwnProperty("tag")) {
           ad_tag = new URI(video.ad_schedule[0].tag).href();
         } else {
           ad_tag = "";
         }
-        var vid = videojs('zype_' + video.id.toString() + '-' + seconds);
+        
         vid.ads();
         vid.vast({
           url: ad_tag
         });
-      } else {
-        playedAd = true;
       }
 
       // event listeners
