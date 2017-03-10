@@ -46,25 +46,28 @@
       if (!this.previewTime) {
         this.previewTime = this.PREVIEW_TIME_DEFAULT;
       }
+
       this.$el = $el;
-      this.currentPlayerView = new this.PlayerView(this.settings);
-      this.currentPlayerView.render($el, items, startIndex);
- 
       this.currentIndex = startIndex;
       this.items = items;
+
+      this.currentPlayerView = new this.PlayerView(this.settings);
  
       // Register for events (PlayerView)
       this.currentPlayerView.on('exit',        this.exit,              this);
       this.currentPlayerView.on('videoStatus', this.handleVideoStatus, this);
       this.currentPlayerView.on('videoError',  this.handleVideoError,  this);
- 
-      this.currentView = this.currentPlayerView;
+
+      this.currentPlayerView.render($el, items, startIndex);
  
       // touch events
       touches.registerTouchHandler("player-content-video",      this.handleTouchPlayer);
       touches.registerTouchHandler("player-controls-container", this.handleTouchPlayer);
       touches.registerTouchHandler("player-back-button",        this.handleTouchPlayer);
       touches.registerTouchHandler("player-pause-indicator",    this.handleTouchPlayer);
+
+      // Set Current View
+      this.currentView = this.currentPlayerView;
     };
  
     /**
@@ -210,22 +213,41 @@
         this.$countdown_text.text("" + this.previewTime);
       }
     };
- 
+
     /**
-     * Helper function to set up the next player
+     * start the next video after the transition view is complete
      */
-    this.setUpNextPlayer = function() {
+    this.startNextVideo = function() {
       this.currentIndex += 1;
       this.previewShowing = false;
       this.previewDismissed = false;
- 
-      this.trigger("indexChange", this.currentIndex);
-      this.preloadedPlayerView = new this.PlayerView(settings);
-      this.preloadedPlayerView.render(this.$el, this.items, this.currentIndex);
-      this.preloadedPlayerView.hide();
- 
+
+      this.trigger('indexChange', this.currentIndex);
+
+      // Remove existing current player
+      this.currentView = null; // remove reference
+      this.currentPlayerView.off();
+      this.currentPlayerView.remove();
+      this.currentPlayerView = null;
+
+      // Create new player
+      this.currentPlayerView = new this.PlayerView(settings);
+
+      // Events
+      this.currentPlayerView.on('videoStatus', this.handleVideoStatus, this);
+      this.currentPlayerView.on('exit', this.exit, this);
+
+      // Render
+      this.currentPlayerView.render(this.$el, this.items, this.currentIndex);
+
+      // Set current view
+      this.currentView = this.currentPlayerView;
+
+      if (this.currentPlayerView.canplay) {
+        this.currentPlayerView.playVideo();
+      }
     };
- 
+  
     /**
      * @function handleVideoStatus
      * @description status handler for video status events to convert them into showing correct controls
@@ -266,25 +288,6 @@
  
     this.playVideo = function() {
       this.currentPlayerView.playVideo();
-    };
- 
-    /**
-     * start the next video after the transition view is complete
-     */
-    this.startNextVideo = function() {
-      this.setUpNextPlayer();
-      this.currentPlayerView.remove();
-      this.currentPlayerView = this.preloadedPlayerView;
-      this.preloadedPlayerView = null;
- 
-      this.currentPlayerView.on('videoStatus', this.handleVideoStatus, this);
-      this.currentView = this.currentPlayerView;
-      this.currentPlayerView.show();
-      if (this.currentPlayerView.canplay) {
-        this.currentPlayerView.playVideo();
-      }
- 
-      this.currentPlayerView.on('exit', this.exit, this);
     };
  
     /**
