@@ -109,15 +109,13 @@
       settings.category_id       = res.category_id;
       settings.playlist_id       = res.featured_playlist_id;
       settings.playlist_ids      = null;
-      settings.root_playlist_id  = res.root_playlist_id;
+      settings.root_playlist_id  = res.featured_playlist_id;
       settings.autoplay          = res.autoplay;
       settings.per_page          = res.per_page;
-      // settings.nested_categories = res.nested;
-      settings.playlists_only    = res.playlists_only; // Enhanced Playlists
-      settings.about             = res.about;
+      settings.playlists_only    = true; // Enhanced Playlists
+      settings.about             = res.about_page;
 
       // Monetization
-      settings.avod                     = res.avod;
       settings.IAP                      = res.in_app_purchase;
       settings.device_linking           = res.device_linking;
       settings.device_link_url          = res.device_link_url;
@@ -129,21 +127,20 @@
       // Video Features
       settings.limit_videos_by_time = res.limit_videos_by_time;
       settings.videos_time_limited  = res.videos_time_limited; // array of objects
-      settings.video_favorties      = res.video_favorites;
+      settings.video_favorties      = res.favoriting;
 
       // Theme and Images
       settings.theme                = 'theme--' + res.theme; // 'light' or 'dark'
       settings.logoPosition         = 'logo--' + res.logo_position; // 'center' or 'right'
       settings.displayButtons       = true; // this should be true
-      settings.slider               = res.slider;
+      settings.slider               = res.slider_images_enabled;
       settings.related_images       = res.related_images; // use related images for video thumbnails
       settings.related_images_title = res.related_images_title;
       settings.default_image_url    = (res.default_image_url) ? res.default_image_url : './assets/default-image.png';
-      settings.device_linking_title = (res.device_linking_title) ? res.device_linking_title : 'Link Your Fire TV';
+      settings.device_linking_title = (res.device_linking_header) ? res.device_linking_header : 'Link Your Fire TV';
       settings.device_linking_copy  = (res.device_linking_copy) ? res.device_linking_copy : '';
 
       //* For Testing
-      // settings.nested_categories = true;
       // settings.playlists_only = true;
       // settings.root_playlist_id = '';
       // settings.about = 'About Page Text';
