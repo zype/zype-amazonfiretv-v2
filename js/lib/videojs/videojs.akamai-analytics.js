@@ -51,7 +51,7 @@
       player.on("loadedmetadata", function(e){
         akaPlugin.setData("title", player.videoData.title);
         akaPlugin.setData("videoId", player.videoData.id);
-        akaPlugin.setData("playerId", "videojs");
+        akaPlugin.setData("playerId", "amazonfiretv");
         //Initiating Session:
         akaPlugin.handleSessionInit();
       });

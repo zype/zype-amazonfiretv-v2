@@ -22,9 +22,100 @@
     this.controlsView = null;
     this.durationFound = false;
 
-    //class variables
+    // class variables
     this.fullscreenOpen = false;
     this.currentVideo = null;
+
+    /**
+     * Creates the main content view from the template and appends it to the given element
+     */
+    this.render = function($container, items, index) {
+      // Build the main content template and add it
+      var video = items[index];
+      this.currentVideo = video;
+
+      // to ensure that the video is unique for vidjs
+      var d = new Date();
+      var seconds = d.getTime().toString();
+
+      var html = utils.buildTemplate($("#player-view-template"), video);
+      $container.append(html);
+      this.$el = $container.children().last();
+
+      this.$containerControls = $container.find(".player-controls-container");
+      this.containerControls = this.$containerControls[0];
+
+      // create the video element
+      this.videoElement = document.createElement('video');
+      this.videoElement.className = 'player-content-video video-js vjs-default-skin';
+      this.videoElement.id = 'zype_' + video.id.toString() + '-' + seconds;
+      this.videoElement.poster = video.thumbURL;
+      this.videoElement.controls = false;
+      this.videoElement.preload = 'auto';
+      this.videoElement.height = 1080;
+      this.videoElement.width = 1920;
+
+      // add the source
+      var source = document.createElement('source');
+      source.src = utils.makeSSL(video.url);
+      source.type = video.format;
+      this.videoElement.appendChild(source);
+
+      this.$el.append(this.videoElement);
+
+      // event listeners
+      this.videoElement.addEventListener("canplay", this.canPlayHandler);
+      this.videoElement.addEventListener("ended", this.videoEndedHandler);
+      this.videoElement.addEventListener("timeupdate", this.timeUpdateHandler);
+      this.videoElement.addEventListener("error", this.errorHandler);
+      this.videoElement.addEventListener('durationchange', this.durationChangeHandler);
+
+      //listener for visual on video playback only - remove for non-visual on implementation
+      this.videoElement.addEventListener(utils.vendorPrefix('fullscreenchange').toLowerCase(), this.fullScreenChangeHandler);
+
+      // VideoJS reference
+      var vid = videojs('zype_' + video.id.toString() + '-' + seconds);
+
+      // add Akamai analytics
+      vid.akamaiAnalytics({
+        config: settings.akamai_beacon
+      });
+      // add custom videoData
+      vid.videoData = {
+        id : video.id,
+        title : video.title
+      };
+
+      // add the script to load the preroll ad
+      // if ((settings.avod && !settings.subscribe_no_ads_silent) || (settings.avod && settings.subscribe_no_ads_silent && settings.device_linking === true && settings.linked === false)) {
+      if ((settings.avod) && 
+         ((settings.device_linking === false && settings.IAP === false) ||
+         (settings.subscribe_no_ads && settings.device_linking && settings.linked === false && settings.watchAVOD))) {
+        /**
+         * Here we provide an ad tag, but we want to be sure that
+         * we do not have an empty XML response.
+         */
+        console.log('getting ad');
+        playedAd = true;
+        var ad_tag = null;
+        if (video.ad_schedule.length > 0 && video.ad_schedule[0].hasOwnProperty("tag")) {
+          ad_tag = new URI(video.ad_schedule[0].tag).href();
+        } else {
+          ad_tag = "";
+        }
+
+        vid.ads();
+        vid.vast({
+          url: ad_tag
+        });
+      } else {
+        playedAd = true;
+      }
+
+      // create controls
+      this.controlsView = new ControlsView();
+      this.controlsView.render(this.$el, video, this);
+    };
 
     /**
      * Handler for video 'canplay' event
@@ -119,6 +210,7 @@
     this.remove = function() {
       if (this.videoElement) {
         this.videoElement.pause();
+        // this.videoElement.src = '';
       }
       if (this.controlsView) {
         this.controlsView.remove();  
@@ -143,96 +235,6 @@
       if (this.durationFound) {
         this.controlsView.showAndHideControls();
       }
-    };
-
-    /**
-     * Creates the main content view from the template and appends it to the given element
-     */
-    this.render = function($container, items, index) {
-      // Build the main content template and add it
-      var video = items[index];
-      this.currentVideo = video;
-
-      // to ensure that the video is unique for vidjs
-      var d = new Date();
-      var seconds = d.getTime().toString();
-
-      var html = utils.buildTemplate($("#player-view-template"), video);
-      $container.append(html);
-      this.$el = $container.children().last();
-
-      this.$containerControls = $container.find(".player-controls-container");
-      this.containerControls = this.$containerControls[0];
-
-      // create the video element
-      this.videoElement = document.createElement('video');
-      this.videoElement.className = 'player-content-video video-js vjs-default-skin';
-      this.videoElement.id = 'zype_' + video.id.toString() + '-' + seconds;
-      this.videoElement.poster = video.thumbURL;
-      this.videoElement.autoplay = true;
-      this.videoElement.controls = false;
-      this.videoElement.preload = 'auto';
-      this.videoElement.height = 1080;
-      this.videoElement.width = 1920;
-
-      // add the source
-      var source = document.createElement('source');
-      source.src = utils.makeSSL(video.url);
-      source.type = video.format;
-      this.videoElement.appendChild(source);
-
-      this.$el.append(this.videoElement);
-
-      // add Akamai analytics
-      var vid = videojs('zype_' + video.id.toString() + '-' + seconds);
-      vid.akamaiAnalytics({
-        config: settings.akamai_beacon
-      });
-      // add custom videoData
-      vid.videoData = {
-        id : video.id,
-        title : video.title
-      }
-
-      // add the script to load the preroll ad
-      // if ((settings.avod && !settings.subscribe_no_ads_silent) || (settings.avod && settings.subscribe_no_ads_silent && settings.device_linking === true && settings.linked === false)) {
-      if ((settings.avod) && 
-         ((settings.device_linking === false && settings.IAP === false) ||
-         (settings.subscribe_no_ads && settings.device_linking && settings.linked === false && settings.watchAVOD))) {
-        /**
-         * Here we provide an ad tag, but we want to be sure that
-         * we do not have an empty XML response.
-         */
-        console.log('getting ad');
-        playedAd = false;
-        var ad_tag = null;
-        if (video.ad_schedule.length > 0 && video.ad_schedule[0].hasOwnProperty("tag")) {
-          ad_tag = new URI(video.ad_schedule[0].tag).href();
-        } else {
-          ad_tag = "";
-        }
-        var vid = videojs('zype_' + video.id.toString() + '-' + seconds);
-        vid.ads();
-        vid.vast({
-          url: ad_tag
-        });
-      } else {
-        playedAd = true;
-      }
-
-      // event listeners
-      this.videoElement.addEventListener("canplay", this.canPlayHandler);
-      this.videoElement.addEventListener("ended", this.videoEndedHandler);
-      this.videoElement.addEventListener("timeupdate", this.timeUpdateHandler);
-      this.videoElement.addEventListener("error", this.errorHandler);
-
-      //listener for visual on video playback only - remove for non-visual on implementation
-      this.videoElement.addEventListener(utils.vendorPrefix('fullscreenchange').toLowerCase(), this.fullScreenChangeHandler);
-
-      // create controls
-      this.controlsView = new ControlsView();
-      this.controlsView.render(this.$el, video, this);
-      this.videoElement.addEventListener('durationchange', this.durationChangeHandler);
     };
 
     /**
