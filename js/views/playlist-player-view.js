@@ -167,7 +167,9 @@
         dataType: 'json',
         success: function(player_json) {
           // set the url and format for the upcoming video
+          var playerJson = player_json.response.body; 
           var outputs = player_json.response.body.outputs;
+
           for (var i = 0; i < outputs.length; i++) {
             var output = outputs[i];
             video.url = utils.makeSSL(output.url);
@@ -192,7 +194,7 @@
               }
             }
           }
-          this.startNextVideo();
+          this.startNextVideo(playerJson);
         },
         error: function() {
           this.handleVideoError();
@@ -217,7 +219,7 @@
     /**
      * start the next video after the transition view is complete
      */
-    this.startNextVideo = function() {
+    this.startNextVideo = function(playerJson) {
       this.currentIndex += 1;
       this.previewShowing = false;
       this.previewDismissed = false;
@@ -238,7 +240,7 @@
       this.currentPlayerView.on('exit', this.exit, this);
 
       // Render
-      this.currentPlayerView.render(this.$el, this.items, this.currentIndex);
+      this.currentPlayerView.render(this.$el, this.items, this.currentIndex, playerJson);
 
       // Set current view
       this.currentView = this.currentPlayerView;
