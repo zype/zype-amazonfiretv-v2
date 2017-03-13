@@ -49,9 +49,12 @@
       //Initializing Configuration XML for akamai (requires variable for sola)
       AKAMAI_MEDIA_ANALYTICS_CONFIG_FILE_PATH = player.akamaiAnalytics.getConfigPath();
       player.on("loadedmetadata", function(e){
-        akaPlugin.setData("title", player.videoData.title);
-        akaPlugin.setData("videoId", player.videoData.id);
-        akaPlugin.setData("playerId", "amazonfiretv");
+        akaPlugin.setData("device",   player.videoData.device);
+        akaPlugin.setData("playerId", player.videoData.player_id);
+        akaPlugin.setData("siteId",   player.videoData.site_id);
+        akaPlugin.setData("title",    player.videoData.title);
+        akaPlugin.setData("videoId",  player.videoData.video_id);
+        
         //Initiating Session:
         akaPlugin.handleSessionInit();
       });

@@ -1583,7 +1583,9 @@
         dataType: 'json',
         context: this,
         success: function(player_json) {
+          var playerJson = player_json.response.body;
           var outputs = player_json.response.body.outputs;
+
           for (var i = 0; i < outputs.length; i++) {
             var output = outputs[i];
             video.url = utils.makeSSL(output.url);
@@ -1608,7 +1610,7 @@
               }
             }
 
-            playerView.render(container, items, index);
+            playerView.render(container, items, index, playerJson);
           }
         },
         error: function() {

@@ -29,7 +29,7 @@
     /**
      * Creates the main content view from the template and appends it to the given element
      */
-    this.render = function($container, items, index) {
+    this.render = function($container, items, index, playerJson) {
       // Build the main content template and add it
       var video = items[index];
       this.currentVideo = video;
@@ -50,7 +50,6 @@
       this.videoElement.className = 'player-content-video video-js vjs-default-skin';
       this.videoElement.id = 'zype_' + video.id.toString() + '-' + seconds;
       this.videoElement.poster = video.thumbURL;
-      this.videoElement.controls = false;
       this.videoElement.preload = 'auto';
       this.videoElement.height = 1080;
       this.videoElement.width = 1920;
@@ -78,13 +77,16 @@
 
       // add Akamai analytics
       vid.akamaiAnalytics({
-        config: settings.akamai_beacon
+        config: playerJson.analytics.beacon
       });
 
       // add custom videoData
       vid.videoData = {
-        id : video.id,
-        title : video.title
+        title     : video.title,
+        device    : playerJson.analytics.dimensions.device,
+        site_id   : playerJson.analytics.dimensions.site_id,
+        player_id : playerJson.analytics.dimensions.player_id,
+        video_id  : playerJson.analytics.dimensions.video_id
       };
 
       // Ads

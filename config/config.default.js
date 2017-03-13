@@ -7,6 +7,5 @@ var appConfig = {
   client_id: '<CLIENT_ID>',
   client_secret: '<CLIENT_SECRET>',
   endpoint: 'https://api.zype.com/',
-  player_endpoint: 'https://player.zype.com/',
-  akamai_beacon: 'https://ma1169-r.analytics.edgekey.net/config/beacon-10061.xml?enableGenericAPI=1'
+  player_endpoint: 'https://player.zype.com/'
 };

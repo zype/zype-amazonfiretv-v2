@@ -42,7 +42,7 @@
     /**
      * Initial function to setup and start the playlist of media
      */
-    this.render = function($el, items, startIndex) {
+    this.render = function($el, items, startIndex, playerJson) {
       if (!this.previewTime) {
         this.previewTime = this.PREVIEW_TIME_DEFAULT;
       }
@@ -58,7 +58,7 @@
       this.currentPlayerView.on('videoStatus', this.handleVideoStatus, this);
       this.currentPlayerView.on('videoError',  this.handleVideoError,  this);
 
-      this.currentPlayerView.render($el, items, startIndex);
+      this.currentPlayerView.render($el, items, startIndex, playerJson);
  
       // touch events
       touches.registerTouchHandler("player-content-video",      this.handleTouchPlayer);
