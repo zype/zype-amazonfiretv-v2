@@ -183,7 +183,8 @@
         $("#" + ID_ONED_SLIDER_CONTAINER).show(); // we need this for scrolling
         this.setCurrentView(this.sliderView);
         this.createShovelerView(args.rowData);
-      } else {
+      }
+      else {
         $("#" + ID_ONED_SLIDER_CONTAINER).hide(); // we need this for scrolling
         this.createShovelerView(args.rowData);
         this.setCurrentView(this.shovelerView);
@@ -201,9 +202,7 @@
       this.$sliderContainer = this.$el.children("#" + ID_ONED_SLIDER_CONTAINER);
       var sliderView = this.sliderView = new SliderView();
 
-      this.sliderView.render(this.$sliderContainer, rowData);
-      this.$sliderContainerOffset = $(this.$sliderContainer)[0].getBoundingClientRect().top;
-
+      // Events
       sliderView.on('exit', function() {
         this.trigger('exit');
       }, this);
@@ -239,6 +238,10 @@
           this.trigger('loadComplete');
         }
       }, this);
+
+      // Render
+      this.sliderView.render(this.$sliderContainer, rowData);
+      this.$sliderContainerOffset = $(this.$sliderContainer)[0].getBoundingClientRect().top;
     };
 
     /**
@@ -283,9 +286,7 @@
       this.$shovelerContainer = this.$el.children("#" + ID_ONED_SHOVELER_CONTAINER);
       var shovelerView = this.shovelerView = new ShovelerView();
 
-      this.shovelerView.render(this.$shovelerContainer, rowData);
-      this.$shovelerContainerOffset = $(this.$shovelerContainer)[0].getBoundingClientRect().top;
-
+      // Events
       shovelerView.on('exit', function() {
         this.trigger('exit');
       }, this);
@@ -326,17 +327,19 @@
           this.trigger("loadComplete");
         }
       }, this);
+
+      // Render
+      this.shovelerView.render(this.$shovelerContainer, rowData);
+      this.$shovelerContainerOffset = $(this.$shovelerContainer)[0].getBoundingClientRect().top;
     };
 
     /**
      * Create the buttons that will appear under the media content
      */
     this.createButtonView = function(displayButtonsParam, $el) {
-
       if (!displayButtonsParam) {
         return;
       }
-
 
       // create and set up the button
       this.$buttonsContainer = this.$el.children("#" + BUTTON_CONTAINER);

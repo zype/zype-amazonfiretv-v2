@@ -126,12 +126,10 @@
       //Make sure we don't already have a full container
       this.remove();
 
-
       // Slider
       if (app.data.sliderData.length === 0) {
         args.displaySliderParam = false;
       }
-
 
       // make sure to clean slider's objects if we do not want to show
       if (args.displaySliderParam === false) {
@@ -196,9 +194,7 @@
       this.$sliderContainer = this.$el.children("#" + ID_ONED_SLIDER_CONTAINER);
       var sliderView = this.sliderView = new SliderView();
 
-      this.sliderView.render(this.$sliderContainer, rowData);
-      this.$sliderContainerOffset = $(this.$sliderContainer)[0].getBoundingClientRect().top;
-
+      // Events
       sliderView.on('exit', function() {
         this.trigger('exit');
       }, this);
@@ -234,6 +230,9 @@
           this.trigger('loadComplete');
         }
       }, this);
+
+      this.sliderView.render(this.$sliderContainer, rowData);
+      this.$sliderContainerOffset = $(this.$sliderContainer)[0].getBoundingClientRect().top;
     };
 
 
@@ -248,9 +247,7 @@
 
       this.shovelerView.setSelectedElement(app.data.currentChannel);
 
-      this.shovelerView.render(this.$shovelerContainer, rowData);
-      this.$shovelerContainerOffset = $(this.$shovelerContainer)[0].getBoundingClientRect().top;
-
+      // Events
       shovelerView.on('exit', function() {
         this.trigger('exit');
       }, this);
@@ -292,6 +289,9 @@
         }
         this.showExtraData(app.data.currentChannel);
       }, this);
+
+      this.shovelerView.render(this.$shovelerContainer, rowData);
+      this.$shovelerContainerOffset = $(this.$shovelerContainer)[0].getBoundingClientRect().top;
     };
 
     /**
@@ -318,12 +318,10 @@
       this.shovelerView.shrinkSelected();
     };
 
-
     /**
      * Make the shoveler the active view
      */
     this.transitionToShovelerView = function() {
-
       //change to shoveler view
       this.setCurrentView(this.shovelerView);
 
