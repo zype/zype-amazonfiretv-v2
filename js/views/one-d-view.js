@@ -448,11 +448,11 @@
           });
         }
 
-        // buttons.push({
-        //   "name": "Full Description",
-        //   "id": "descBtn",
-        //   "class": "btnDesc"
-        // });
+        buttons.push({
+          "name": "Full Description",
+          "id": "descBtn",
+          "class": "btnDesc"
+        });
 
         // Favorite (only display when device is linked)
         if (app.settingsParams.video_favorites === true && app.settingsParams.linked === true) {
