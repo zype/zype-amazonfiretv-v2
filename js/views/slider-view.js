@@ -7,10 +7,8 @@
 (function(exports) {
   "use strict";
 
-  var SLIDER_ROW_ITEM_SELECTED = "slider-rowitem-selected",
-
-    // @CHANGED for the pagination
-    SLIDER_PAGINATION = "slider-pagination-container";
+  var SLIDER_ROW_ITEM_SELECTED = "slider-rowitem-selected";
+  var SLIDER_PAGINATION = "slider-pagination-container"; // @CHANGED for the pagination
 
   /**
    * @class SliderView
@@ -33,7 +31,7 @@
     this.$rowElements = null;
     this.rowsData = null;
 
-    //constants
+    // constants
     this.MARGIN_WIDTH = 1;
     this.STARTING_SIZE = 500;
     this.transformStyle = utils.vendorPrefix('Transform');
@@ -42,7 +40,6 @@
      * Removes the main view dom
      */
     this.remove = function() {
-      // remove this element from the dom
       this.$el.remove();
     };
 
@@ -114,7 +111,7 @@
           $currImage = $currElt.children("img.slider-full-img");
         }
 
-        //set a callback to make sure all images are loaded
+        // set a callback to make sure all images are loaded
         imagesLoaded($currElt, $currImage);
 
         this.loadingImages++;
@@ -125,7 +122,6 @@
      * Performs secondary layout of the elements of the row, after images load for the first time
      */
     this.layoutElements = function() {
-
       for (var i = 0; i < this.$rowElements.length; i++) {
         var $currElt = $(this.$rowElements[i]);
         this.elementWidths[i] = $currElt.width();
@@ -185,10 +181,10 @@
 
     /**
      * Handles controls: LEFT: Move to main content if first element, otherwise select previous element
-     *                                RIGHT: Select next element
-     *                                UP: Return to main content view
-     *                                DOWN: Nothing at the moment
-     *                                BACK:Back to leftNav State
+     *                   RIGHT: Select next element
+     *                   UP: Return to main content view
+     *                   DOWN: Nothing at the moment
+     *                   BACK: Back to leftNav State
      * @param {event} the keydown event
      */
     this.handleControls = function(e) {
