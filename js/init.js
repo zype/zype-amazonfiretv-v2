@@ -113,6 +113,8 @@
       settings.per_page          = res.per_page;
       settings.playlists_only    = true; // Enhanced Playlists
       settings.about             = res.about_page;
+      settings.ssl_images        = res.ssl_images;
+      settings.ssl_videos        = res.ssl_videos;
 
       // Monetization
       settings.IAP                      = res.in_app_purchase;
@@ -183,6 +185,10 @@
       settings.nav.category  = settings.nav.playlist + 1;
 
       //* Super User
+
+      // MRSS feeds usually serve non-SSL images and videos by default
+      settings.ssl_images = true;
+      settings.ssl_videos = true;
 
       // main colors
       settings.backgroundColor = res.background_color;

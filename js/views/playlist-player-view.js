@@ -172,7 +172,7 @@
 
           for (var i = 0; i < outputs.length; i++) {
             var output = outputs[i];
-            video.url = utils.makeSSL(output.url);
+            video.url = (this.settings.ssl_videos) ? utils.makeSSL(output.url) : output.url;
             if (output.name === 'hls' || output.name === 'm3u8') {
               video.format = 'application/x-mpegURL';
             } else if (output.name === 'mp4') {

@@ -237,7 +237,7 @@
           parent_id: data[i].parent_id,
           playlist_item_count: data[i].playlist_item_count,
           title: data[i].title,
-          imgURL: utils.makeSSL(_imgURL)
+          imgURL: (this.settingsParams.ssl_images) ? utils.makeSSL(_imgURL) : _imgURL
         };
         var formatted_playlist = new PlaylistChild(args);
         _playlistData.push(formatted_playlist);
@@ -668,8 +668,8 @@
           "id": videos[i]._id,
           "title": videos[i].title,
           "pubDate": videos[i].published_at,
-          "thumbURL": img.url,
-          "imgURL": img.url,
+          "thumbURL": (this.settingsParams.ssl_images) ? utils.makeSSL(img.url) : img.url,
+          "imgURL": (this.settingsParams.ssl_images) ? utils.makeSSL(img.url) : img.url,
           "imgWidth": img.width,
           "imgHeight": img.height,
           // parse videoURL at playtime
@@ -695,7 +695,7 @@
         for (var i = 0; i < video.images.length; i++) {
           if (video.images[i].title && (video.images[i].title.toLowerCase() === this.settingsParams.related_images_title)) {
             return {
-              url: utils.makeSSL(video.images[i].url),
+              url: (this.settingsParams.ssl_images) ? utils.makeSSL(video.images[i].url) : video.images[i].url,
               width: null,
               height: null
             }
@@ -707,7 +707,7 @@
         for (var i = 0; i < video.thumbnails.length; i++) {
           if (video.thumbnails[i].width > 400) {
             return {
-              url: utils.makeSSL(video.thumbnails[i].url),
+              url: (this.settingsParams.ssl_images) ? utils.makeSSL(video.thumbnails[i].url) : video.thumbnails[i].url,
               width: video.thumbnails[i].width,
               height: video.thumbnails[i].height
             }

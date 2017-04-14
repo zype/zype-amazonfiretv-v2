@@ -16,6 +16,7 @@
     Events.call(this, ['exit', 'videoStatus', 'videoError', 'indexChange']);
 
     //jquery constants
+    this.settings = settings;
     this.$el = null;
     this.$currSeekTime = null;
     this.canplay = null;
@@ -56,7 +57,7 @@
 
       // add the source
       var source = document.createElement('source');
-      source.src = utils.makeSSL(video.url);
+      source.src = video.url = (this.settings.ssl_videos) ? utils.makeSSL(video.url) : video.url;
       source.type = video.format;
       this.videoElement.appendChild(source);
 
