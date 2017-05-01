@@ -71,12 +71,16 @@
       this.sliderData = [];
 
       $.ajax({
-        url: this.settingsParams.endpoint + "zobjects/?zobject_type=slider&app_key=" + this.settingsParams.app_key,
+        url: this.settingsParams.endpoint + 'zobjects',
         type: 'GET',
         crossDomain: true,
         dataType: 'json',
         context: this,
         cache: true,
+        data: {
+          zobject_type : 'slider',
+          app_key      : this.settingsParams.app_key
+        },
         success: function() {
           var data = arguments[0].response;
 
@@ -94,7 +98,10 @@
           }
         },
         error: function() {
-          console.log('loadZObjectData.error');
+          console.log('loadZObjectData.error', arguments);
+
+          // If ZObject doesn't exist, call the callback with the current playlistData
+          callback(this.playlistData);
         }
       });
     };
@@ -198,7 +205,7 @@
         },
         complete: function() {
           // call loadZObjectData if on Home screen
-          if (this.settingsParams.slider && playlist_id === this.settingsParams.root_playlist_id) {
+          if (playlist_id === this.settingsParams.root_playlist_id) {
             return this.loadZObjectData(callback);
           } else {
             return callback(this.playlistData);  

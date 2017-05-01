@@ -134,7 +134,6 @@
       settings.theme                = 'theme--' + res.theme; // 'light' or 'dark'
       settings.logoPosition         = 'logo--' + res.logo_position; // 'center' or 'right'
       settings.displayButtons       = true; // this should be true
-      settings.slider               = res.slider_images_enabled;
       settings.related_images       = res.related_images; // use related images for video thumbnails
       settings.related_images_title = res.related_images_title;
       settings.default_image_url    = (res.default_image_url) ? res.default_image_url : './assets/default-image.png';
@@ -166,7 +165,6 @@
       // settings.subscribe_no_ads = true;
       // settings.subscribe_no_ads_silent = true;
 
-      // settings.slider = true;
       // settings.theme = 'theme--dark';
       // settings.theme = 'theme--light';
       // settings.logoPosition = 'logo--center';
