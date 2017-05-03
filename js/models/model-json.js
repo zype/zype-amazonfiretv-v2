@@ -96,6 +96,9 @@
           if (this.zobjectData.length > 0) {
             this.loadSliderVideoDetails(this.zobjectData, callback);
           }
+          else {
+            callback(this.playlistData);
+          }
         },
         error: function() {
           console.log('loadZObjectData.error', arguments);
