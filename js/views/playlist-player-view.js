@@ -101,14 +101,12 @@
  
       this.previewDismissed = true;
  
-      if ((this.items.length > this.currentIndex + 1) && iapHandler.canPlayVideo(video) && deviceLinkingHandler.canPlayVideo()) {
-        
-        // Device Linking. Enforce if watchAVOD === false.
-        if (this.settings.linked && this.settings.watchAVOD === false) {
-          // if device linking, check entitlement
+      if ((this.items.length > this.currentIndex + 1) && iapHandler.canPlayVideo(video) && deviceLinkingHandler.canPlayVideo(video)) {
+        // Device Linking. Check Entitlement.
+        if (this.settings.linked) {
           var accessToken = deviceLinkingHandler.getAccessToken();
  
-          deviceLinkingHandler.isEntitled(video.id, accessToken, function(result){
+          deviceLinkingHandler.isEntitled(video.id, accessToken, function(result) {
             if (result === true) {
               // Handle Time-Limited Videos
               if (app.settingsParams.limit_videos_by_time && !app.settingsParams.subscribe_no_limit_videos_by_time && app.isTimeLimited(video) === true) {
@@ -123,7 +121,7 @@
             }
           }.bind(this));
         }
-        // Free / Watch AVOD
+        // Free or Not Linked + Browsing.
         else {
           this.transitionToNextVideo(nextIndex, accessToken);
         }

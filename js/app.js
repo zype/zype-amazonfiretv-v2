@@ -1392,7 +1392,7 @@
       else if (this.settingsParams.device_linking === true) {
 
         // SVOD Device Linking. Validate Entitlement.
-        if (this.settingsParams.linked === true && this.settingsParams.watchAVOD === false) {
+        if (this.settingsParams.linked === true) {
 
           // Access Token check
           if (deviceLinkingHandler.hasValidAccessToken() === true) {
@@ -1450,33 +1450,33 @@
             }.bind(this));  
           }
         }
-        // Watch AVOD
-        else if (this.settingsParams.linked === false && this.settingsParams.watchAVOD === true) {
-          // Restrict SVOD videos (not time-limited)
-          if (video.subscription_required === true && (this.settingsParams.limit_videos_by_time === false || this.isTimeLimited(video) === false)) {
-            alert('You are not authorized to access this content. Device is not linked. Please subscribe for access.');
-            this.transitionFromAlertToOneD();
-            return false;
-          }
-          // Enforce Time-Limited videos
-          if (this.settingsParams.limit_videos_by_time && this.isTimeLimited(video) === true) {
-            return this.doTimeLimit(index, fromSlider, accessToken, false);
-          }
-          // AVOD / Free
-          return this.transitionToPlayer(index, fromSlider, accessToken);
-        }
+        // Device is not linked.
         else {
+          // If user is browsing, allow free videos.
+          if (this.settingsParams.browse) {
+            // Restrict all Paywall videos
+            if (video.hasPaywall() === true) {
+              alert('You are not authorized to access this content. Device is not linked. Please subscribe for access.');
+              this.transitionFromAlertToOneD();
+              return false;
+            }
+            // Enforce Time-Limited videos
+            else if (this.settingsParams.limit_videos_by_time && this.isTimeLimited(video) === true) {
+              return this.doTimeLimit(index, fromSlider, accessToken, false);
+            }
+            // AVOD / Free
+            else {
+              return this.transitionToPlayer(index, fromSlider, accessToken);
+            }
+          }
           // Device Linking is enabled, but device is not Linked (settings.linked set on `app.dataLoaded` callback)
-          if (this.settingsParams.browse === false) {
+          else {
             // Subscription has expired. Clear local storage and force re-link
             deviceLinkingHandler.clearLocalStorage();
             alert('Authentication Error: You are not authorized to access this content. Device is not linked. Please relaunch and link again.');
+            this.transitionFromAlertToOneD();
+            return false;
           }
-          else {
-            alert('Authentication Error: You are not authorized to access this content. Device is not linked.');
-          }
-          this.transitionFromAlertToOneD();
-          return false;
         }
       }
       else {

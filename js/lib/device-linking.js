@@ -190,20 +190,20 @@
     };
 
     // Determine if video is playable
-    this.canPlayVideo = function() {
+    this.canPlayVideo = function(video) {
       // Not Device Linking
       if (!this.settingsParams.device_linking) {
         return true;
       }
-      // Device Linking + Watch AVOD
-      if (this.settingsParams.linked === false && this.settingsParams.watchAVOD === true) {
+      // Device Linking + Browsing + Free Video
+      if (this.settingsParams.linked === false && video.hasPaywall() === false) {
         return true;
       }
       // Device Linking + Access Tokens
       if (this.settingsParams.linked === true && this.hasValidAccessToken() === true) {
         return true;
       } 
-      // Device not linked or invalid access token
+      // Device not linked, video has paywall, or invalid invalid Access Token
       return false;
     };
 
