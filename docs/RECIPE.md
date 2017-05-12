@@ -20,7 +20,7 @@ An Amazon Fire TV or Fire TV Stick with the Amazon Web App Tester installed is r
 
 ### Generating your app bundle
 
-1. In order to generate an Amazon Fire TV app bundle using this SDK, you will need to first create an Amazon Fire TV app on the Zype platform. If you have not done this yet, log in to your Zype account [here](https://admin.zype.com/users/sign_in), and click on the __Manage Apps__ link under the __Publish__ menu in the left navigation. You will see a button to create a new app. Continue following the instructions provided within the app production software. <a href="https://drive.google.com/uc?export=view&id=0B2QpIBNNKw8oSkNUZEZhRzlSYTA"><img src="https://drive.google.com/uc?export=view&id=0B2QpIBNNKw8oSkNUZEZhRzlSYTA" style="max-width: 100%; height: auto" title="Click for the larger version." /></a>
+1. In order to generate an Amazon Fire TV app bundle using this SDK, you will need to first create an Amazon Fire TV app on the Zype platform. If you have not done this yet, log in to your Zype account [here](https://admin.zype.com/users/sign_in), and click on the __Manage Apps__ link under the __Publish__ menu in the left navigation. You will see a button to create a new app. Continue following the instructions provided within the app production software.
 1. Once you have your Amazon Fire TV app created in the Zype platform, click on __Get New Bundle__ and the configured app bundle will be emailed to you. You may also reload the page and click the __Download Bundle__ button.
 
 ## Previewing and testing your new app
@@ -35,13 +35,21 @@ _Note: This option requires third-party SSL web hosting and, in some cases, a do
 1. Copy the HTTP link to the app's index.html file
 1. Open the "**Web App Tester**" app on your Fire TV
 1. In the top right corner, make sure it's set to "`TEST HOSTED APP`" (*Note: it should default this way*) (Fig. 1)
+	
+	![screenshot](images/web-app-tester/01-web-app-tester.png)
 1. Click "`Name Your App`" (Fig. 2)
+	
+	![screenshot](images/web-app-tester/02-web-app-tester.png)
 1. Enter the app name you want and click "`Submit`" (*Note: this is for internal use only and won't be seen anywhere else*)
 1. Enter the URL copied in Step 3 (Fig. 3)
+	
+	![screenshot](images/web-app-tester/03-web-app-tester.png)
 1. Click "`Submit`"
 1. Click "`Add to Device`"
-1. Your app will appear in the list below (Fig. 4)
+1. Your app will appear in the list below
 1. Scroll down and click "`Test`" to the left of your app (Fig. 4)
+	
+	![screenshot](images/web-app-tester/04-web-app-tester.png)
 1. Your app will open
 
 ### Option 2 - Create a Local Web Server on your computer
@@ -57,13 +65,22 @@ _Note: These instructions apply to specifically to macOS, however, the principle
 1. Make sure both your computer and Fire TV are connected to the same network
 1. Open the **Web App Tester** app on your Fire TV
 1. In the top right corner, make sure it's set to "`TEST HOSTED APP`" (*Note: it should default this way*) (Fig. 1)
+
+		
+	![screenshot](images/web-app-tester/01-web-app-tester.png)
 1. Click "`Name Your App`" (Fig. 2)
+	
+	![screenshot](images/web-app-tester/02-web-app-tester.png)
 1. Enter the app name you want and click "`Submit`" (*Note: this is for internal use only and won't be seen anywhere else*)
 1. Enter the IP Address from Step 6, prepending `http://` and appending :`8000/index.html` (example: `http://192.168.1.1:8000/index.html`) (Fig. 3)
+	
+	![screenshot](images/web-app-tester/02-web-app-tester.png)
 1. Click "`Submit`"
 1. Click "`Add to Device`"
-1. Your app will appear in the list below (Fig. 4)
+1. Your app will appear in the list below
 1. Scroll down and click "`Test`" to the left of your app (Fig. 4)
+	
+	![screenshot](images/web-app-tester/04-web-app-tester.png)
 1. Your app will open
 1. Press (`Control + C`) to stop the HTTP server when you have completed testing
 
@@ -106,7 +123,7 @@ In order to submit your Amazon Fire TV app to the Amazon Appstore, Amazon requir
 1. Open `index.html` in a web browser (Google Chrome or Safari is recommended). Maximize the web browser window so it fills the entire screen.
 	
 	![screenshot](images/taking-screenshots/04.png)
-1. When i`ndex.html` opens in the web browser, the app's circular loading indicator will most likely be off-center. This is due to differences in your computer screen's resolution compared to the Fire TV's native resolution, 1920px x 1080px.
+1. When `index.html` opens in the web browser, the app's circular loading indicator will most likely be off-center. This is due to differences in your computer screen's resolution compared to the Fire TV's native resolution, 1920px x 1080px.
 	
 	![screenshot](images/taking-screenshots/05.png)
 1. If your computer screen's resolution is less than 1920x1080, you'll need to Zoom Out in your web browser until the loading indicator is centered within the screen. Go to `View > Zoom Out`.
