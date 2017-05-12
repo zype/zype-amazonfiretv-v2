@@ -112,6 +112,7 @@ In order to submit your Amazon Fire TV app to the Amazon Appstore, Amazon requir
 ##### Take the screenshots
 1. Unzip your beta Fire TV app package archive downloaded from Zype. This is your Fire TV app.
 1. In the app folder, open `/js/init.js` in a plain text editor.
+	
 	![screenshot](images/taking-screenshots/01.png)
 1. In `init.js`, find the line that reads "`// initApp(settings);`". It should be directly underneath the line that reads "`// uncomment to test on the browser`"
 		
@@ -121,7 +122,6 @@ In order to submit your Amazon Fire TV app to the Amazon Appstore, Amazon requir
 	```
 	
 	![screenshot](images/taking-screenshots/02.png)
-	
 1. Delete the two forward slashes at the beginning of this line. The line should now read "`initApp(settings)`". Save the file (`Command + S` or `File > Save`).
 
 	```		
