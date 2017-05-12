@@ -58,11 +58,21 @@ _Note: These instructions apply to specifically to macOS, however, the principle
 1. Unzip the beta app package archive downloaded from Zype
 1. In Finder, navigate to the folder containing the app and copy it (`command + c`)
 1. Open the Terminal app.
-1. At the prompt, type cd, space, then paste the folder copied in Step 2 (`command + v`): Example: `cd /Users/user1/Desktop/zype-aftv`
-1. In Terminal, start a HTTP server using the following command: `python -m SimpleHTTPServer`
-1. Open System Preferences > Network > Status to find your IP Address
+1. At the prompt, type `cd`, space, then paste the folder copied in Step 2 (`command + v`).
+	
+	```
+	cd /Users/user1/Desktop/zype-aftv
+	```
+
+1. In Terminal, start a HTTP server using the following command
+	
+	```
+	python -m SimpleHTTPServer
+	```
+	
+1. Open `System Preferences > Network > Status` to find your IP Address
 1. Note the IP Address
-1. Make sure both your computer and Fire TV are connected to the same network
+1. Make sure both your computer and Fire TV are connected to the same wireless network
 1. Open the **Web App Tester** app on your Fire TV
 1. In the top right corner, make sure it's set to "`TEST HOSTED APP`" (*Note: it should default this way*) (Fig. 1)
 
