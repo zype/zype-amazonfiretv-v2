@@ -107,30 +107,30 @@ Submit your app to the Amazon Appstore by following [Amazon's Instructions](http
 3. Select `Mobile Web` and click `Next`
 4. Fill out the subsequent form and click `Save`. You must complete each tab (detailed below).
 
-#### Special Considerations
-##### Apply Amazon DRM?
+### Submission Special Considerations
+#### Apply Amazon DRM?
 Yes.
 
-##### Select the type of web app you want to submit
+#### Select the type of web app you want to submit
 * You can choose zip and upload the zip we emailed you, or
 * You can choose URL and provide the URL of the files (you must make them available via http).
 * For pros/cons of the two approaches see: [Amazon's Article](https://developer.amazon.com/public/solutions/platforms/webapps/docs/differences-between-packaged-and-hosted-apps)
 
-##### Web App Features
+#### Web App Features
 * Check `In-App Purchasing` (if you are using it)
 * Check `Prevent Sleep for Video Playback`
 
-##### Device Support
+#### Device Support
 Uncheck all items except:
 
 * Fire TV (2014)
 * Fire TV Stick
 * Fire TV (2015)
 
-##### In-App Items
+#### In-App Items
 If your app uses In-App Items, you will need to set up In-App Items with your banking information.
 
-###### In-App Items Subscriptions
+##### In-App Items Subscriptions
 If you are using Subscriptions with In App Items you must set up each subscription in the Amazon dashboard.
 
 1. Click `In-App Items`
@@ -148,7 +148,7 @@ If you are using Subscriptions with In App Items you must set up each subscripti
 		* Note the dot and the repetition! This is due to the unique way Amazon handle purchase receipts.
 		* If you want to have multiple subscription periods you must set up multiple plans in the Zype platform and repeat the above process. Note that you must create a new subscription each time. Do not add multiple Subscription Periods under the same parent SKU.
 
-###### In App Items: Entitlements (Zype Purchase)
+##### In App Items: Entitlements (Zype Purchase)
 
 1. Click `Add an Entitlement`
 1. General Information
@@ -158,7 +158,7 @@ If you are using Subscriptions with In App Items you must set up each subscripti
 		* To find the Video ID in the Zype platform go to `Dashboard > Video Library > Video`. The Video ID is shown in the Details tab.
 	* **Content Delivery**: No additional file required
 
-###### In App Items: Consumables (Zype Rental)
+##### In App Items: Consumables (Zype Rental)
 
 1. Click `Add a Consumable`
 1. General Information
