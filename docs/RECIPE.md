@@ -157,18 +157,3 @@ If you are using Subscriptions with In App Items you must set up each subscripti
 		* This is the Zype ID of the video, ie `5629232e4d656c4e94b10000`
 		* To find the Video ID in the Zype platform go to `Dashboard > Video Library > Video`. The Video ID is shown in the Details tab.
 	* **Content Delivery**: No additional file required
-
-##### In App Items: Consumables (Zype Rental)
-
-1. Click `Add a Consumable`
-1. General Information
-	* **Title**: The title of your video
-	* **SKU**
-		* This is the Zype ID of the video, prepended with `rental-`
-		
-			```
-			rental-5629232e4d656c4e94b10000
-			```
-		
-		* To find the Video ID in the Zype platform go to `Dashboard > Video Library > Video`. The Video ID is shown in the Details tab.
-	* **Content Delivery**: No additional file required
