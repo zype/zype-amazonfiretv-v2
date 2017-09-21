@@ -111,7 +111,7 @@
         method: 'POST',
         url: amazon_verify_receipt_url,
         crossDomain: true,
-        dataType: 'json',
+        dataType: 'jsonp',
         context: this,
         data: {
           'app_key': this.settingsParams.app_key,
