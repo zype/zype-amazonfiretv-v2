@@ -19,7 +19,7 @@
     this.plans                = [];
     // Enhanced Playlists
     this.currentPlaylistTitle = "";
-    this.currentPlaylistId    = null; 
+    this.currentPlaylistId    = null;
     this.ancestorPlaylistData = []; // current playlist's ancestor playlist data (old - new)
     this.playlistData         = []; // current playlists data (objects)
     this.currentPlaylistIndex = 0; // current playlist's index in playlistData[]
@@ -85,12 +85,26 @@
           var data = arguments[0].response;
 
           for (var i = 0; i < data.length; i++) {
-            this.zobjectData.push({
-              id: data[i].video_ids[0],
-              title: data[i].title,
-              desc: data[i].description,
-              thumbnail: utils.makeSSL(data[i].pictures[0].url)
-            });
+            if (data[i].video_ids && data[i].video_ids.length > 0){
+              var video_id = data[i].video_ids[0];
+            } else {
+              var video_id = null;
+            }
+
+            if (data[i].pictures && data[i].pictures.length > 0){
+              var thumbnail = data[i].pictures[0].url;
+            } else {
+              var thumbnail = null;
+            }
+
+            if (video_id && thumbnail){
+              this.zobjectData.push({
+                id: video_id,
+                title: data[i].title,
+                desc: data[i].description,
+                thumbnail: utils.makeSSL(thumbnail)
+              });
+            }
           }
 
           if (this.zobjectData.length > 0) {
@@ -211,7 +225,7 @@
           if (playlist_id === this.settingsParams.root_playlist_id) {
             return this.loadZObjectData(callback);
           } else {
-            return callback(this.playlistData);  
+            return callback(this.playlistData);
           }
         }
       });
@@ -258,7 +272,7 @@
     /**
      * Set Current Playlist Parent ID
      *
-     * @param {string} ID of current playlist parent 
+     * @param {string} ID of current playlist parent
      */
     this.setCurrentPlaylistParentData = function(playlist_parent_id, playlist_title) {
       console.log('setCurrentPlaylistParentData');
@@ -330,7 +344,7 @@
         },
         success: function(result) {
           for (var i = 0; i < result.response.length; i++) {
-            _entitlements.push(result.response[i]);  
+            _entitlements.push(result.response[i]);
           }
 
           if (result.pagination.pages > 0 && result.pagination.next !== null) {
@@ -397,7 +411,7 @@
       console.log('createVideoFavorite');
       var _consumerId = deviceLinkingHandler.getConsumerId();
       var _videoId    = video.id;
-      
+
       $.ajax({
         url: this.settingsParams.endpoint + 'consumers/' + _consumerId + '/video_favorites',
         type: 'POST',
@@ -490,7 +504,7 @@
       this.settingsParams.playlist_id = id;
     };
 
-    
+
 
     /***************************
      *
@@ -525,7 +539,7 @@
 
     /**
      * Get Playlist data
-     *  
+     *
      * @param {string}   playlist id
      * @param {function} the callback function
      */
@@ -560,13 +574,13 @@
         }
       });
     };
-    
+
     /**
      * Get Entitlement video data recursively
      *
      * @param {object}   the entitlement data
      * @param {function} the callback function
-     * @param {integer}  the starting index 
+     * @param {integer}  the starting index
      * @param {array}    the retrieved video data
      */
     this.getEntitlementData = function(jsonData, callback, counter, videoData) {
@@ -602,7 +616,7 @@
           },
           error: function(xhr) {
             console.log('error', xhr);
-            
+
             if (j < (jsonData.length - 1)) {
               j++;
               return this.getEntitlementData(jsonData, callback, j, videoData);
@@ -617,10 +631,10 @@
 
     /**
      * Get Video Favorites data recursively
-     * 
+     *
      * @param {array}    the video favorites data
      * @param {function} the callback function
-     * @param {integer}  the starting index 
+     * @param {integer}  the starting index
      * @param {array}    the retrieved video data
      */
     this.getVideoFavoritesData = function(jsonData, callback, counter, videoData) {
