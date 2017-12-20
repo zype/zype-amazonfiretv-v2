@@ -70,6 +70,8 @@
       this.zobjectData = [];
       this.sliderData = [];
 
+
+
       $.ajax({
         url: this.settingsParams.endpoint + 'zobjects',
         type: 'GET',
@@ -79,6 +81,8 @@
         cache: true,
         data: {
           zobject_type : 'slider',
+          sort: "priority",
+          order: "desc",
           app_key      : this.settingsParams.app_key
         },
         success: function() {
