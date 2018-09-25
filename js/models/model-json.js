@@ -555,9 +555,7 @@
         data: {
           app_key: this.settingsParams.app_key,
           per_page: 100,
-          dpt: true,
-          sort: 'priority',
-          order: 'desc'
+          dpt: true
         },
         type: 'GET',
         crossDomain: true,
