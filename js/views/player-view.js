@@ -75,6 +75,9 @@
 
       // VideoJS reference
       var vid = videojs('zype_' + video.id.toString() + '-' + seconds);
+      this.on('exit', function(){
+        vid.dispose();
+      }, this);
 
       // add Akamai analytics
       vid.akamaiAnalytics({
